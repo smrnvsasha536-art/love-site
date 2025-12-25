@@ -1,301 +1,322 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Наша история</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Наша история</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Pacifico&display=swap" rel="stylesheet">
 
-<style>
-*{box-sizing:border-box}
+  <style>
+    *{box-sizing:border-box}
 
-:root{
-  --brightness:1;
-  --fontSize:16px;
-  --bgColor:#ffffff;
-}
+    :root{
+      --brightness:1;
+      --fontSize:16px;
+      --bgColor:#ffffff;
+    }
 
-/* ===== BODY ===== */
-body{
-  margin:0;
-  min-height:100vh;
-  font-family:Montserrat;
-  font-size:var(--fontSize);
-  background-color:var(--bgColor);
-  background-image:
-    linear-gradient(#e5e5e5 1px, transparent 1px),
-    linear-gradient(90deg,#e5e5e5 1px, transparent 1px);
-  background-size:24px 24px;
-  padding:80px 20px 40px 70px;
-}
+    /* ===== BODY ===== */
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Montserrat;
+      font-size:var(--fontSize);
+      background-color:var(--bgColor);
+      background-image:
+        linear-gradient(#e5e5e5 1px, transparent 1px),
+        linear-gradient(90deg,#e5e5e5 1px, transparent 1px);
+      background-size:24px 24px;
+      padding:80px 20px 40px 70px;
+    }
 
-/* ЯРКОСТЬ — БЕЗ ЛОМА */
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:#000;
-  opacity:calc(1 - var(--brightness));
-  pointer-events:none;
-  z-index:1;
-}
+    /* ЯРКОСТЬ — БЕЗ ЛОМА */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:#000;
+      opacity:calc(1 - var(--brightness));
+      pointer-events:none;
+      z-index:1;
+    }
 
-/* красное поле */
-body::before{
-  content:"";
-  position:fixed;
-  left:45px;
-  top:0;
-  bottom:0;
-  width:2px;
-  background:#ff8fa3;
-  z-index:0;
-}
+    /* красное поле */
+    body::before{
+      content:"";
+      position:fixed;
+      left:45px;
+      top:0;
+      bottom:0;
+      width:2px;
+      background:#ff8fa3;
+      z-index:0;
+    }
 
-/* ===== ПАРОЛЬ ===== */
-.lock{
-  position:fixed;
-  inset:0;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:5000;
-}
-.lock input{
-  padding:15px 20px;
-  font-size:18px;
-  border-radius:14px;
-  border:none;
-}
+    /* ===== ПАРОЛЬ ===== */
+    .lock{
+      position:fixed;
+      inset:0;
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:5000;
+    }
+    .lock input{
+      padding:15px 20px;
+      font-size:18px;
+      border-radius:14px;
+      border:none;
+    }
 
-/* ===== ☰ ===== */
-.menu-btn{
-  position:fixed;
-  top:15px;
-  left:15px;
-  font-size:28px;
-  background:none;
-  border:none;
-  cursor:pointer;
-  z-index:4000;
-}
+    /* ===== ☰ ===== */
+    .menu-btn{
+      position:fixed;
+      top:15px;
+      left:15px;
+      font-size:28px;
+      background:none;
+      border:none;
+      cursor:pointer;
+      z-index:4000;
+    }
 
-/* ===== МЕНЮ ===== */
-.menu{
-  position:fixed;
-  top:0;
-  left:-270px;
-  width:270px;
-  height:100%;
-  background:#fff;
-  box-shadow:4px 0 25px rgba(0,0,0,.3);
-  padding:20px;
-  transition:left .3s ease;
-  z-index:3999;
-}
-.menu.open{left:0}
+    /* ===== МЕНЮ ===== */
+    .menu{
+      position:fixed;
+      top:0;
+      left:-300px; /* Увеличиваем ширину */
+      width:300px; /* Новая ширина */
+      height:100%;
+      background:#fff;
+      box-shadow:4px 0 25px rgba(0,0,0,.3);
+      padding:20px;
+      transition:left .3s ease;
+      z-index:3999;
+      overflow-y:auto; /* Добавляем вертикальную прокрутку */
+    }
+    .menu.open{
+      left:0;
+    }
 
-.menu h3{margin-top:0}
+    .menu h3{
+      margin-top:0;
+    }
 
-/* ===== ОСНОВНОЕ ===== */
-.app{
-  max-width:900px;
-  margin:auto;
-  background:#fff;
-  border-radius:18px;
-  padding:30px;
-  box-shadow:0 15px 30px rgba(0,0,0,.15);
-  position:relative;
-  z-index:2;
-}
+    /* ===== ОСНОВНОЕ ===== */
+    .app{
+      max-width:900px;
+      margin:auto;
+      background:#fff;
+      border-radius:18px;
+      padding:30px;
+      box-shadow:0 15px 30px rgba(0,0,0,.15);
+      position:relative;
+      z-index:2;
+    }
 
-.header{
-  font-family:Pacifico;
-  font-size:30px;
-  text-align:center;
-}
+    .header{
+      font-family:Pacifico;
+      font-size:30px;
+      text-align:center;
+    }
 
-/* ===== ГАЛЕРЕЯ ===== */
-.gallery{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-  margin-top:20px;
-}
+    /* ===== ГАЛЕРЕЯ ===== */
+    .gallery{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:18px;
+      margin-top:20px;
+    }
 
-.photo{
-  background:#fff;
-  padding:8px;
-  border-radius:6px;
-  box-shadow:0 6px 18px rgba(0,0,0,.25);
-  position:relative;
-}
-.photo::before{
-  content:"📎";
-  position:absolute;
-  top:-18px;
-  left:8px;
-  font-size:20px;
-}
-.photo img{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  cursor:pointer;
-}
-.photo textarea{
-  width:100%;
-  border:none;
-  resize:none;
-  font-size:12px;
-  background:transparent;
-}
+    .photo{
+      background:#fff;
+      padding:8px;
+      border-radius:6px;
+      box-shadow:0 6px 18px rgba(0,0,0,.25);
+      position:relative;
+    }
+    .photo::before{
+      content:"📎";
+      position:absolute;
+      top:-18px;
+      left:8px;
+      font-size:20px;
+    }
+    .photo img{
+      width:100%;
+      aspect-ratio:1/1;
+      object-fit:cover;
+      cursor:pointer;
+    }
+    .photo textarea{
+      width:100%;
+      border:none;
+      resize:none;
+      font-size:12px;
+      background:transparent;
+    }
 
-.actions{
-  display:flex;
-  justify-content:space-between;
-}
+    .actions{
+      display:flex;
+      justify-content:space-between;
+    }
 
-/* ===== ПРОСМОТР ===== */
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.9);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:6000;
-}
-.overlay img{max-width:90%;max-height:90%}
-</style>
+    /* ===== ПРОСМОТР ===== */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.9);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:6000;
+    }
+    .overlay img{
+      max-width:90%;
+      max-height:90%;
+    }
+
+    /* МЕНЮ НАСТРОЕК */
+    .menu label {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .menu input[type="range"], .menu input[type="color"] {
+      width: 100%;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- ПАРОЛЬ -->
-<div class="lock" id="lock">
-  <input type="password" placeholder="Пароль ❤️" onkeydown="checkPass(event)">
-</div>
+  <!-- ПАРОЛЬ -->
+  <div class="lock" id="lock">
+    <input type="password" placeholder="Пароль ❤️" onkeydown="checkPass(event)">
+  </div>
 
-<!-- ☰ -->
-<button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <!-- ☰ -->
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
 
-<!-- МЕНЮ -->
-<div class="menu" id="menu">
-  <h3>⚙️ Настройки</h3>
+  <!-- МЕНЮ -->
+  <div class="menu" id="menu">
+    <h3>⚙️ Настройки</h3>
 
-  <label>Яркость</label>
-  <input type="range" min="0.5" max="1" step="0.05" oninput="setBrightness(this.value)">
+    <label>Яркость</label>
+    <input type="range" min="0.5" max="1" step="0.05" oninput="setBrightness(this.value)">
 
-  <label>Размер текста</label>
-  <input type="range" min="14" max="22" step="1" oninput="setFont(this.value)">
+    <label>Размер текста</label>
+    <input type="range" min="14" max="22" step="1" oninput="setFont(this.value)">
 
-  <label>Цвет листа</label>
-  <input type="color" oninput="setBg(this.value)">
+    <label>Цвет листа</label>
+    <input type="color" oninput="setBg(this.value)">
 
-  <hr>
-  <button onclick="toggleHidden()">🔐 Скрытые фото</button>
-</div>
+    <hr>
+    <button onclick="toggleHidden()">🔐 Скрытые фото</button>
+  </div>
 
-<!-- ОСНОВНОЕ -->
-<div class="app" id="app" style="display:none">
-  <div class="header">Аделаида + Саша = вечность ✍️</div>
-  <div id="counter"></div>
+  <!-- ОСНОВНОЕ -->
+  <div class="app" id="app" style="display:none">
+    <div class="header">Аделаида + Саша = вечность ✍️</div>
+    <div id="counter"></div>
 
-  <input type="file" multiple accept="image/*" onchange="addPhotos(event)">
-  <div class="gallery" id="gallery"></div>
-</div>
+    <input type="file" multiple accept="image/*" onchange="addPhotos(event)">
+    <div class="gallery" id="gallery"></div>
+  </div>
 
-<script>
-const PASS="love";
-const lock=document.getElementById("lock");
-const app=document.getElementById("app");
-const menu=document.getElementById("menu");
-const gallery=document.getElementById("gallery");
+  <script>
+    const PASS="love";
+    const lock=document.getElementById("lock");
+    const app=document.getElementById("app");
+    const menu=document.getElementById("menu");
+    const gallery=document.getElementById("gallery");
 
-/* ===== ПАРОЛЬ ===== */
-function checkPass(e){
-  if(e.key==="Enter" && e.target.value===PASS){
-    lock.remove();
-    app.style.display="block";
-  }
-}
+    /* ===== ПАРОЛЬ ===== */
+    function checkPass(e){
+      if(e.key==="Enter" && e.target.value===PASS){
+        lock.remove();
+        app.style.display="block";
+      }
+    }
 
-/* ===== МЕНЮ ===== */
-function toggleMenu(){
-  menu.classList.toggle("open");
-}
+    /* ===== МЕНЮ ===== */
+    function toggleMenu(){
+      menu.classList.toggle("open");
+    }
 
-/* ===== НАСТРОЙКИ ===== */
-function setBrightness(v){
-  document.documentElement.style.setProperty("--brightness",v);
-}
-function setFont(v){
-  document.documentElement.style.setProperty("--fontSize",v+"px");
-}
-function setBg(v){
-  document.documentElement.style.setProperty("--bgColor",v);
-}
+    /* ===== НАСТРОЙКИ ===== */
+    function setBrightness(v){
+      document.documentElement.style.setProperty("--brightness",v);
+    }
+    function setFont(v){
+      document.documentElement.style.setProperty("--fontSize",v+"px");
+    }
+    function setBg(v){
+      document.documentElement.style.setProperty("--bgColor",v);
+    }
 
-/* ===== СЧЁТЧИК ===== */
-const start=new Date(2024,7,5);
-setInterval(()=>{
-  counter.innerText=`Мы вместе ${Math.floor((Date.now()-start)/86400000)} дней ❤️`;
-},1000);
+    /* ===== СЧЁТЧИК ===== */
+    const start=new Date(2024,7,5);
+    setInterval(()=>{
+      counter.innerText=`Мы вместе ${Math.floor((Date.now()-start)/86400000)} дней ❤️`;
+    },1000);
 
-/* ===== ФОТО ===== */
-let photos=JSON.parse(localStorage.photos||"[]");
-let showHidden=false;
+    /* ===== ФОТО ===== */
+    let photos=JSON.parse(localStorage.photos||"[]");
+    let showHidden=false;
 
-function save(){localStorage.photos=JSON.stringify(photos);}
+    function save(){localStorage.photos=JSON.stringify(photos);}
 
-function addPhotos(e){
-  for(let f of e.target.files){
-    const r=new FileReader();
-    r.onload=x=>{
-      photos.push({src:x.target.result,text:"",hidden:false});
-      save();render();
-    };
-    r.readAsDataURL(f);
-  }
-}
+    function addPhotos(e){
+      for(let f of e.target.files){
+        const r=new FileReader();
+        r.onload=x=>{
+          photos.push({src:x.target.result,text:"",hidden:false});
+          save();render();
+        };
+        r.readAsDataURL(f);
+      }
+    }
 
-function toggleHidden(){
-  showHidden=!showHidden;
-  render();
-}
+    function toggleHidden(){
+      showHidden=!showHidden;
+      render();
+    }
 
-function render(){
-  gallery.innerHTML="";
-  photos.filter(p=>showHidden||!p.hidden).forEach((p,i)=>{
-    const d=document.createElement("div");
-    d.className="photo";
-    d.innerHTML=`
-      <img src="${p.src}" onclick="openImg('${p.src}')">
-      <textarea oninput="photos[${i}].text=this.value;save()">${p.text}</textarea>
-      <div class="actions">
-        <button onclick="photos[${i}].hidden=!photos[${i}].hidden;save();render()">🙈</button>
-        <button onclick="photos.splice(${i},1);save();render()">✖</button>
-      </div>`;
-    gallery.appendChild(d);
-  });
-}
+    function render(){
+      gallery.innerHTML="";
+      photos.filter(p=>showHidden||!p.hidden).forEach((p,i)=>{
+        const d=document.createElement("div");
+        d.className="photo";
+        d.innerHTML=`
+          <img src="${p.src}" onclick="openImg('${p.src}')">
+          <textarea oninput="photos[${i}].text=this.value;save()">${p.text}</textarea>
+          <div class="actions">
+            <button onclick="photos[${i}].hidden=!photos[${i}].hidden;save();render()">🙈</button>
+            <button onclick="photos.splice(${i},1);save();render()">✖</button>
+          </div>`;
+        gallery.appendChild(d);
+      });
+    }
 
-function openImg(src){
-  const o=document.createElement("div");
-  o.className="overlay";
-  o.onclick=()=>o.remove();
-  o.innerHTML=`<img src="${src}">`;
-  document.body.appendChild(o);
-}
+    function openImg(src){
+      const o=document.createElement("div");
+      o.className="overlay";
+      o.onclick=()=>o.remove();
+      o.innerHTML=`<img src="${src}">`;
+      document.body.appendChild(o);
+    }
 
-render();
-</script>
+    render();
+  </script>
 
 </body>
 </html>
+
+
 
 
 
