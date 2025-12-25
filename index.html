@@ -302,59 +302,59 @@
   <div class="heart" style="top: 80%; left: 50%; animation-duration: 6s;"></div>
 
   <script>
-    const PASS="love";
-    const lock=document.getElementById("lock");
-    const app=document.getElementById("app");
-    const menu=document.getElementById("menu");
-    const gallery=document.getElementById("gallery");
+    const PASS = "love";
+    const lock = document.getElementById("lock");
+    const app = document.getElementById("app");
+    const menu = document.getElementById("menu");
+    const gallery = document.getElementById("gallery");
 
     /* ===== ПАРОЛЬ ===== */
-    function checkPass(e){
-      if(e.key==="Enter" && e.target.value===PASS){
+    function checkPass(e) {
+      if (e.key === "Enter" && e.target.value === PASS) {
         lock.remove();
-        app.style.display="block";
+        app.style.display = "block";
       }
     }
 
     /* ===== МЕНЮ ===== */
-    function toggleMenu(){
+    function toggleMenu() {
       menu.classList.toggle("open");
     }
 
     /* ===== НАСТРОЙКИ ===== */
-    function setBrightness(v){
+    function setBrightness(v) {
       document.documentElement.style.setProperty("--brightness", v);
     }
 
-    function setFont(v){
+    function setFont(v) {
       document.documentElement.style.setProperty("--fontSize", v + "px");
     }
 
-    function setBg(v){
+    function setBg(v) {
       document.documentElement.style.setProperty("--bgColor", v);
     }
 
-    function setFontFamily(v){
+    function setFontFamily(v) {
       document.documentElement.style.setProperty("--fontFamily", v);
     }
 
-    function setTextColor(v){
+    function setTextColor(v) {
       document.documentElement.style.setProperty("--textColor", v);
     }
 
-    function setBtnColor(v){
+    function setBtnColor(v) {
       document.documentElement.style.setProperty("--btnColor", v);
     }
 
-    function setPhotoBgColor(v){
+    function setPhotoBgColor(v) {
       document.documentElement.style.setProperty("--photoBgColor", v);
     }
 
-    function setPhotoSize(v){
+    function setPhotoSize(v) {
       document.documentElement.style.setProperty("--photoSize", v);
     }
 
-    function setPhotoShadow(v){
+    function setPhotoShadow(v) {
       document.documentElement.style.setProperty("--photoShadow", `0 6px 18px ${v}`);
     }
 
@@ -418,6 +418,8 @@
 
 </body>
 </html>
+
+
 
 
 
