@@ -5,194 +5,219 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Наша история 💖</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 *{box-sizing:border-box}
-
 body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding:20px;
-  font-family:Montserrat;
-  background:linear-gradient(120deg,#ff9a9e,#fad0c4,#fbc2eb);
-  background-size:400% 400%;
-  animation:bg 10s ease infinite;
-}
-@keyframes bg{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
+margin:0;font-family:Montserrat;
+min-height:100vh;
+background:#ffc0cb;
+display:flex;justify-content:center;align-items:center;
+color:#333
 }
 
-/* ЭКРАН ПАРОЛЯ */
 .lock{
-  position:fixed;
-  inset:0;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
+position:fixed;inset:0;
+background:#000;
+display:flex;align-items:center;justify-content:center;
+z-index:1000
 }
 .lock input{
-  padding:15px 20px;
-  font-size:18px;
-  border:none;
-  border-radius:15px;
+padding:15px;font-size:18px;border-radius:12px;border:none
 }
 
-/* КАРТОЧКА — ЛИСТОК В КЛЕТКУ */
-.card{
-  width:100%;
-  max-width:900px;
-  padding:40px 30px;
-  border-radius:12px;
-
-  background:
-    linear-gradient(#c9ddff 1px, transparent 1px),
-    linear-gradient(90deg,#c9ddff 1px, transparent 1px);
-  background-size:40px 40px;
-  background-color:#fff;
-
-  box-shadow:0 20px 40px rgba(0,0,0,.25);
-  color:#222;
+.app{
+width:95%;max-width:900px;
+background:#fff;border-radius:25px;
+padding:20px;box-shadow:0 20px 40px rgba(0,0,0,.25)
 }
 
-/* КРАСНАЯ ЛИНИЯ ПОЛЯ */
-.card::before{
-  content:"";
-  position:absolute;
-  margin-left:-15px;
-  width:3px;
-  height:calc(100% - 80px);
-  background:#ff6b6b;
+.menu-btn{
+position:fixed;top:15px;left:15px;
+font-size:26px;background:none;border:none;cursor:pointer
 }
 
-/* РУКОПИСЬ */
-.handwrite{
-  font-family:'Pacifico', cursive;
-  font-size:36px;
-  color:#1a3d7c;
-  text-align:center;
+.menu{
+position:fixed;top:0;left:-260px;
+width:250px;height:100%;
+background:#fff;padding:20px;
+transition:.3s;z-index:999
+}
+.menu.open{left:0}
+.menu button{width:100%;margin:5px 0;padding:10px}
+
+.header{
+text-align:center
 }
 
-/* СЧЁТЧИК */
-#counter{
-  text-align:center;
-  margin:10px 0 20px;
-  font-size:18px;
-}
+.counter{margin:10px 0;font-weight:bold}
 
-/* ГАЛЕРЕЯ */
-input[type=file]{
-  margin:20px 0;
-}
 .gallery{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+margin-top:15px
+}
+
+.photo{
+border-radius:12px;
+overflow:hidden;
+background:#f3f3f3
 }
 .photo img{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  border-radius:10px;
-  cursor:pointer;
+width:100%;
+aspect-ratio:1/1;
+object-fit:cover;
+cursor:pointer
+}
+.photo textarea{
+width:100%;border:none;
+padding:5px;font-size:12px;
+resize:none
 }
 
-/* ПРОСМОТР ФОТО */
+.actions{
+display:flex;justify-content:space-between;
+padding:5px
+}
+.actions button{
+border:none;background:none;
+cursor:pointer;font-size:16px
+}
+
 .overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.9);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:10000;
+position:fixed;inset:0;
+background:rgba(0,0,0,.9);
+display:flex;align-items:center;justify-content:center;
+z-index:2000
 }
-.overlay img{
-  max-width:90%;
-  max-height:90%;
-  border-radius:20px;
-}
+.overlay img{max-width:90%;max-height:90%}
 </style>
 </head>
 
 <body>
 
 <div class="lock" id="lock">
-  <input type="password" placeholder="Пароль ❤️" onkeydown="check(event)">
+<input type="password" placeholder="Пароль ❤️" onkeydown="checkPass(event)">
 </div>
 
-<div class="card" id="app" style="display:none">
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
 
-  <div class="handwrite">Аделаида + Саша = ∞</div>
-  <div id="counter"></div>
+<div class="menu" id="menu">
+<button onclick="showAll()">📸 Все</button>
+<button onclick="showFav()">⭐ Избранное</button>
+<button onclick="askHidden()">🔐 Скрытые</button>
+<button onclick="sortByDate()">🕒 По дате</button>
+</div>
 
-  <input type="file" multiple accept="image/*" onchange="addPhotos(event)">
-  <div class="gallery" id="gallery"></div>
+<div class="app" id="app" style="display:none">
+
+<div class="header">
+<h2>Саша ❤️ Адушка</h2>
+<div class="counter" id="counter"></div>
+</div>
+
+<input type="file" multiple accept="image/*" onchange="addPhotos(event)">
+
+<div class="gallery" id="gallery"></div>
 
 </div>
 
 <script>
-/* ПАРОЛЬ */
-const PASS="love";
-function check(e){
-  if(e.key==="Enter" && e.target.value===PASS){
-    lock.style.display="none";
-    app.style.display="block";
-  }
+const PASSWORD="love";
+const HIDDEN_PASS="secret";
+
+const lock=document.getElementById("lock");
+const app=document.getElementById("app");
+const gallery=document.getElementById("gallery");
+const menu=document.getElementById("menu");
+
+let mode="all";
+
+function checkPass(e){
+if(e.key==="Enter" && e.target.value===PASSWORD){
+lock.style.display="none";
+app.style.display="block";
+}
 }
 
-/* СКОЛЬКО ВМЕСТЕ */
+function toggleMenu(){menu.classList.toggle("open")}
+
 const start=new Date(2024,7,5);
 setInterval(()=>{
-  const d=Math.floor((Date.now()-start)/86400000);
-  counter.innerText=`Мы вместе уже ${d} дней 💖`;
+const diff=Date.now()-start;
+const d=Math.floor(diff/86400000);
+counter.innerText=`Мы вместе ${d} дней ❤️`;
 },1000);
 
-/* ФОТО */
 let photos=JSON.parse(localStorage.photos||"[]");
 function save(){localStorage.photos=JSON.stringify(photos)}
 
 function addPhotos(e){
-  for(let f of e.target.files){
-    const r=new FileReader();
-    r.onload=x=>{
-      photos.push(x.target.result);
-      save();render();
-    };
-    r.readAsDataURL(f);
-  }
+for(let f of e.target.files){
+const r=new FileReader();
+r.onload=x=>{
+photos.push({
+src:x.target.result,
+text:"",
+fav:false,
+hidden:false,
+date:Date.now()
+});
+save();render();
+};
+r.readAsDataURL(f);
+}
 }
 
 function render(){
-  gallery.innerHTML="";
-  photos.forEach(src=>{
-    const d=document.createElement("div");
-    d.className="photo";
-    d.innerHTML=`<img src="${src}" onclick="openImg('${src}')">`;
-    gallery.appendChild(d);
-  });
+gallery.innerHTML="";
+photos.forEach((p,i)=>{
+if(mode==="fav" && !p.fav) return;
+if(mode==="hidden" && !p.hidden) return;
+if(mode==="all" && p.hidden) return;
+
+const d=document.createElement("div");
+d.className="photo";
+d.innerHTML=`
+<img src="${p.src}" onclick="openImg(${i})">
+<textarea placeholder="Подпись..."
+oninput="photos[${i}].text=this.value;save()">${p.text}</textarea>
+<div class="actions">
+<button onclick="toggleFav(${i})">${p.fav?"⭐":"☆"}</button>
+<button onclick="toggleHidden(${i})">🙈</button>
+<button onclick="removePhoto(${i})">✖</button>
+</div>`;
+gallery.appendChild(d);
+});
 }
 
-function openImg(src){
-  const o=document.createElement("div");
-  o.className="overlay";
-  o.onclick=()=>o.remove();
-  o.innerHTML=`<img src="${src}">`;
-  document.body.append(o);
+function openImg(i){
+const o=document.createElement("div");
+o.className="overlay";
+o.onclick=()=>o.remove();
+o.innerHTML=`<img src="${photos[i].src}">`;
+document.body.appendChild(o);
 }
 
-render();
-</script>
+function toggleFav(i){photos[i].fav=!photos[i].fav;save();render()}
+function toggleHidden(i){photos[i].hidden=!photos[i].hidden;save();render()}
+function removePhoto(i){
+if(confirm("Удалить фото?")){
+photos.splice(i,1);save();render();
+}}
 
-</body>
-</html>
+function sortByDate(){
+photos.sort((a,b)=>b.date-a.date);
+save();render();
+}
+
+function showFav(){mode="fav";render()}
+function showAll(){mode="all";render()}
+function askHidden(){
+const p=prompt("Па
+
 
 
 
