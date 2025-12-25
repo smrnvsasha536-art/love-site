@@ -10,23 +10,55 @@
 <style>
 *{box-sizing:border-box}
 body{
-margin:0;min-height:100vh;font-family:Montserrat;
+margin:0;font-family:Montserrat;
+min-height:100vh;
 background:linear-gradient(120deg,#ff9a9e,#fad0c4,#fbc2eb);
-background-size:400% 400%;animation:gradient 10s ease infinite;
+background-size:400% 400%;
+animation:gradient 10s ease infinite;
 display:flex;justify-content:center;align-items:center;
-overflow:hidden;color:#fff
+overflow-x:hidden;color:#fff
 }
-@keyframes gradient{
-0%{background-position:0% 50%}
-50%{background-position:100% 50%}
-100%{background-position:0% 50%}
-}
+body.dark{background:linear-gradient(120deg,#0f2027,#203a43,#2c5364)}
+@keyframes gradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
 .card{
-width:95%;max-width:850px;padding:30px;border-radius:30px;
-background:rgba(255,255,255,.25);backdrop-filter:blur(16px);
+width:95%;max-width:900px;
+background:rgba(255,255,255,.25);
+backdrop-filter:blur(16px);
+border-radius:30px;padding:30px;
 box-shadow:0 20px 40px rgba(0,0,0,.25);
 text-align:center
+}
+
+button{cursor:pointer;border:none}
+.top-btn{
+position:fixed;top:20px;
+width:45px;height:45px;border-radius:50%;
+font-size:20px
+}
+#musicBtn{right:20px}
+#modeBtn{left:20px}
+
+.lock{
+position:fixed;inset:0;
+background:#000;display:flex;
+align-items:center;justify-content:center;
+z-index:9999
+}
+.lock input{
+padding:15px;font-size:18px;
+border-radius:15px;border:none
+}
+
+h1{margin-top:0}
+#counter{font-size:20px;margin:10px 0}
+
+.timeline{
+margin:30px 0;text-align:left
+}
+.event{
+margin:10px 0;padding-left:15px;
+border-left:3px solid #fff
 }
 
 .gallery{
@@ -34,21 +66,9 @@ display:grid;
 grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
 gap:15px
 }
-.photo{position:relative}
 .photo img{
-width:100%;height:180px;
-object-fit:cover;border-radius:18px
-}
-.delete{
-position:absolute;top:8px;right:8px;
-width:28px;height:28px;border:none;border-radius:50%;
-background:rgba(0,0,0,.6);color:#fff
-}
-
-.music-btn{
-position:absolute;top:20px;right:20px;
-width:45px;height:45px;border-radius:50%;
-border:none;font-size:20px
+width:100%;height:170px;
+object-fit:cover;border-radius:15px
 }
 
 .overlay{
@@ -57,10 +77,25 @@ background:rgba(0,0,0,.9);
 display:flex;align-items:center;justify-content:center;
 z-index:9999
 }
-.overlay img{
-max-width:90%;max-height:90%;
-border-radius:20px
+.overlay img{max-width:90%;max-height:90%;border-radius:20px}
+
+.surprise{
+margin:20px;padding:15px 30px;
+border-radius:30px;font-size:18px;
+background:#fff;color:#e75480
 }
+
+.letter{
+position:fixed;inset:0;
+background:rgba(0,0,0,.8);
+display:flex;align-items:center;justify-content:center
+}
+.letter-box{
+background:#fff;color:#333;
+padding:30px;border-radius:25px;
+width:90%;max-width:500px
+}
+textarea{width:100%;height:200px;border:none;font-family:Montserrat}
 
 .heart{
 position:fixed;color:rgba(255,255,255,.6);
@@ -75,15 +110,33 @@ animation:float 8s linear infinite
 
 <body>
 
-<div class="card">
-<button class="music-btn" onclick="toggleMusic()">🎵</button>
+<div class="lock" id="lock">
+<input type="password" placeholder="Пароль ❤️" onkeydown="check(event)">
+</div>
+
+<button id="modeBtn" class="top-btn" onclick="toggleMode()">🌙</button>
+<button id="musicBtn" class="top-btn" onclick="toggleMusic()">🎵</button>
+
+<div class="card" id="app" style="display:none">
 
 <h1>Наша история 💕</h1>
 <b>Саша ❤️ Адушка</b>
-<div id="days" style="margin:10px 0"></div>
+
+<div id="counter"></div>
+
+<div class="timeline">
+<h3>Наша история</h3>
+<div class="event">💖 05.08.2024 — Мы вместе</div>
+<div class="event">🎉 100 дней</div>
+<div class="event">💌 Первый год</div>
+</div>
+
+<button class="surprise" onclick="memory()">🕊 Воспоминание дня</button>
+<button class="surprise" id="gift" style="display:none" onclick="openLetter()">🎁 Сюрприз</button>
 
 <input type="file" multiple accept="image/*" onchange="addPhotos(event)">
 <div class="gallery" id="gallery"></div>
+
 </div>
 
 <audio id="music" loop>
@@ -91,82 +144,93 @@ animation:float 8s linear infinite
 </audio>
 
 <script>
-/* 📅 ДНИ ВМЕСТЕ — С 05.08.2024 */
-const start = new Date(2024, 7, 5);
-const daysEl = document.getElementById("days");
-daysEl.innerText =
-"Мы вместе уже " +
-Math.floor((Date.now() - start) / 86400000) +
-" дней 💖";
+/* ПАРОЛЬ */
+const PASSWORD="love";
+function check(e){
+if(e.key==="Enter"&&e.target.value===PASSWORD){
+lock.style.display="none";app.style.display="block"
+}}
 
-/* 🎵 МУЗЫКА */
-const music = document.getElementById("music");
-let playing = false;
+/* ТЕМА */
+if(localStorage.dark)document.body.classList.add("dark");
+function toggleMode(){
+document.body.classList.toggle("dark");
+localStorage.dark=document.body.classList.contains("dark")
+}
+
+/* МУЗЫКА */
+let playing=false;
 function toggleMusic(){
-playing ? music.pause() : music.play();
-playing = !playing;
+playing?music.pause():music.play();
+playing=!playing
 }
 
-/* 📸 ФОТО */
-let photos = JSON.parse(localStorage.getItem("photos")) || [];
-const gallery = document.getElementById("gallery");
-
-function save(){
-localStorage.setItem("photos", JSON.stringify(photos));
+/* СЧЁТЧИК */
+const start=new Date(2024,7,5);
+function update(){
+const diff=Date.now()-start;
+const d=Math.floor(diff/86400000);
+const h=Math.floor(diff/3600000)%24;
+counter.innerText=`Мы вместе ${d} дней ${h} часов 💖`
 }
+setInterval(update,1000);update();
+
+/* СЮРПРИЗ */
+if(Date.now()>new Date("2025-02-14"))gift.style.display="inline-block";
+
+/* ПИСЬМО */
+function openLetter(){
+const l=document.createElement("div");
+l.className="letter";
+l.onclick=()=>l.remove();
+l.innerHTML=`
+<div class="letter-box">
+<h2>Моя любовь ❤️</h2>
+<textarea oninput="localStorage.letter=this.value">${localStorage.letter||""}</textarea>
+</div>`;
+document.body.append(l)
+}
+
+/* ФОТО */
+let photos=JSON.parse(localStorage.photos||"[]");
+function save(){localStorage.photos=JSON.stringify(photos)}
 function render(){
 gallery.innerHTML="";
-photos.forEach((src,i)=>{
+photos.forEach(s=>{
 const d=document.createElement("div");
 d.className="photo";
-const img=document.createElement("img");
-img.src=src;
-img.onclick=()=>openImg(src);
-const b=document.createElement("button");
-b.className="delete";
-b.innerHTML="✖";
-b.onclick=()=>{
-photos.splice(i,1);
-save();render();
-};
-d.append(img,b);
-gallery.append(d);
-});
+d.innerHTML=`<img src="${s}" onclick="openImg('${s}')">`;
+gallery.append(d)
+})
 }
 function addPhotos(e){
 for(let f of e.target.files){
-const r=new FileReader(),img=new Image();
-r.onload=x=>img.src=x.target.result;
-img.onload=()=>{
-const c=document.createElement("canvas"),m=800;
-let w=img.width,h=img.height;
-if(w>h&&w>m){h*=m/w;w=m}
-else if(h>m){w*=m/h;h=m}
-c.width=w;c.height=h;
-c.getContext("2d").drawImage(img,0,0,w,h);
-photos.push(c.toDataURL("image/jpeg",.7));
-save();render();
-};
-r.readAsDataURL(f);
-}
-}
-function openImg(src){
+const r=new FileReader();
+r.onload=x=>{photos.push(x.target.result);save();render()}
+r.readAsDataURL(f)
+}}
+function openImg(s){
 const o=document.createElement("div");
 o.className="overlay";
 o.onclick=()=>o.remove();
-o.innerHTML=`<img src="${src}">`;
-document.body.append(o);
+o.innerHTML=`<img src="${s}">`;
+document.body.append(o)
 }
 
-/* ❤️ СЕРДЦА */
+/* ВОСПОМИНАНИЕ */
+function memory(){
+if(!photos.length)return alert("Добавь фото 💖");
+openImg(photos[Math.floor(Math.random()*photos.length)])
+}
+
+/* СЕРДЦА */
 setInterval(()=>{
 const h=document.createElement("div");
-h.className="heart";
-h.innerHTML="❤";
+h.className="heart";h.innerText="❤";
 h.style.left=Math.random()*100+"vw";
 h.style.fontSize=12+Math.random()*20+"px";
 document.body.append(h);
-setTimeout(()=>h.remove(),8000);
+setTimeout(()=>h.remove(),8000)
 },500);
 
 render();
@@ -174,5 +238,6 @@ render();
 
 </body>
 </html>
+
 
 
