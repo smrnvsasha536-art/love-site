@@ -1,215 +1,234 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Наша история 💖</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Наша история 💖</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e75480">
 
-  <style>
-    * { box-sizing: border-box; }
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(120deg, #ff9a9e, #fad0c4, #fbc2eb);
-      background-size: 400% 400%;
-      animation: gradient 10s ease infinite;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow-x: hidden;
-    }
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;min-height:100vh;font-family:Montserrat;
+background:linear-gradient(120deg,#ff9a9e,#fad0c4,#fbc2eb);
+background-size:400% 400%;animation:gradient 10s ease infinite;
+display:flex;justify-content:center;align-items:center;
+overflow:hidden;color:#fff;transition:.5s
+}
+body.dark{
+background:linear-gradient(120deg,#0f2027,#203a43,#2c5364)
+}
+@keyframes gradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+.card{
+width:95%;max-width:850px;padding:30px;border-radius:30px;
+background:rgba(255,255,255,.25);backdrop-filter:blur(16px);
+box-shadow:0 20px 40px rgba(0,0,0,.25);
+text-align:center;animation:fade 1s ease
+}
+@keyframes fade{from{opacity:0;transform:translateY(30px)}to{opacity:1}}
 
-    .card {
-      width: 95%;
-      max-width: 850px;
-      padding: 30px;
-      border-radius: 30px;
-      background: rgba(255,255,255,0.25);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-      text-align: center;
-      position: relative;
-      animation: fadeIn 1s ease;
-    }
+button{cursor:pointer}
+.music-btn,.mode-btn{
+position:absolute;top:20px;width:45px;height:45px;
+border:none;border-radius:50%;font-size:20px
+}
+.music-btn{right:20px}
+.mode-btn{left:20px}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+.gallery{
+display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px
+}
+.photo{position:relative}
+.photo img{
+width:100%;height:180px;object-fit:cover;border-radius:18px
+}
+.delete{
+position:absolute;top:8px;right:8px;
+width:28px;height:28px;border:none;border-radius:50%;
+background:rgba(0,0,0,.6);color:#fff
+}
 
-    h1 { color: #fff; margin-bottom: 5px; }
-    .names { font-size: 26px; font-weight: 700; color: #fff; }
-    .subtitle { color: #fff; opacity: 0.9; margin-bottom: 20px; }
+.overlay,.lock,.letter{
+position:fixed;inset:0;display:flex;
+align-items:center;justify-content:center;z-index:9999
+}
+.overlay{background:rgba(0,0,0,.9)}
+.overlay img{max-width:90%;max-height:90%;border-radius:20px}
 
-    input[type="file"] {
-      padding: 12px;
-      border-radius: 14px;
-      border: none;
-      background: rgba(255,255,255,0.95);
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
+.lock{background:rgba(0,0,0,.9)}
+.lock input{
+padding:15px;border-radius:15px;border:none;font-size:18px
+}
 
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 15px;
-    }
+.letter-box{
+background:#fff;color:#333;
+padding:30px;border-radius:25px;
+max-width:500px;width:90%;animation:fade 1s ease
+}
+.letter-box textarea{
+width:100%;height:200px;border:none;
+font-family:Montserrat;font-size:16px
+}
 
-    .photo {
-      position: relative;
-      animation: photoIn 0.5s ease;
-    }
+.surprise-btn{
+margin:20px auto;padding:15px 30px;
+border:none;border-radius:30px;font-size:18px;
+background:#fff;color:#e75480
+}
 
-    @keyframes photoIn {
-      from { opacity: 0; transform: scale(0.85); }
-      to { opacity: 1; transform: scale(1); }
-    }
+.heart{
+position:fixed;color:rgba(255,255,255,.6);
+animation:float 8s linear infinite
+}
+@keyframes float{
+0%{transform:translateY(100vh)}
+100%{transform:translateY(-10vh)}
+}
 
-    .photo img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 18px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-
-    .delete {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      cursor: pointer;
-    }
-
-    .music-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(255,255,255,0.9);
-      border: none;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      font-size: 20px;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.25);
-    }
-
-    .heart {
-      position: fixed;
-      color: rgba(255,255,255,0.6);
-      font-size: 18px;
-      animation: float 8s linear infinite;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(100vh); opacity: 0; }
-      10% { opacity: 1; }
-      100% { transform: translateY(-10vh); opacity: 0; }
-    }
-
-    @media (max-width: 600px) {
-      .photo img { height: 140px; }
-      .names { font-size: 22px; }
-    }
-  </style>
+canvas{
+position:fixed;inset:0;pointer-events:none;z-index:10000
+}
+</style>
 </head>
+
 <body>
 
-  <div class="card">
-    <button class="music-btn" onclick="toggleMusic()">🎵</button>
+<canvas id="fireworks"></canvas>
 
-    <h1>Наша история 💕</h1>
-    <div class="names">Саша ❤️ Адушка</div>
-    <div class="subtitle">Наши самые тёплые моменты</div>
+<div class="lock" id="lock">
+<input type="password" placeholder="Пароль ❤️" onkeydown="check(event)">
+</div>
 
-    <input type="file" accept="image/*" multiple onchange="addPhotos(event)">
-    <div class="gallery" id="gallery"></div>
-  </div>
+<div class="card" id="app" style="display:none">
+<button class="mode-btn" onclick="toggleMode()">🌙</button>
+<button class="music-btn" onclick="toggleMusic()">🎵</button>
 
-  <audio id="music" loop>
-    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c6c8d6b5a.mp3" type="audio/mpeg">
-  </audio>
+<h1>Наша история 💕</h1>
+<b>Саша ❤️ Адушка</b>
+<div id="days"></div>
 
-  <script>
-    let photos = JSON.parse(localStorage.getItem("photos")) || [];
-    const gallery = document.getElementById("gallery");
-    const music = document.getElementById("music");
-    let playing = false;
+<button id="surprise" class="surprise-btn" onclick="openLetter()" style="display:none">
+🎁 Открыть сюрприз
+</button>
 
-    function toggleMusic() {
-      playing ? music.pause() : music.play();
-      playing = !playing;
-    }
+<input type="file" multiple accept="image/*" onchange="addPhotos(event)">
+<div class="gallery" id="gallery"></div>
+</div>
 
-    function save() {
-      localStorage.setItem("photos", JSON.stringify(photos));
-    }
+<audio id="music" loop>
+<source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c6c8d6b5a.mp3">
+</audio>
 
-    function render() {
-      gallery.innerHTML = "";
-      photos.forEach((src, index) => {
-        const div = document.createElement("div");
-        div.className = "photo";
+<script>
+/* 🔐 ПАРОЛЬ */
+const PASSWORD="love";
+function check(e){
+if(e.key==="Enter"&&e.target.value===PASSWORD){
+lock.style.display="none";app.style.display="block";
+}}
 
-        const img = document.createElement("img");
-        img.src = src;
+/* 🌙 НОЧНОЙ РЕЖИМ */
+if(localStorage.getItem("dark"))document.body.classList.add("dark");
+function toggleMode(){
+document.body.classList.toggle("dark");
+localStorage.setItem("dark",document.body.classList.contains("dark"));
+}
 
-        const btn = document.createElement("button");
-        btn.className = "delete";
-        btn.innerHTML = "✖";
-        btn.onclick = () => {
-          photos.splice(index, 1);
-          save();
-          render();
-        };
+/* 📅 ДНИ */
+const start=new Date("2023-01-01");
+days.innerText="Мы вместе уже "+Math.floor((Date.now()-start)/86400000)+" дней 💖";
 
-        div.appendChild(img);
-        div.appendChild(btn);
-        gallery.appendChild(div);
-      });
-    }
+/* 🎁 СЮРПРИЗ */
+const surpriseDate=new Date("2025-02-14");
+if(Date.now()>=surpriseDate)surprise.style.display="inline-block";
 
-    function addPhotos(event) {
-      for (let file of event.target.files) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          photos.push(e.target.result);
-          save();
-          render();
-        };
-        reader.readAsDataURL(file);
-      }
-    }
+/* 💌 ПИСЬМО */
+function openLetter(){
+firework();
+const l=document.createElement("div");
+l.className="letter";
+l.onclick=()=>l.remove();
+l.innerHTML=`
+<div class="letter-box">
+<h2>Моя любовь ❤️</h2>
+<textarea oninput="saveText(this.value)">${localStorage.getItem("letter")||""}</textarea>
+<p>Твой навсегда 💖</p>
+</div>`;
+document.body.append(l)
+}
+function saveText(t){localStorage.setItem("letter",t)}
 
-    function heart() {
-      const h = document.createElement("div");
-      h.className = "heart";
-      h.innerHTML = "❤";
-      h.style.left = Math.random() * 100 + "vw";
-      h.style.animationDuration = (6 + Math.random() * 4) + "s";
-      document.body.appendChild(h);
-      setTimeout(() => h.remove(), 8000);
-    }
+/* 🎵 */
+let playing=false;
+function toggleMusic(){playing?music.pause():music.play();playing=!playing}
 
-    setInterval(heart, 500);
-    render();
-  </script>
+/* 📸 ФОТО */
+let photos=JSON.parse(localStorage.getItem("photos"))||[];
+function save(){localStorage.setItem("photos",JSON.stringify(photos))}
+function render(){
+gallery.innerHTML="";
+photos.forEach((s,i)=>{
+const d=document.createElement("div");d.className="photo";
+const img=document.createElement("img");img.src=s;img.onclick=()=>openImg(s);
+const b=document.createElement("button");b.className="delete";b.innerHTML="✖";
+b.onclick=()=>{photos.splice(i,1);save();render()};
+d.append(img,b);gallery.append(d)
+})
+}
+function addPhotos(e){
+for(let f of e.target.files){
+const r=new FileReader(),img=new Image();
+r.onload=x=>img.src=x.target.result;
+img.onload=()=>{
+const c=document.createElement("canvas"),m=800;
+let w=img.width,h=img.height;
+if(w>h&&w>m){h*=m/w;w=m}else if(h>m){w*=m/h;h=m}
+c.width=w;c.height=h;
+c.getContext("2d").drawImage(img,0,0,w,h);
+photos.push(c.toDataURL("image/jpeg",.7));
+save();render()
+}
+r.readAsDataURL(f)
+}}
+function openImg(s){
+const o=document.createElement("div");
+o.className="overlay";o.onclick=()=>o.remove();
+o.innerHTML=`<img src="${s}">`;document.body.append(o)
+}
+
+/* 🎆 ФЕЙЕРВЕРК */
+const c=document.getElementById("fireworks"),ctx=c.getContext("2d");
+c.width=innerWidth;c.height=innerHeight;
+function firework(){
+for(let i=0;i<100;i++){
+setTimeout(()=>{
+ctx.fillStyle=`hsl(${Math.random()*360},100%,60%)`;
+ctx.beginPath();
+ctx.arc(Math.random()*c.width,Math.random()*c.height,4,0,7);
+ctx.fill();
+},i*20)
+}
+setTimeout(()=>ctx.clearRect(0,0,c.width,c.height),2000)
+}
+
+/* ❤️ */
+setInterval(()=>{
+const h=document.createElement("div");
+h.className="heart";h.innerHTML="❤";
+h.style.left=Math.random()*100+"vw";
+h.style.fontSize=12+Math.random()*20+"px";
+document.body.append(h);
+setTimeout(()=>h.remove(),8000)
+},500);
+
+render();
+</script>
 
 </body>
 </html>
+
