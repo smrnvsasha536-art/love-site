@@ -10,13 +10,21 @@
 <style>
 *{box-sizing:border-box}
 
-/* ====== НАСТОЯЩАЯ КЛЕТКА ====== */
+:root{
+  --brightness:1;
+  --fontSize:16px;
+  --bgColor:#ffffff;
+}
+
+/* ===== ТЕТРАДЬ В КЛЕТКУ ===== */
 body{
   margin:0;
   min-height:100vh;
   font-family:Montserrat;
+  font-size:var(--fontSize);
+  filter:brightness(var(--brightness));
 
-  background-color:#fff;
+  background-color:var(--bgColor);
   background-image:
     linear-gradient(#e5e5e5 1px, transparent 1px),
     linear-gradient(90deg, #e5e5e5 1px, transparent 1px);
@@ -25,26 +33,23 @@ body{
   padding:80px 20px 40px 70px;
 }
 
-/* Красное поле */
+/* красное поле */
 body::before{
   content:"";
   position:fixed;
-  top:0;
-  bottom:0;
-  left:45px;
+  top:0;bottom:0;left:45px;
   width:2px;
   background:#ff8fa3;
 }
 
-/* ====== ПАРОЛЬ ====== */
+/* ===== ПАРОЛЬ ===== */
 .lock{
-  position:fixed;
-  inset:0;
+  position:fixed;inset:0;
   background:#000;
   display:flex;
   align-items:center;
   justify-content:center;
-  z-index:1000;
+  z-index:2000;
 }
 .lock input{
   padding:15px 20px;
@@ -53,7 +58,7 @@ body::before{
   border:none;
 }
 
-/* ====== МЕНЮ ====== */
+/* ===== КНОПКА МЕНЮ ===== */
 .menu-btn{
   position:fixed;
   top:15px;
@@ -62,9 +67,32 @@ body::before{
   background:none;
   border:none;
   cursor:pointer;
+  z-index:1500;
 }
 
-/* ====== КАРТОЧКА ====== */
+/* ===== МЕНЮ ===== */
+.menu{
+  position:fixed;
+  top:0;left:-260px;
+  width:260px;
+  height:100%;
+  background:#fff;
+  box-shadow:4px 0 20px rgba(0,0,0,.25);
+  padding:20px;
+  transition:.3s;
+  z-index:1400;
+}
+.menu.open{left:0}
+
+.menu h3{margin-top:0}
+
+.menu label{
+  display:block;
+  margin:12px 0 4px;
+  font-size:14px;
+}
+
+/* ===== ОСНОВНОЕ ===== */
 .app{
   max-width:900px;
   margin:auto;
@@ -80,12 +108,6 @@ body::before{
   text-align:center;
 }
 
-#counter{
-  margin:12px 0 18px;
-  font-size:16px;
-}
-
-/* ====== ГАЛЕРЕЯ ====== */
 .gallery{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -100,8 +122,6 @@ body::before{
   box-shadow:0 6px 18px rgba(0,0,0,.25);
   position:relative;
 }
-
-/* Скрепка */
 .photo::before{
   content:"📎";
   position:absolute;
@@ -109,24 +129,20 @@ body::before{
   left:8px;
   font-size:20px;
 }
-
 .photo img{
   width:100%;
   aspect-ratio:1/1;
   object-fit:cover;
   cursor:pointer;
 }
-
 .photo textarea{
   width:100%;
   border:none;
   resize:none;
   font-size:12px;
   background:transparent;
-  margin-top:4px;
 }
 
-/* ====== КНОПКИ ====== */
 .actions{
   display:flex;
   justify-content:space-between;
@@ -138,113 +154,141 @@ body::before{
   font-size:16px;
 }
 
-/* ====== ПРОСМОТР ====== */
 .overlay{
-  position:fixed;
-  inset:0;
+  position:fixed;inset:0;
   background:rgba(0,0,0,.9);
   display:flex;
   align-items:center;
   justify-content:center;
-  z-index:2000;
+  z-index:3000;
 }
-.overlay img{
-  max-width:90%;
-  max-height:90%;
-}
+.overlay img{max-width:90%;max-height:90%}
 </style>
 </head>
 
 <body>
 
+<!-- ПАРОЛЬ -->
 <div class="lock" id="lock">
   <input type="password" placeholder="Пароль ❤️" onkeydown="checkPass(event)">
 </div>
 
-<button class="menu-btn">☰</button>
+<!-- КНОПКА -->
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
 
+<!-- МЕНЮ -->
+<div class="menu" id="menu">
+  <h3>⚙️ Настройки</h3>
+
+  <label>Яркость</label>
+  <input type="range" min="0.7" max="1.3" step="0.05" onchange="setBrightness(this.value)">
+
+  <label>Размер текста</label>
+  <input type="range" min="14" max="20" step="1" onchange="setFont(this.value)">
+
+  <label>Цвет фона</label>
+  <input type="color" onchange="setBg(this.value)">
+
+  <hr>
+  <button onclick="toggleHidden()">🔐 Скрытые фото</button>
+</div>
+
+<!-- ОСНОВНОЕ -->
 <div class="app" id="app" style="display:none">
-
-  <div class="header">
-    Аделаида + Саша = вечность ✍️
-  </div>
-
+  <div class="header">Аделаида + Саша = вечность ✍️</div>
   <div id="counter"></div>
-
   <input type="file" multiple accept="image/*" onchange="addPhotos(event)">
-
   <div class="gallery" id="gallery"></div>
-
 </div>
 
 <script>
 const PASS="love";
 const lock=document.getElementById("lock");
 const app=document.getElementById("app");
+const menu=document.getElementById("menu");
 const gallery=document.getElementById("gallery");
 
 function checkPass(e){
-  if(e.key==="Enter" && e.target.value===PASS){
+  if(e.key==="Enter"&&e.target.value===PASS){
     lock.style.display="none";
     app.style.display="block";
   }
 }
 
+/* ===== МЕНЮ ===== */
+function toggleMenu(){
+  menu.classList.toggle("open");
+}
+
+/* ===== НАСТРОЙКИ ===== */
+function setBrightness(v){
+  document.documentElement.style.setProperty("--brightness",v);
+  localStorage.brightness=v;
+}
+function setFont(v){
+  document.documentElement.style.setProperty("--fontSize",v+"px");
+  localStorage.fontSize=v;
+}
+function setBg(v){
+  document.documentElement.style.setProperty("--bgColor",v);
+  localStorage.bgColor=v;
+}
+
+/* восстановление */
+if(localStorage.brightness) setBrightness(localStorage.brightness);
+if(localStorage.fontSize) setFont(localStorage.fontSize);
+if(localStorage.bgColor) setBg(localStorage.bgColor);
+
+/* ===== СЧЁТЧИК ===== */
 const start=new Date(2024,7,5);
 setInterval(()=>{
-  const d=Math.floor((Date.now()-start)/86400000);
-  counter.innerText=`Мы вместе ${d} дней ❤️`;
+  counter.innerText=`Мы вместе ${Math.floor((Date.now()-start)/86400000)} дней ❤️`;
 },1000);
 
+/* ===== ФОТО ===== */
 let photos=JSON.parse(localStorage.photos||"[]");
+let showHidden=false;
+
 function save(){localStorage.photos=JSON.stringify(photos);}
 
 function addPhotos(e){
   for(let f of e.target.files){
     const r=new FileReader();
     r.onload=x=>{
-      photos.push({src:x.target.result,text:"",fav:false});
+      photos.push({src:x.target.result,text:"",hidden:false});
       save();render();
     };
     r.readAsDataURL(f);
   }
 }
 
+function toggleHidden(){
+  showHidden=!showHidden;
+  render();
+}
+
 function render(){
   gallery.innerHTML="";
-  photos.forEach((p,i)=>{
+  photos.filter(p=>showHidden||!p.hidden).forEach((p,i)=>{
     const d=document.createElement("div");
     d.className="photo";
     d.innerHTML=`
-      <img src="${p.src}" onclick="openImg(${i})">
-      <textarea placeholder="Подпись..."
-        oninput="photos[${i}].text=this.value;save()">${p.text}</textarea>
+      <img src="${p.src}" onclick="openImg('${p.src}')">
+      <textarea oninput="photos[${i}].text=this.value;save()">${p.text}</textarea>
       <div class="actions">
-        <button onclick="toggleFav(${i})">${p.fav?"⭐":"☆"}</button>
-        <button onclick="removePhoto(${i})">✖</button>
+        <button onclick="photos[${i}].hidden=!photos[${i}].hidden;save();render()">🙈</button>
+        <button onclick="photos.splice(${i},1);save();render()">✖</button>
       </div>`;
     gallery.appendChild(d);
   });
 }
 
-function openImg(i){
+function openImg(src){
   const o=document.createElement("div");
   o.className="overlay";
   o.onclick=()=>o.remove();
-  o.innerHTML=`<img src="${photos[i].src}">`;
+  o.innerHTML=`<img src="${src}">`;
   document.body.appendChild(o);
-}
-
-function removePhoto(i){
-  if(confirm("Удалить фото?")){
-    photos.splice(i,1);
-    save();render();
-  }
-}
-
-function toggleFav(i){
-  photos[i].fav=!photos[i].fav;
-  save();render();
 }
 
 render();
@@ -252,6 +296,8 @@ render();
 
 </body>
 </html>
+
+
 
 
 
