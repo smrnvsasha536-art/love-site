@@ -216,7 +216,16 @@ save();render();
 function showFav(){mode="fav";render()}
 function showAll(){mode="all";render()}
 function askHidden(){
-const p=prompt("Па
+const p=prompt("Пароль для скрытых:");
+if(p===HIDDEN_PASS){mode="hidden";render()}
+}
+
+render();
+</script>
+
+</body>
+</html>
+
 
 
 
