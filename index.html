@@ -5,15 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Наша история</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
 
 <style>
 :root{
 --brightness:1;
 --fontSize:16px;
---gridColor:#e6b3c1;
---photoRotate:2deg;
---photoShadow:0 10px 20px rgba(0,0,0,.3);
+--gridColor:rgba(220,220,220,.6);
 }
 
 *{box-sizing:border-box}
@@ -24,11 +22,24 @@ font-family:Montserrat;
 font-size:var(--fontSize);
 filter:brightness(var(--brightness));
 min-height:100vh;
+
+/* ТЕТРАДНЫЙ ЛИСТ */
 background:
-linear-gradient(#fff 24px,var(--gridColor) 25px),
-linear-gradient(90deg,#fff 24px,var(--gridColor) 25px);
-background-size:25px 25px;
-padding-top:60px;
+linear-gradient(#fff 23px,var(--gridColor) 24px),
+linear-gradient(90deg,#fff 23px,var(--gridColor) 24px);
+background-size:24px 24px;
+padding:80px 20px 40px 60px;
+position:relative;
+}
+
+/* КРАСНОЕ ПОЛЕ */
+body::before{
+content:"";
+position:fixed;
+left:40px;top:0;bottom:0;
+width:2px;
+background:#ff9aa2;
+opacity:.6;
 }
 
 .lock{
@@ -41,70 +52,55 @@ z-index:1000
 padding:15px;font-size:18px;border-radius:12px;border:none
 }
 
+/* МЕНЮ */
 .menu-btn{
 position:fixed;top:15px;left:15px;
 font-size:26px;background:none;border:none;
 cursor:pointer;z-index:999
 }
 
-.menu{
-position:fixed;top:0;left:-270px;
-width:260px;height:100%;
-background:#fff;padding:20px;
-transition:.3s;z-index:998;overflow:auto
-}
-.menu.open{left:0}
-
-.menu h3{margin-top:0}
-.menu label{font-size:13px}
-.menu input{width:100%;margin-bottom:10px}
-
+/* КАРТОЧКА */
 .app{
-width:95%;max-width:900px;
+max-width:900px;
 margin:auto;
-background:rgba(255,255,255,.8);
-border-radius:20px;
-padding:20px;
-box-shadow:0 15px 30px rgba(0,0,0,.2)
+background:#fff;
+border-radius:16px;
+padding:25px;
+box-shadow:0 10px 25px rgba(0,0,0,.15)
 }
 
 .header{
-text-align:center;
 font-family:Pacifico;
-font-size:26px
+font-size:28px;
+text-align:center
 }
 
 #counter{
-font-family:Montserrat;
-font-size:16px;
-margin-bottom:15px
+margin:10px 0 15px;
+font-size:16px
 }
 
+/* ГАЛЕРЕЯ */
 .gallery{
+margin-top:20px;
 display:grid;
 grid-template-columns:repeat(4,1fr);
-gap:15px;
-overflow-y:auto
+gap:15px
 }
 
 .photo{
 background:#fff;
 padding:8px;
 border-radius:6px;
-box-shadow:var(--photoShadow);
-transform:rotate(calc(var(--photoRotate) * -1));
+box-shadow:0 6px 15px rgba(0,0,0,.2);
 position:relative
 }
-.photo:nth-child(even){
-transform:rotate(var(--photoRotate))
-}
-
 .photo::before{
 content:"📎";
 position:absolute;
-top:-20px;
+top:-18px;
 left:6px;
-font-size:22px
+font-size:20px
 }
 
 .photo img{
@@ -130,6 +126,7 @@ border:none;background:none;
 cursor:pointer;font-size:16px
 }
 
+/* ОВЕРЛЕЙ */
 .overlay{
 position:fixed;inset:0;
 background:rgba(0,0,0,.9);
@@ -146,34 +143,7 @@ z-index:2000
 <input type="password" placeholder="Пароль ❤️" onkeydown="checkPass(event)">
 </div>
 
-<button class="menu-btn" onclick="toggleMenu()">☰</button>
-
-<div class="menu" id="menu">
-<h3>⚙ Настройки</h3>
-
-<label>🔆 Яркость</label>
-<input type="range" min="0.7" max="1.2" step="0.05" oninput="setBrightness(this.value)">
-
-<label>🔤 Размер текста</label>
-<input type="range" min="14" max="20" step="1" oninput="setFont(this.value)">
-
-<label>🎨 Цвет клеток</label>
-<input type="color" oninput="setGrid(this.value)">
-
-<label>📎 Наклон фото</label>
-<input type="range" min="0" max="5" step="0.5" oninput="setRotate(this.value)">
-
-<label>🌫 Тень фото</label>
-<input type="range" min="5" max="30" step="1" oninput="setShadow(this.value)">
-
-<hr>
-<button onclick="resetSettings()">♻ Сброс</button>
-<hr>
-
-<button onclick="showAll()">📸 Все</button>
-<button onclick="showFav()">⭐ Избранное</button>
-<button onclick="askHidden()">🔐 Скрытые</button>
-</div>
+<button class="menu-btn">☰</button>
 
 <div class="app" id="app" style="display:none">
 
@@ -190,11 +160,10 @@ z-index:2000
 </div>
 
 <script>
-const PASS="love", HIDDEN="secret";
+const PASS="love";
 const lock=document.getElementById("lock");
 const app=document.getElementById("app");
 const gallery=document.getElementById("gallery");
-const menu=document.getElementById("menu");
 
 function checkPass(e){
 if(e.key==="Enter"&&e.target.value===PASS){
@@ -203,8 +172,6 @@ app.style.display="block";
 }
 }
 
-function toggleMenu(){menu.classList.toggle("open")}
-
 /* СЧЁТЧИК */
 const start=new Date(2024,7,5);
 setInterval(()=>{
@@ -212,20 +179,7 @@ const d=Math.floor((Date.now()-start)/86400000);
 counter.innerText=`Мы вместе ${d} дней ❤️`;
 },1000);
 
-/* НАСТРОЙКИ */
-function setBrightness(v){document.documentElement.style.setProperty('--brightness',v)}
-function setFont(v){document.documentElement.style.setProperty('--fontSize',v+'px')}
-function setGrid(v){document.documentElement.style.setProperty('--gridColor',v)}
-function setRotate(v){document.documentElement.style.setProperty('--photoRotate',v+'deg')}
-function setShadow(v){
-document.documentElement.style.setProperty('--photoShadow',`0 ${v}px ${v*2}px rgba(0,0,0,.3)`)
-}
-function resetSettings(){
-setBrightness(1);setFont(16);setGrid('#e6b3c1');setRotate(2);setShadow(10)
-}
-
-/* ГАЛЕРЕЯ — СТАРЫЙ АЛГОРИТМ */
-let mode="all";
+/* ГАЛЕРЕЯ */
 let photos=JSON.parse(localStorage.photos||"[]");
 function save(){localStorage.photos=JSON.stringify(photos)}
 
@@ -233,7 +187,7 @@ function addPhotos(e){
 for(let f of e.target.files){
 const r=new FileReader();
 r.onload=x=>{
-photos.push({src:x.target.result,text:"",fav:false,hidden:false});
+photos.push({src:x.target.result,text:"",fav:false});
 save();render();
 };
 r.readAsDataURL(f);
@@ -243,18 +197,12 @@ r.readAsDataURL(f);
 function render(){
 gallery.innerHTML="";
 photos.forEach((p,i)=>{
-if(mode==="fav"&&!p.fav)return;
-if(mode==="hidden"&&!p.hidden)return;
-if(mode==="all"&&p.hidden)return;
-
 const d=document.createElement("div");
 d.className="photo";
 d.innerHTML=`
 <img src="${p.src}" onclick="openImg(${i})">
 <textarea placeholder="Подпись..." oninput="photos[${i}].text=this.value;save()">${p.text}</textarea>
 <div class="actions">
-<button onclick="toggleFav(${i})">${p.fav?"⭐":"☆"}</button>
-<button onclick="toggleHidden(${i})">🙈</button>
 <button onclick="removePhoto(${i})">✖</button>
 </div>`;
 gallery.appendChild(d);
@@ -269,18 +217,19 @@ o.innerHTML=`<img src="${photos[i].src}">`;
 document.body.appendChild(o);
 }
 
-function toggleFav(i){photos[i].fav=!photos[i].fav;save();render()}
-function toggleHidden(i){photos[i].hidden=!photos[i].hidden;save();render()}
-function removePhoto(i){if(confirm("Удалить?")){photos.splice(i,1);save();render()}}
-function showFav(){mode="fav";render()}
-function showAll(){mode="all";render()}
-function askHidden(){if(prompt("Пароль")==HIDDEN){mode="hidden";render()}}
+function removePhoto(i){
+if(confirm("Удалить фото?")){
+photos.splice(i,1);save();render();
+}
+}
 
 render();
 </script>
 
 </body>
 </html>
+
+
 
 
 
