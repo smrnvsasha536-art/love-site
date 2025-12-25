@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Наша история 💖</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
@@ -10,64 +10,315 @@
 <style>
 *{box-sizing:border-box}
 body{
-margin:0;font-family:Montserrat;min-height:100vh;
-background:linear-gradient(120deg,#ff9a9e,#fad0c4,#fbc2eb);
-background-size:400% 400%;animation:gradient 10s ease infinite;
-display:flex;justify-content:center;align-items:flex-start;
-padding:20px;color:#fff
+  margin:0;
+  font-family:Montserrat;
+  min-height:100vh;
+  background:linear-gradient(120deg,#ff9a9e,#fad0c4,#fbc2eb);
+  background-size:400% 400%;
+  animation:gradient 10s ease infinite;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  color:#fff;
+  overflow-y:auto;
 }
 @keyframes gradient{
-0%{background-position:0% 50%}
-50%{background-position:100% 50%}
-100%{background-position:0% 50%}
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
 
+/* карточка */
 .card{
-width:100%;max-width:900px;
-background:rgba(255,255,255,.25);
-backdrop-filter:blur(16px);
-border-radius:30px;padding:25px;
-box-shadow:0 20px 40px rgba(0,0,0,.25);
-text-align:center
+  width:100%;
+  max-width:900px;
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(16px);
+  border-radius:30px;
+  padding:25px;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+  text-align:center;
 }
 
-/* ☰ МЕНЮ */
-.menu-btn{
-position:fixed;top:20px;left:20px;
-font-size:26px;background:none;border:none;
-color:#fff;cursor:pointer;z-index:10001
-}
-.side-menu{
-position:fixed;top:0;left:-260px;
-width:260px;height:100%;
-background:rgba(0,0,0,.85);
-backdrop-filter:blur(10px);
-padding:80px 20px;
-transition:.3s;z-index:10000
-}
-.side-menu.open{left:0}
-.side-menu button{
-width:100%;margin:10px 0;padding:15px;
-border:none;border-radius:20px;font-size:16px;cursor:pointer
-}
-
-/* 🔐 ЛОКИ */
+/* пароль */
 .lock,.hidden-lock{
-position:fixed;inset:0;background:#000;
-display:flex;align-items:center;justify-content:center;
-z-index:9999
+  position:fixed; inset:0;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
 }
 .lock input,.hidden-lock input{
-padding:15px;font-size:18px;border-radius:15px;border:none
+  padding:15px;
+  font-size:18px;
+  border-radius:15px;
+  border:none;
 }
 
-/* ❤️ СЧЁТЧИК */
-.counter{
-margin:15px 0;font-size:18px;font-weight:500
+/* меню */
+.menu-btn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  font-size:26px;
+  cursor:pointer;
+  z-index:1000;
+}
+.menu{
+  position:fixed;
+  top:0; left:-260px;
+  width:260px;
+  height:100%;
+  background:rgba(0,0,0,.85);
+  padding:20px;
+  transition:.3s;
+  z-index:999;
+}
+.menu.open{left:0}
+.menu button{
+  width:100%;
+  margin:10px 0;
+  padding:12px;
+  border:none;
+  border-radius:20px;
+  font-size:16px;
+  cursor:pointer;
 }
 
-/* 🎁 КНОПКИ */
-.main-buttons button
+/* счётчик */
+#counter{
+  font-size:20px;
+  margin:10px 0 20px;
+}
+
+/* кнопки */
+.main-buttons button{
+  margin:8px;
+  padding:12px 20px;
+  border:none;
+  border-radius:25px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+/* галерея */
+.gallery{
+  margin-top:20px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+.photo{
+  background:#fff;
+  color:#333;
+  border-radius:12px;
+  overflow:hidden;
+}
+.photo img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  cursor:pointer;
+}
+.photo textarea{
+  width:100%;
+  border:none;
+  padding:5px;
+  font-size:12px;
+  resize:none;
+}
+.actions{
+  display:flex;
+  justify-content:space-between;
+  padding:5px;
+}
+.actions button{
+  background:none;
+  border:none;
+  font-size:16px;
+  cursor:pointer;
+}
+
+/* просмотр */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.overlay img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+<div class="menu" id="menu">
+  <button onclick="showAll()">📸 Все фото</button>
+  <button onclick="showFav()">⭐ Избранное</button>
+  <button onclick="askHidden()">🔐 Скрытая галерея</button>
+</div>
+
+<div class="lock" id="lock">
+  <input type="password" placeholder="Пароль ❤️" onkeydown="checkMain(event)">
+</div>
+
+<div class="hidden-lock" id="hiddenLock" style="display:none">
+  <input type="password" placeholder="Секретный пароль 🔐" onkeydown="checkHidden(event)">
+</div>
+
+<div class="card" id="app" style="display:none">
+
+<h1>Наша история 💕</h1>
+<b>Саша ❤️ Адушка</b>
+
+<div id="counter"></div>
+
+<div class="main-buttons">
+  <button onclick="memory()">🕊 Воспоминание дня</button>
+  <button id="gift" style="display:none" onclick="openGift()">🎁 Приз</button>
+</div>
+
+<input type="file" multiple accept="image/*" onchange="addPhotos(event)">
+
+<div class="gallery" id="gallery"></div>
+</div>
+
+<script>
+/* пароли */
+const MAIN_PASS="love";
+const HIDDEN_PASS="secret";
+
+const lock=document.getElementById("lock");
+const hiddenLock=document.getElementById("hiddenLock");
+const app=document.getElementById("app");
+const gallery=document.getElementById("gallery");
+const menu=document.getElementById("menu");
+
+let mode="all";
+
+/* меню */
+function toggleMenu(){menu.classList.toggle("open")}
+
+/* вход */
+function checkMain(e){
+  if(e.key==="Enter" && e.target.value===MAIN_PASS){
+    lock.style.display="none";
+    app.style.display="block";
+  }
+}
+function checkHidden(e){
+  if(e.key==="Enter" && e.target.value===HIDDEN_PASS){
+    hiddenLock.style.display="none";
+    mode="hidden";
+    render();
+  }
+}
+
+/* счётчик */
+const start=new Date(2024,7,5);
+function updateCounter(){
+  const diff=Date.now()-start;
+  const d=Math.floor(diff/86400000);
+  const h=Math.floor(diff/3600000)%24;
+  document.getElementById("counter").innerText=
+    `Мы вместе ${d} дней ${h} часов 💖`;
+}
+setInterval(updateCounter,1000);updateCounter();
+
+/* приз */
+if(Date.now()>new Date("2025-02-14")){
+  document.getElementById("gift").style.display="inline-block";
+}
+function openGift(){
+  alert("🎁 Твой приз — бесконечная любовь ❤️");
+}
+
+/* галерея */
+let photos=JSON.parse(localStorage.photos||"[]");
+function save(){localStorage.photos=JSON.stringify(photos)}
+
+function addPhotos(e){
+  for(let f of e.target.files){
+    const r=new FileReader();
+    r.onload=x=>{
+      photos.push({
+        src:x.target.result,
+        text:"",
+        fav:false,
+        hidden:false,
+        date:Date.now()
+      });
+      save();render();
+    };
+    r.readAsDataURL(f);
+  }
+}
+
+function render(){
+  gallery.innerHTML="";
+  photos.filter(p=>{
+    if(mode==="fav") return p.fav && !p.hidden;
+    if(mode==="hidden") return p.hidden;
+    return !p.hidden;
+  }).forEach((p,i)=>{
+    const d=document.createElement("div");
+    d.className="photo";
+    d.innerHTML=`
+      <img src="${p.src}" onclick="openImg('${p.src}')">
+      <textarea placeholder="Подпись..."
+        oninput="photos[${i}].text=this.value;save()">${p.text}</textarea>
+      <div class="actions">
+        <button onclick="toggleFav(${i})">${p.fav?"⭐":"☆"}</button>
+        <button onclick="toggleHidden(${i})">🙈</button>
+        <button onclick="removePhoto(${i})">✖</button>
+      </div>
+    `;
+    gallery.appendChild(d);
+  });
+}
+
+function removePhoto(i){
+  if(confirm("Удалить фото?")){
+    photos.splice(i,1);
+    save();render();
+  }
+}
+function toggleFav(i){photos[i].fav=!photos[i].fav;save();render();}
+function toggleHidden(i){photos[i].hidden=!photos[i].hidden;save();render();}
+function showFav(){mode="fav";render();}
+function showAll(){mode="all";render();}
+function askHidden(){hiddenLock.style.display="flex";}
+
+function openImg(src){
+  const o=document.createElement("div");
+  o.className="overlay";
+  o.onclick=()=>o.remove();
+  o.innerHTML=`<img src="${src}">`;
+  document.body.appendChild(o);
+}
+function memory(){
+  if(!photos.length) return alert("Добавь фото 💖");
+  openImg(photos[Math.floor(Math.random()*photos.length)].src);
+}
+
+render();
+</script>
+
+</body>
+</html>
+
+
 
 
 
