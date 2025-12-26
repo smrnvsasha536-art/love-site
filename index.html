@@ -1,187 +1,187 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Наша история ❤️</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Наша история ❤️</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Pacifico&family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Pacifico&family=Roboto&display=swap" rel="stylesheet">
 
-<style>
-*{box-sizing:border-box}
+  <style>
+    *{box-sizing:border-box}
 
-:root{
-  --brightness:1;
-  --fontSize:16px;
-  --bgColor:#ffffff;
-  --fontFamily:'Montserrat',sans-serif;
-  --textColor:#000000;
-  --btnColor:#ff8fa3;
-  --photoShadow:0 6px 18px rgba(0,0,0,.25);
-  --photoSize:1;
-  --photoBgColor:#fff;
-}
+    :root{
+      --brightness:1;
+      --fontSize:16px;
+      --bgColor:#ffffff;
+      --fontFamily:'Montserrat',sans-serif;
+      --textColor:#000000;
+      --btnColor:#ff8fa3;
+      --photoShadow:0 6px 18px rgba(0,0,0,.25);
+      --photoSize:1;
+      --photoBgColor:#fff;
+    }
 
-/* ===== BODY ===== */
-body{
-  margin:0;
-  min-height:100vh;
-  font-family:var(--fontFamily);
-  font-size:var(--fontSize);
-  color:var(--textColor);
-  background-color:var(--bgColor);
-  background-image:
-    linear-gradient(#e5e5e5 1px,transparent 1px),
-    linear-gradient(90deg,#e5e5e5 1px,transparent 1px);
-  background-size:24px 24px;
-  padding:80px 20px 40px 70px;
-  overflow:hidden;
-  filter:brightness(var(--brightness));
-}
+    /* ===== BODY ===== */
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:var(--fontFamily);
+      font-size:var(--fontSize);
+      color:var(--textColor);
+      background-color:var(--bgColor);
+      background-image:
+        linear-gradient(#e5e5e5 1px,transparent 1px),
+        linear-gradient(90deg,#e5e5e5 1px,transparent 1px);
+      background-size:24px 24px;
+      padding:80px 20px 40px 70px;
+      overflow:hidden;
+      filter:brightness(var(--brightness));
+    }
 
-/* ===== SVG HEARTS ===== */
-.heart{
-  position:absolute;
-  bottom:-60px;
-  animation:fly linear infinite;
-  pointer-events:none;
-}
+    /* ===== SVG HEARTS ===== */
+    .heart{
+      position:absolute;
+      bottom:-60px;
+      animation:fly linear infinite;
+      pointer-events:none;
+    }
 
-@keyframes fly{
-  from{transform:translateY(0) scale(var(--s));opacity:0}
-  10%{opacity:1}
-  to{transform:translateY(-120vh) scale(var(--s));opacity:0}
-}
+    @keyframes fly{
+      from{transform:translateY(0) scale(var(--s));opacity:0}
+      10%{opacity:1}
+      to{transform:translateY(-120vh) scale(var(--s));opacity:0}
+    }
 
-/* ===== LOCK ===== */
-.lock{
-  position:fixed;
-  inset:0;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:5000;
-}
+    /* ===== LOCK ===== */
+    .lock{
+      position:fixed;
+      inset:0;
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:5000;
+    }
 
-.lock input{
-  padding:15px 20px;
-  font-size:18px;
-  border-radius:14px;
-  border:none;
-}
+    .lock input{
+      padding:15px 20px;
+      font-size:18px;
+      border-radius:14px;
+      border:none;
+    }
 
-/* ===== MENU ===== */
-.menu-btn{
-  position:fixed;
-  top:15px;
-  left:15px;
-  font-size:28px;
-  background:none;
-  border:none;
-  cursor:pointer;
-  z-index:4000;
-}
+    /* ===== MENU ===== */
+    .menu-btn{
+      position:fixed;
+      top:15px;
+      left:15px;
+      font-size:28px;
+      background:none;
+      border:none;
+      cursor:pointer;
+      z-index:4000;
+    }
 
-.menu{
-  position:fixed;
-  top:0;
-  left:-300px;
-  width:300px;
-  height:100%;
-  background:#fff;
-  box-shadow:4px 0 25px rgba(0,0,0,.3);
-  padding:20px;
-  transition:left .3s;
-  z-index:3999;
-  overflow-y:auto;
-}
+    .menu{
+      position:fixed;
+      top:0;
+      left:-300px;
+      width:300px;
+      height:100%;
+      background:#fff;
+      box-shadow:4px 0 25px rgba(0,0,0,.3);
+      padding:20px;
+      transition:left .3s;
+      z-index:3999;
+      overflow-y:auto;
+    }
 
-.menu.open{left:0}
-.menu label{display:block;margin-top:10px;font-size:14px}
-.menu input,.menu select{width:100%}
+    .menu.open{left:0}
+    .menu label{display:block;margin-top:10px;font-size:14px}
+    .menu input,.menu select{width:100%}
 
-.menu button{
-  margin-top:10px;
-  width:100%;
-  padding:8px;
-  background:var(--btnColor);
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
+    .menu button{
+      margin-top:10px;
+      width:100%;
+      padding:8px;
+      background:var(--btnColor);
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+    }
 
-/* ===== APP ===== */
-.app{
-  max-width:900px;
-  margin:auto;
-  background:#fff;
-  border-radius:18px;
-  padding:30px;
-  box-shadow:0 15px 30px rgba(0,0,0,.15);
-  position:relative;
-  z-index:2;
-  display:none;
-}
+    /* ===== APP ===== */
+    .app{
+      max-width:900px;
+      margin:auto;
+      background:#fff;
+      border-radius:18px;
+      padding:30px;
+      box-shadow:0 15px 30px rgba(0,0,0,.15);
+      position:relative;
+      z-index:2;
+      display:none;
+    }
 
-.header{
-  font-family:Pacifico;
-  font-size:30px;
-  text-align:center;
-}
+    .header{
+      font-family:Pacifico;
+      font-size:30px;
+      text-align:center;
+    }
 
-/* ===== GALLERY ===== */
-.gallery{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-  margin-top:20px;
-}
+    /* ===== GALLERY ===== */
+    .gallery{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:18px;
+      margin-top:20px;
+    }
 
-.photo{
-  background:var(--photoBgColor);
-  padding:8px;
-  border-radius:6px;
-  box-shadow:var(--photoShadow);
-  transform:scale(var(--photoSize));
-}
+    .photo{
+      background:var(--photoBgColor);
+      padding:8px;
+      border-radius:6px;
+      box-shadow:var(--photoShadow);
+      transform:scale(var(--photoSize));
+    }
 
-.photo img{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  cursor:pointer;
-}
+    .photo img{
+      width:100%;
+      aspect-ratio:1/1;
+      object-fit:cover;
+      cursor:pointer;
+    }
 
-.photo textarea{
-  width:100%;
-  border:none;
-  resize:none;
-  font-size:12px;
-  background:transparent;
-}
+    .photo textarea{
+      width:100%;
+      border:none;
+      resize:none;
+      font-size:12px;
+      background:transparent;
+    }
 
-.actions{
-  display:flex;
-  justify-content:space-between;
-}
+    .actions{
+      display:flex;
+      justify-content:space-between;
+    }
 
-/* ===== OVERLAY ===== */
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.9);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:6000;
-}
+    /* ===== OVERLAY ===== */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.9);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:6000;
+    }
 
-.overlay img{
-  max-width:90%;
-  max-height:90%;
-}
-</style>
+    .overlay img{
+      max-width:90%;
+      max-height:90%;
+    }
+  </style>
 </head>
 
 <body>
@@ -226,6 +226,7 @@ body{
   <label>Тень фотографий</label>
   <input type="color" oninput="setPhotoShadow(this.value)">
 
+  <label>Скрытые фото</label>
   <button onclick="toggleHidden()">🔐 Скрытые фото</button>
 </div>
 
@@ -282,7 +283,7 @@ function save(){localStorage.photos=JSON.stringify(photos)}
 function addPhotos(e){
   for(let f of e.target.files){
     const r=new FileReader();
-    r.onload=x=>{
+    r.onload=x=>{ 
       photos.push({src:x.target.result,text:"",hidden:false});
       save();render();
     };
@@ -347,6 +348,7 @@ setInterval(spawnHeart,400);
 
 </body>
 </html>
+
 
 
 
