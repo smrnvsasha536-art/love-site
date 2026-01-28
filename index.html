@@ -1,297 +1,100 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Наша история ❤️</title>
-  
-  <!-- Подключение шрифтов -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Pacifico&family=Roboto&display=swap" rel="stylesheet">
 
-  <style>
-    * { box-sizing: border-box; }
 
-    :root {
-      --brightness: 1;
-      --fontSize: 16px;
-      --bgColor: #ffffff;
-      --fontFamily: 'Montserrat', sans-serif;
-      --textColor: #000000;
-      --btnColor: #ff8fa3;
-      --photoShadow: 0 6px 18px rgba(0,0,0,.25);
-      --photoSize: 1;
-      --photoBgColor: #fff;
-    }
-
-    /* ===== BODY ===== */
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: var(--fontFamily);
-      font-size: var(--fontSize);
-      color: var(--textColor);
-      background-color: var(--bgColor);
-      background-image: linear-gradient(#e5e5e5 1px, transparent 1px), linear-gradient(90deg, #e5e5e5 1px, transparent 1px);
-      background-size: 24px 24px;
-      padding: 80px 20px 40px 70px;
-      overflow: hidden;
-      filter: brightness(var(--brightness));
-    }
-
-    /* ===== MENU ===== */
-    .menu-btn {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 28px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      z-index: 4000;
-    }
-
-    .menu {
-      position: fixed;
-      top: 0;
-      left: -300px;
-      width: 300px;
-      height: 100%;
-      background: #fff;
-      box-shadow: 4px 0 25px rgba(0,0,0,.3);
-      padding: 20px;
-      transition: left .3s;
-      z-index: 3999;
-      overflow-y: auto;
-    }
-
-    .menu.open {
-      left: 0;
-    }
-
-    .menu label {
-      display: block;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    .menu input, .menu select {
-      width: 100%;
-    }
-
-    .menu button {
-      margin-top: 10px;
-      width: 100%;
-      padding: 8px;
-      background: var(--btnColor);
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    /* ===== APP ===== */
-    .app {
-      max-width: 900px;
-      margin: auto;
-      background: #fff;
-      border-radius: 18px;
-      padding: 30px;
-      box-shadow: 0 15px 30px rgba(0,0,0,.15);
-      position: relative;
-      z-index: 2;
-      display: none;
-    }
-
-    .header {
-      font-family: Pacifico;
-      font-size: 30px;
-      text-align: center;
-    }
-
-    /* ===== GALLERY ===== */
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-      margin-top: 20px;
-    }
-
-    .photo {
-      background: var(--photoBgColor);
-      padding: 8px;
-      border-radius: 6px;
-      box-shadow: var(--photoShadow);
-      transform: scale(var(--photoSize));
-    }
-
-    .photo img {
-      width: 100%;
-      aspect-ratio: 1/1;
-      object-fit: cover;
-      cursor: pointer;
-    }
-
-    .photo textarea {
-      width: 100%;
-      border: none;
-      resize: none;
-      font-size: 12px;
-      background: transparent;
-    }
-
-    .actions {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    /* ===== OVERLAY ===== */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 6000;
-    }
-
-    .overlay img {
-      max-width: 90%;
-      max-height: 90%;
-    }
-  </style>
+@media (max-width: 520px) {
+.scroll { padding: 26px 22px 30px; }
+h1 { font-size: 22px; }
+}
+</style>
 </head>
-
 <body>
+<div class="scroll-wrap">
+<div class="roller top"></div>
 
-  <button class="menu-btn" onclick="toggleMenu()">☰</button>
 
-  <div class="menu" id="menu">
-    <h3>⚙️ Настройки</h3>
+<article class="scroll">
+<div class="burn"></div>
+<h1>📜 РЕЕСТР ЖИТЕЛЕЙ ГОРОДА ЗАЕБИНСК</h1>
+<h2>(выписка, лист 3 из 666)</h2>
 
-    <label>Яркость</label>
-    <input type="range" min="0.5" max="1" step="0.05" oninput="setBrightness(this.value)">
 
-    <label>Размер текста</label>
-    <input type="range" min="14" max="22" oninput="setFont(this.value)">
+<section class="section">
+<div class="section-title">🏛 Администрация города</div>
+<ul>
+<li>Мэр — Всехзаебавин Пук Абсолютович</li>
+<li>Зам по культуре — Кривохрюков Хлюп Ниочёмович</li>
+<li>Секретарь — Бумагожёв Шмяк Даотъебисьевна</li>
+</ul>
+</section>
 
-    <label>Цвет фона</label>
-    <input type="color" oninput="setBg(this.value)">
 
-    <label>Шрифт</label>
-    <select onchange="setFontFamily(this.value)">
-      <option value="'Montserrat', sans-serif">Montserrat</option>
-      <option value="'Roboto', sans-serif">Roboto</option>
-      <option value="'Pacifico', cursive">Pacifico</option>
-    </select>
+<section class="section">
+<div class="section-title">🚓 Правоохранительные органы</div>
+<ul>
+<li>Начальник полиции — Самообосранцев Храп Непойманович</li>
+<li>Участковый — Пердюлин Пшик Вездесущий</li>
+<li>Следователь — Хренразберов Хлюп Какнибудьевич</li>
+</ul>
+</section>
 
-    <label>Цвет текста</label>
-    <input type="color" oninput="setTextColor(this.value)">
 
-    <label>Цвет кнопок</label>
-    <input type="color" oninput="setBtnColor(this.value)">
+<section class="section">
+<div class="section-title">🏥 Городская больница №1</div>
+<ul>
+<li>Главврач — Сраколечев Пук Почтидокторович</li>
+<li>Хирург — Рукожопов Шмяк Криворезович</li>
+<li>Терапевт — Симулянтов Хлюп Итаксойдётиевич</li>
+</ul>
+</section>
 
-    <label>Размер фотографий</label>
-    <input type="range" min="0.5" max="1.5" step="0.05" oninput="setPhotoSize(this.value)">
 
-    <label>Тень фотографий</label>
-    <input type="color" oninput="setPhotoShadow(this.value)">
-  </div>
+<section class="section">
+<div class="section-title">🏫 Школа №13 «Светлый путь»</div>
+<ul>
+<li>Директор — Моралев Пук Самопровозглашённый</li>
+<li>Учитель труда — Забийхеров Шмяк ЗолотыеРукич</li>
+<li>Учитель ОБЖ — Паников Пшик Всепропальевич</li>
+</ul>
+</section>
 
-  <div class="app" id="app">
-    <div class="header">Наша история ❤️</div>
 
-    <input type="file" multiple accept="image/*" onchange="addPhotos(event)">
-    <div class="gallery" id="gallery"></div>
-  </div>
+<section class="section">
+<div class="section-title">🏪 Малый бизнес</div>
+<ul>
+<li>Ларёк «ВСЁ ПО 50» — Владелец: Жадноглазов Хлюп Недодастович</li>
+<li>Пивнуха «У последней надежды» — Бармен: Разливайкин Шмяк Косоглазович</li>
+</ul>
+</section>
 
-  <script>
-    const app = document.getElementById("app");
-    const menu = document.getElementById("menu");
-    const gallery = document.getElementById("gallery");
 
-    let photos = JSON.parse(localStorage.photos || "[]");
+<section class="section">
+<div class="section-title">🧟‍♂️ Особо опасные граждане</div>
+<ul>
+<li>Хуеголовов Пук Самодостаточный <span class="badge">опасен</span></li>
+<li>Полнопиздецов Хлюп Нуаконецтоевич <span class="badge">очень</span></li>
+<li>Говнохарактеров Шмяк Вреднорожденный</li>
+<li>Сракодумов Пшик Философович</li>
+</ul>
+</section>
 
-    function save() {
-      localStorage.photos = JSON.stringify(photos);
-    }
 
-    function addPhotos(e) {
-      for (let file of e.target.files) {
-        const reader = new FileReader();
-        reader.onload = (x) => {
-          photos.push({ src: x.target.result, text: "", hidden: false });
-          save();
-          render();
-        };
-        reader.readAsDataURL(file);
-      }
-    }
+<section class="section">
+<div class="section-title">👑 ПОЧЁТНЫЙ ГРАЖДАНИН ГОРОДА</div>
+<ul>
+<li>🏅 Тухлодыров Сопел Шляпоголовович — <em>за вклад в разложение всего</em></li>
+</ul>
+</section>
 
-    function toggleMenu() {
-      menu.classList.toggle("open");
-    }
 
-    function setBrightness(v) {
-      document.documentElement.style.setProperty("--brightness", v);
-    }
+<div class="footer">— Хранить в архиве. Не сжигать. —</div>
+</article>
 
-    function setFont(v) {
-      document.documentElement.style.setProperty("--fontSize", v + "px");
-    }
 
-    function setBg(v) {
-      document.documentElement.style.setProperty("--bgColor", v);
-    }
-
-    function setFontFamily(v) {
-      document.documentElement.style.setProperty("--fontFamily", v);
-    }
-
-    function setTextColor(v) {
-      document.documentElement.style.setProperty("--textColor", v);
-    }
-
-    function setBtnColor(v) {
-      document.documentElement.style.setProperty("--btnColor", v);
-    }
-
-    function setPhotoSize(v) {
-      document.documentElement.style.setProperty("--photoSize", v);
-    }
-
-    function setPhotoShadow(v) {
-      document.documentElement.style.setProperty("--photoShadow", `0 6px 18px ${v}80`);
-    }
-
-    function render() {
-      gallery.innerHTML = "";
-      photos.forEach((photo, i) => {
-        const div = document.createElement("div");
-        div.className = "photo";
-        div.innerHTML = `
-          <img src="${photo.src}" onclick="openImg('${photo.src}')">
-          <textarea oninput="photos[${i}].text=this.value; save()">${photo.text}</textarea>
-          <div class="actions">
-            <button onclick="photos.splice(${i}, 1); save(); render()">✖</button>
-          </div>
-        `;
-        gallery.appendChild(div);
-      });
-    }
-
-    function openImg(src) {
-      const overlay = document.createElement("div");
-      overlay.className = "overlay";
-      overlay.onclick = () => overlay.remove();
-      overlay.innerHTML = `<img src="${src}">`;
-      document.body.appendChild(overlay);
-    }
-
-    render();
-  </script>
-
+<div class="roller bottom"></div>
+</div>
 </body>
 </html>
+
 
 
 
