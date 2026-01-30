@@ -45,16 +45,6 @@
             border: 2px solid #ffcc00;
             font-size: 32px;
             font-weight: bold;
-            animation: spin 1s infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
         }
 
         .buttons {
@@ -212,7 +202,6 @@
                     document.getElementById('result').textContent = `ДЖЕКПОТ! Вы выиграли ${jackpotAmount} монет! 🎉`;
                     document.getElementById('result').classList.add('won');
                     document.getElementById('result').classList.remove('lost');
-                    playSound('win');  // Звук джекпота
                 } else if (slot1 === slot2 && slot2 === slot3) {
                     const winAmount = betAmount * 5;  // Обычный выигрыш = ставка * 5
                     balance += winAmount;
@@ -221,20 +210,47 @@
                     document.getElementById('result').textContent = `Поздравляем! Вы выиграли ${winAmount} монет! 🎉`;
                     document.getElementById('result').classList.add('won');
                     document.getElementById('result').classList.remove('lost');
-                    playSound('win');  // Звук выигрыша
                 } else {
                     balance -= betAmount;
                     addToHistory(`Вы проиграли ${betAmount} монет.`);
                     document.getElementById('result').textContent = `Увы, вы не выиграли. Попробуйте снова! 😞`;
                     document.getElementById('result').classList.add('lost');
                     document.getElementById('result').classList.remove('won');
-                    playSound('lose');  // Звук проигрыша
                 }
 
                 // Обновляем баланс
                 document.getElementById("balance").textContent = balance;
 
-                // Проверяем, не обанк
+                // Проверяем, не обанкротился ли пользователь
+                if (balance <= 0) {
+                    document.getElementById("result").textContent = "Ваш баланс истёк. Начните новую игру!";
+                    document.getElementById('result').classList.remove('won');
+                    document.getElementById('result').classList.remove('lost');
+                    document.getElementById('historyList').innerHTML = '';
+                }
+
+            }, 1000); // Задержка для имитации вращения
+        }
+
+        // Функция для получения случайного символа
+        function getRandomSymbol() {
+            return symbols[Math.floor(Math.random() * symbols.length)];
+        }
+
+        // Функция для добавления записи в историю игры
+        function addToHistory(text) {
+            const historyList = document.getElementById("historyList");
+            const listItem = document.createElement("li");
+            listItem.textContent = text;
+            historyList.appendChild(listItem);
+        }
+
+        // Функция для сброса игры
+        function resetGame() {
+            balance = 5000;
+            level = 1;
+
+
 
 
 
