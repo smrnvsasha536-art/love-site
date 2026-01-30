@@ -43,6 +43,7 @@
             border-radius: 10px;
             border: 2px solid #ffcc00;
             font-size: 32px;
+            font-weight: bold;
         }
 
         .buttons {
@@ -76,6 +77,24 @@
         .lost {
             color: red;
         }
+
+        .balance, .level {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .input {
+            padding: 10px;
+            width: 60px;
+            margin: 10px;
+            font-size: 16px;
+        }
+
+        .history {
+            font-size: 14px;
+            margin-top: 20px;
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
@@ -83,59 +102,121 @@
     <h1>Казино 777 - Слот-машина</h1>
 
     <div class="container">
+        <div class="balance">
+            Баланс: <span id="balance">5000</span> монет
+        </div>
+        <div class="level">
+            Уровень: <span id="level">1</span> | Опыт: <span id="experience">0</span>/1000
+        </div>
+
         <div class="slots">
             <div class="slot" id="slot1">1</div>
             <div class="slot" id="slot2">2</div>
             <div class="slot" id="slot3">3</div>
         </div>
 
+        <input type="number" id="bet" class="input" placeholder="Ставка" min="1" max="100">
+
         <div class="buttons">
             <button class="button" onclick="spin()">Крутить!</button>
         </div>
 
         <div id="result" class="result"></div>
+
+        <div class="history">
+            <h3>История игры:</h3>
+            <ul id="historyList"></ul>
+        </div>
     </div>
 
     <script>
-        // Доступные цифры для игры
+        // Инициализация баланса и уровня
+        let balance = 5000;
+        let level = 1;
+        let experience = 0;
         const numbers = [1, 2, 3, 4, 5, 6, 7];
+        const history = []; // Массив для хранения истории игры
+
+        // Функция для обновления опыта и уровня
+        function gainExperience(points) {
+            experience += points;
+            if (experience >= 1000) {
+                level++;
+                experience = 0;
+                document.getElementById("level").textContent = level;
+                alert(`Поздравляем! Вы перешли на уровень ${level}!`);
+            }
+            document.getElementById("experience").textContent = experience;
+        }
 
         // Функция для вращения барабанов
         function spin() {
+            const betAmount = parseInt(document.getElementById("bet").value);
+            
+            // Проверка ставки
+            if (isNaN(betAmount) || betAmount < 1 || betAmount > balance) {
+                document.getElementById("result").textContent = "Введите правильную ставку (не больше баланса).";
+                return;
+            }
+
             // Сбросить результат
             document.getElementById("result").textContent = '';
+            document.getElementById("historyList").innerHTML = '';
 
             // Симуляция кручения барабанов
             let slot1 = getRandomNumber();
             let slot2 = getRandomNumber();
             let slot3 = getRandomNumber();
 
-            // Обновляем число на слотах
+            // Обновляем числа на слотах
             document.getElementById('slot1').textContent = slot1;
             document.getElementById('slot2').textContent = slot2;
             document.getElementById('slot3').textContent = slot3;
 
             // Проверка на выигрыш
             if (slot1 === slot2 && slot2 === slot3) {
-                document.getElementById('result').textContent = "Поздравляем! Вы выиграли! 🎉";
+                const winAmount = betAmount * 5;  // Выигрыш = ставка * 5
+                balance += winAmount;
+                gainExperience(200); // Выигрыш даёт опыт
+                addToHistory(`Вы выиграли ${winAmount} монет!`);
+                document.getElementById('result').textContent = `Поздравляем! Вы выиграли ${winAmount} монет! 🎉`;
                 document.getElementById('result').classList.add('won');
                 document.getElementById('result').classList.remove('lost');
             } else {
-                document.getElementById('result').textContent = "Увы, вы не выиграли. Попробуйте снова! 😞";
+                balance -= betAmount;
+                addToHistory(`Вы проиграли ${betAmount} монет.`);
+                document.getElementById('result').textContent = `Увы, вы не выиграли. Попробуйте снова! 😞`;
                 document.getElementById('result').classList.add('lost');
                 document.getElementById('result').classList.remove('won');
+            }
+
+            // Обновляем баланс
+            document.getElementById("balance").textContent = balance;
+
+            // Проверяем, не обанкротился ли игрок
+            if (balance <= 0) {
+                document.getElementById("result").textContent = "У вас закончились монеты! Попробуйте снова.";
             }
         }
 
         // Функция для получения случайного числа
         function getRandomNumber() {
-            // Возвращаем случайное число из массива от 1 до 7
             return numbers[Math.floor(Math.random() * numbers.length)];
+        }
+
+        // Функция для добавления записи в историю
+        function addToHistory(message) {
+            history.push(message);
+            const historyList = document.getElementById("historyList");
+            const listItem = document.createElement("li");
+            listItem.textContent = message;
+            historyList.appendChild(listItem);
         }
     </script>
 
 </body>
 </html>
+
 
 
 
