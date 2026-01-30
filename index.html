@@ -202,15 +202,16 @@ function openBonus(){
 }
 
 function buyBonus(){
-    if(balance >= 10000){
+    if(balance >= 10000){  // Изменили стоимость бонуса на 10 000
         balance -= 10000;
         balanceEl.textContent = balance;
-        freeSpins = 40;
+        freeSpins = 20;
         currentBonusWin = 0;
         resultEl.textContent = `💥 Вы купили бонусную игру с 20 бесплатными прокрутами!`;
         startBonusGame();
     } else {
         resultEl.textContent = '❌ Недостаточно средств для покупки бонуса.';
+
     }
 }
 
@@ -267,6 +268,7 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
 
 
 
