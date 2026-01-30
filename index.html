@@ -20,9 +20,9 @@ button:hover { background:#ff4500; }
 .won { color:lime; }
 .lost { color:red; }
 .bonus { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; }
-.bonus-box { background:#333; padding:20px; border-radius:15px; width:300px; }
-.red { background:#c0392b; }
-.black { background:#000; }
+.bonus-box { background:#333; padding:20px; border-radius:15px; width:350px; }
+.card { background:#444; color:white; padding:10px; font-size:18px; border-radius:8px; cursor:pointer; margin:5px; }
+.card:hover { background:#555; }
 @media(max-width:480px){ .slot{ font-size:22px; } }
 </style>
 </head>
@@ -51,10 +51,9 @@ button:hover { background:#ff4500; }
 <!-- BONUS X2 -->
 <div class="bonus" id="bonus">
     <div class="bonus-box">
-        <h3>🔥 БОНУС X2</h3>
-        <p>Выбери цвет</p>
-        <button class="red" onclick="pickColor('red')">🔴 Красное</button>
-        <button class="black" onclick="pickColor('black')">⚫ Чёрное</button>
+        <h3>🔥 БОНУС: Выбери карту старше!</h3>
+        <p>Выбери карту старше текущей:</p>
+        <div id="cardsContainer"></div>
     </div>
 </div>
 
@@ -62,6 +61,7 @@ button:hover { background:#ff4500; }
 let balance = 15000;
 let auto = false, autoInt;
 let bonusAmount = 0;
+let bonusCard;
 
 const baseSymbols = ['🍒','🍋','🍊','🍉','🍀'];
 const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10},{t:'x100',v:100}];
@@ -77,6 +77,7 @@ const slotsEl = document.getElementById('slots');
 const balanceEl = document.getElementById('balance');
 const resultEl = document.getElementById('result');
 const bonusEl = document.getElementById('bonus');
+const cardsContainer = document.getElementById('cardsContainer');
 
 let grid=[], matrix=[];
 
@@ -96,7 +97,7 @@ function clearWin(){
     grid.flat().forEach(s=>s.classList.remove('win','spin'));
 }
 
-// функция для генерации выигрыша чаще
+// функция для генерации выигрыша
 function generateSymbols(lines){
     matrix = [[],[],[]];
     for(let r=0;r<3;r++){
@@ -114,7 +115,7 @@ function generateSymbols(lines){
 
     // добавляем случайные мультипликаторы
     const multCount = Math.floor(Math.random()*4);
-    let positions=[];
+    let positions=[]; 
     for(let r=0;r<3;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
     positions.sort(()=>Math.random()-0.5);
     const multPos = positions.slice(0,multCount);
@@ -184,38 +185,25 @@ function openBonus(){
     auto=false;
     clearInterval(autoInt);
     autoBtn.textContent='AUTOSPIN';
-}
 
-function pickColor(choice){
-    const result = Math.random()<0.5?'red':'black';
-    if(choice===result){
-        balance += bonusAmount;
-        resultEl.innerHTML = `🔥 БОНУС X2! +${bonusAmount}`;
-    } else {
-        resultEl.innerHTML = '💥 Бонус проигран';
-    }
-    balanceEl.textContent=balance;
-    bonusEl.style.display='none';
-}
+    // Генерируем 5 карт для бонусного раунда
+    const currentCardValue = Math.floor(Math.random() * 10) + 1;  // Сгенерируем случайную карту (1-10)
+    bonusCard = currentCardValue;
 
-function toggleAuto(){
-    auto = !auto;
-    autoBtn.textContent = auto ? 'STOP' : 'AUTOSPIN';
-    if(auto){
-        autoInt = setInterval(()=>{
-            if(balance>0) spin();
-            else toggleAuto();
-        },1200);
-    } else clearInterval(autoInt);
-}
+    // Создаем карточки
+    cardsContainer.innerHTML = ''; // очищаем контейнер
+    for (let i = 0; i < 5; i++) {
+        const cardValue = Math.floor(Math.random() * 10) + 1; // Генерация случайной карты от 1 до 10
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.textContent = `Карта ${cardValue}`;
+        card.onclick
 
-const betInput = document.getElementById('bet');
-const linesInput = document.getElementById('lines');
-const autoBtn = document.getElementById('autoBtn');
 </script>
 
 </body>
 </html>
+
 
 
 
