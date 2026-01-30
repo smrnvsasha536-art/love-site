@@ -196,26 +196,6 @@ function openBonus(){
     autoBtn.textContent='AUTOSPIN';
 }
 
-function pickColor(choice){
-    const result = Math.random()<0.5?'red':'black';
-    if(choice===result){
-        balance += bonusAmount;
-        resultEl.innerHTML = `🔥 БОНУС X2! +${bonusAmount}`;
-    } else {
-        resultEl.innerHTML = '💥 Бонус проигран';
-    }
-    balanceEl.textContent=balance;
-    bonusEl.style.display='none';
-}
-
-function toggleAuto(){
-    auto = !auto;
-    autoBtn.textContent = auto ? 'STOP' : 'AUTOSPIN';
-    if(auto){
-        autoInt = setInterval(()=>{ if(balance>0) spin(); else toggleAuto(); },1200);
-    } else clearInterval(autoInt);
-}
-
 function buyBonus(){
     if(balance >= 50000){
         balance -= 50000;
@@ -251,6 +231,7 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
 
 
 
