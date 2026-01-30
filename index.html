@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slot 5x7 Ultimate - Улучшенный</title>
+<title>Slot 7x5 Ultimate - Улучшенный</title>
 
 <style>
 body { background:#222; color:white; font-family:Arial; text-align:center; margin:0; padding:10px; }
 .container { max-width:520px; margin:auto; background:#333; padding:15px; border-radius:15px; }
-.slots { display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(7,80px); gap:8px; margin:15px 0; }
+.slots { display:grid; grid-template-columns:repeat(7,1fr); grid-template-rows:repeat(5,80px); gap:8px; margin:15px 0; }
 .slot { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; }
 .spin { transform:scale(1.1); }
 .win { box-shadow:0 0 10px gold; border:2px solid gold; }
@@ -29,7 +29,7 @@ button:hover { background:#ff4500; }
 </head>
 <body>
 
-<h2>🎰 Slot 5x7 Ultimate</h2>
+<h2>🎰 Slot 7x5 Ultimate</h2>
 
 <div class="container">
     <div>Баланс: <b><span id="balance">15000</span></b></div>
@@ -78,25 +78,24 @@ let pickedColor = null; // Для сохранения выбранного цв
 const baseSymbols = ['🍒','🍋','🍊','🍉','7️⃣']; // Заменили клевера на семерочки
 const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10}]; // Removed x100
 
-// Обновляем линии для поля 5x7
+// Обновляем линии для поля 7x5
 const paylines = [
-    [[0,0],[0,1],[0,2],[0,3],[0,4]],
-    [[1,0],[1,1],[1,2],[1,3],[1,4]],
-    [[2,0],[2,1],[2,2],[2,3],[2,4]],
-    [[3,0],[3,1],[3,2],[3,3],[3,4]],
-    [[4,0],[4,1],[4,2],[4,3],[4,4]],
-    [[5,0],[5,1],[5,2],[5,3],[5,4]],
-    [[6,0],[6,1],[6,2],[6,3],[6,4]],
+    [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6]],
+    [[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[1,6]],
+    [[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6]],
+    [[3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6]],
+    [[4,0],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6]],
+    [[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]],
+    [[0,6],[1,5],[2,4],[3,3],[4,2],[5,1],[6,0]],
     [[0,0],[1,1],[2,2],[3,3],[4,4]],
     [[1,0],[2,1],[3,2],[4,3],[5,4]],
     [[2,0],[3,1],[4,2],[5,3],[6,4]],
     [[0,4],[1,3],[2,2],[3,1],[4,0]],
     [[1,4],[2,3],[3,2],[4,1],[5,0]],
     [[2,4],[3,3],[4,2],[5,1],[6,0]],
-    [[3,4],[4,3],[5,2],[6,1],[0,0]],
-    [[4,4],[5,3],[6,2],[0,1],[1,0]],
-    [[5,4],[6,3],[0,2],[1,1],[2,0]],
-    [[6,4],[0,3],[1,2],[2,1],[3,0]],
+    [[0,2],[1,3],[2,4],[3,5],[4,6]],
+    [[1,2],[2,3],[3,4],[4,5],[5,6]],
+    [[2,2],[3,3],[4,4],[5,5],[6,6]],
 ];
 
 const slotsEl = document.getElementById('slots');
@@ -106,10 +105,10 @@ const bonusEl = document.getElementById('bonus');
 
 let grid=[], matrix=[];
 
-// создаём поле 5x7
-for(let r=0;r<7;r++){
+// создаём поле 7x5
+for(let r=0;r<5;r++){
     grid[r]=[];
-    for(let c=0;c<5;c++){
+    for(let c=0;c<7;c++){
         const d=document.createElement('div');
         d.className='slot';
         d.textContent='❔';
@@ -124,9 +123,9 @@ function clearWin(){
 
 // функция для генерации выигрыша чаще
 function generateSymbols(lines){
-    matrix = [[],[],[],[],[],[],[]]; // Для 7 рядов
-    for(let r=0;r<7;r++){
-        for(let c=0;c<5;c++){
+    matrix = [[],[],[],[],[]]; // Для 5 рядов
+    for(let r=0;r<5;r++){
+        for(let c=0;c<7;c++){
             matrix[r][c] = {t: baseSymbols[Math.floor(Math.random()*baseSymbols.length)], v:1};
         }
     }
@@ -134,14 +133,14 @@ function generateSymbols(lines){
     // Уменьшаем шанс одинаковых символов на линии (например, 30% шанс)
     const winLine = paylines[Math.floor(Math.random()*lines)];
     const symbol = baseSymbols[Math.floor(Math.random()*baseSymbols.length)];
-    for(let i=0;i<5;i++){
+    for(let i=0;i<7;i++){
         if(Math.random()<0.3) matrix[winLine[i][0]][winLine[i][1]].t = symbol; // 30% шанс одинаковых
     }
 
     // Уменьшаем шанс выпадения множителей
     const multCount = Math.floor(Math.random()*3); // Меньше множителей
     let positions=[];
-    for(let r=0;r<7;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
+    for(let r=0;r<5;r++){ for(let c=0;c<7;c++) positions.push([r,c]); }
     positions.sort(()=>Math.random()-0.5);
     const multPos = positions.slice(0,multCount); // Меньше позиций с множителями
     for(let [r,c] of multPos){
@@ -167,8 +166,8 @@ function spin(){
     const anim = setInterval(()=>{
         generateSymbols(lines);
 
-        for(let r=0;r<7;r++){
-            for(let c=0;c<5;c++){
+        for(let r=0;r<5;r++){
+            for(let c=0;c<7;c++){
                 const s = matrix[r][c];
                 grid[r][c].innerHTML = s.v>1 ? `<span class="mult">x${s.v}</span>` : s.t;
                 grid[r][c].classList.add('spin');
@@ -233,11 +232,11 @@ function startBonusGame() {
     const bonusAnim = setInterval(() => {
         if (spins < freeSpins) {
             // Генерируем случайные символы для бонусных прокрутов
-            generateSymbols(5);
+            generateSymbols(7);
 
             // Обновляем визуальные элементы на экране
-            for (let r = 0; r < 7; r++) {
-                for (let c = 0; c < 5; c++) {
+            for (let r = 0; r < 5; r++) {
+                for (let c = 0; c < 7; c++) {
                     const s = matrix[r][c];
                     grid[r][c].innerHTML = s.v > 1 ? `<span class="mult">x${s.v}</span>` : s.t;
                     grid[r][c].classList.add('spin');
@@ -245,7 +244,7 @@ function startBonusGame() {
             }
 
             // Вычисляем результат бонусного спина и добавляем к общему выигрышу
-            currentBonusWin += calcWin(+betInput.value, 5);  // Используем 5 линий для бонусных спинов
+            currentBonusWin += calcWin(+betInput.value, 7);  // Используем 7 линий для бонусных спинов
             spins++;
         } else {
             clearInterval(bonusAnim);
@@ -278,6 +277,8 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
+
 
 
 
