@@ -116,19 +116,19 @@ function generateSymbols(lines){
         }
     }
 
-    // увеличиваем шанс хотя бы одной линии выиграть
+    // Уменьшаем шанс одинаковых символов на линии (например, 30% шанс)
     const winLine = paylines[Math.floor(Math.random()*lines)];
     const symbol = baseSymbols[Math.floor(Math.random()*baseSymbols.length)];
     for(let i=0;i<5;i++){
-        if(Math.random()<0.6) matrix[winLine[i][0]][winLine[i][1]].t = symbol; // 60% шанс одинаковых
+        if(Math.random()<0.3) matrix[winLine[i][0]][winLine[i][1]].t = symbol; // 30% шанс одинаковых
     }
 
-    // добавляем случайные мультипликаторы
-    const multCount = Math.floor(Math.random()*4);
+    // Уменьшаем шанс выпадения множителей
+    const multCount = Math.floor(Math.random()*3); // Меньше множителей
     let positions=[];
     for(let r=0;r<3;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
     positions.sort(()=>Math.random()-0.5);
-    const multPos = positions.slice(0,multCount);
+    const multPos = positions.slice(0,multCount); // Меньше позиций с множителями
     for(let [r,c] of multPos){
         matrix[r][c].v = multipliers[Math.floor(Math.random()*multipliers.length)].v;
     }
@@ -172,7 +172,7 @@ function spin(){
 }
 
 function calcWin(bet,lines){
-    let win=0;
+    let win = 0;
     for(let i=0;i<lines;i++){
         const line = paylines[i];
         let symbol=null,count=0,mult=1;
@@ -184,8 +184,12 @@ function calcWin(bet,lines){
         }
         if(count>=3) win += bet*count*mult;
     }
+
+    // Уменьшаем выигрыш, чтобы уменьшить итоговые выплаты
+    win *= 0.5; // Уменьшаем выигрыш на 50%
+    
     balance += win;
-    balanceEl.textContent=balance;
+    balanceEl.textContent = balance;
     resultEl.innerHTML = win ? `<span class="won">🎉 Выигрыш: ${win}</span>` : `<span class="lost">😞 Проигрыш</span>`;
     return win;
 }
@@ -201,7 +205,7 @@ function buyBonus(){
     if(balance >= 50000){
         balance -= 50000;
         balanceEl.textContent = balance;
-        freeSpins = 20;
+        freeSpins = 40;
         currentBonusWin = 0;
         resultEl.textContent = `💥 Вы купили бонусную игру с 20 бесплатными прокрутами!`;
         startBonusGame();
@@ -212,31 +216,35 @@ function buyBonus(){
 
 function startBonusGame() {
     let spins = 0;
+    currentBonusWin = 0; // обнуляем текущий бонусный выигрыш
+
+    // запускаем бонусные спины
     const bonusAnim = setInterval(() => {
         if (spins < freeSpins) {
             // Генерируем случайные символы для бонусных прокрутов
             generateSymbols(5);
 
             // Обновляем визуальные элементы на экране
-            for(let r=0;r<3;r++){
-                for(let c=0;c<5;c++){
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 5; c++) {
                     const s = matrix[r][c];
-                    grid[r][c].innerHTML = s.v>1 ? `<span class="mult">x${s.v}</span>` : s.t;
+                    grid[r][c].innerHTML = s.v > 1 ? `<span class="mult">x${s.v}</span>` : s.t;
                     grid[r][c].classList.add('spin');
                 }
             }
 
-            // Вычисляем результат бонусного спина
-            currentBonusWin += calcWin(+betInput.value, 5);
+            // Вычисляем результат бонусного спина и добавляем к общему выигрышу
+            currentBonusWin += calcWin(+betInput.value, 5);  // Используем 5 линий для бонусных спинов
             spins++;
         } else {
             clearInterval(bonusAnim);
-            // Умножаем общий выигрыш на 10
-            resultEl.innerHTML = `🎉 Итоговый выигрыш умножен на 10! Выигрыш: ${currentBonusWin * 10}`;
-            balance += currentBonusWin * 10;
+            // Итоговый выигрыш умножаем на 10
+            const finalWin = currentBonusWin * 10;
+            resultEl.innerHTML = `🎉 Итоговый выигрыш умножен на 10! Выигрыш: ${finalWin}`;
+            balance += finalWin;
             balanceEl.textContent = balance;
         }
-    }, 1000);
+    }, 1000); // 1 секунда между каждым бонусным спином
 }
 
 function pickColor(color) {
@@ -259,6 +267,8 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
+
 
 
 
