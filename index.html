@@ -3,233 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slot + Book of Ra</title>
+<title>Slot + Book of Ra Pro</title>
 <style>
 body { background:#222; color:white; font-family:Arial; text-align:center; margin:0; padding:10px; }
 .container { max-width:520px; margin:auto; background:#333; padding:15px; border-radius:15px; }
-.slots, #bor-grid { display:grid; gap:8px; margin:15px 0; }
-.slots { grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(3,80px); }
-#bor-grid { grid-template-columns:repeat(3,1fr); }
-.slot, .bor-cell { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; position:relative; cursor:pointer; }
+.slots { display:grid; gap:8px; margin:15px 0; }
+.slot { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; position:relative; }
 .spin { transform:scale(1.1); }
 .win { box-shadow:0 0 10px gold; border:2px solid gold; animation:flash 0.5s infinite alternate; }
 @keyframes flash { 0%{box-shadow:0 0 10px gold;} 100%{box-shadow:0 0 20px gold;} }
 .mult { color:#ffd700; font-weight:bold; }
-.controls { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+.controls { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:10px;}
 button,input,select { padding:10px; font-size:16px; border-radius:8px; border:none; }
 button { background:#ff6347; color:#fff; cursor:pointer; }
 button:hover { background:#ff4500; }
 .won { color:lime; font-weight:bold; }
 .lost { color:red; font-weight:bold; }
-.bonus { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; }
-.bonus-box { background:#333; padding:20px; border-radius:15px; width:320px; text-align:center; }
-.red { background:#c0392b; }
-.black { background:#000; }
-@media(max-width:480px){ .slot, .bor-cell{ font-size:22px; } }
+@media(max-width:480px){ .slot{ font-size:22px; } }
 </style>
 </head>
 <body>
 
-<h2>🎰 Игровая платформа</h2>
+<h2>🎰 Игровая платформа: Slot + Book of Ra</h2>
 <div class="container">
     <div>Баланс: <b><span id="balance">15000</span></b></div>
 
     <!-- Переключение игр -->
     <div class="controls">
         <button onclick="switchGame('slot')">Slot 5x3</button>
-        <button onclick="switchGame('book')">Book of Ra</button>
+        <button onclick="switchGame('book')">Book of Ra 3x3</button>
     </div>
 
-    <!-- Slot 5x3 -->
-    <div id="slot-game">
-        <div class="slots" id="slots"></div>
-        <div class="controls">
-            <input type="number" id="bet" value="10" min="1">
-            <select id="lines">
-                <option value="1">1 линия</option>
-                <option value="3">3 линии</option>
-                <option value="5">5 линий</option>
-            </select>
-        </div>
-        <div class="controls">
-            <button onclick="spin()">SPIN</button>
-            <button onclick="toggleAuto()" id="autoBtn">AUTOSPIN</button>
-        </div>
+    <!-- Управление ставкой и линиями -->
+    <div class="controls">
+        Ставка: <input type="number" id="bet" value="10" min="1">
+        Линии: <select id="lines">
+            <option value="1">1 линия</option>
+            <option value="3">3 линии</option>
+            <option value="5">5 линий</option>
+        </select>
     </div>
 
-    <!-- Book of Ra -->
-    <div id="book-game" style="display:none;">
-        <div class="controls">
-            <button onclick="openBookOfRa()">Начать Book of Ra</button>
-        </div>
-        <div class="bonus" id="bookOfRa">
-            <div class="bonus-box">
-                <h3>📖 Book of Ra</h3>
-                <p>Выбери ячейки</p>
-                <div id="bor-grid"></div>
-                <div id="bor-result" style="margin-top:10px;"></div>
-                <button onclick="closeBookOfRa()">Закрыть</button>
-            </div>
-        </div>
+    <!-- Кнопки спина -->
+    <div class="controls">
+        <button onclick="spin()">SPIN</button>
+        <button onclick="toggleAuto()" id="autoBtn">AUTOSPIN</button>
     </div>
 
     <div id="result" style="margin-top:10px;font-size:18px;"></div>
+
+    <!-- Игровые поля -->
+    <div id="slot-game" style="display:block;">
+        <div class="slots" id="slots"></div>
+    </div>
+    <div id="book-game" style="display:none;">
+        <div class="slots" id="bookSlots"></div>
+    </div>
 </div>
 
 <script>
-// === Общий баланс ===
+// ====== Общие переменные ======
 let balance = 15000;
+let auto=false, autoInt;
+let streakMultiplier=1;
 const balanceEl = document.getElementById('balance');
 const resultEl = document.getElementById('result');
+let currentGame = 'slot'; // slot или book
 
-// === Переключение игр ===
+// ====== Смена игры ======
 function switchGame(game){
+    currentGame = game;
     document.getElementById('slot-game').style.display = (game==='slot')?'block':'none';
     document.getElementById('book-game').style.display = (game==='book')?'block':'none';
     clearResult();
 }
 function clearResult(){ resultEl.textContent=''; }
 
-// =================== SLOT 5x3 ===================
-let auto=false, autoInt;
-let bonusAmount=0;
-let streakMultiplier=1;
-
-const baseSymbols = ['🍒','🍋','🍊','🍉','🍀'];
-const jackpotSymbols = ['💎','⭐'];
-const secretSymbols = ['🎩'];
-const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10},{t:'x50',v:50}];
-const paylines = [
-    [[1,0],[1,1],[1,2],[1,3],[1,4]],
-    [[0,0],[0,1],[0,2],[0,3],[0,4]],
-    [[2,0],[2,1],[2,2],[2,3],[2,4]],
-    [[0,0],[1,1],[2,2],[1,3],[0,4]],
-    [[2,0],[1,1],[0,2],[1,3],[2,4]]
-];
-
-const slotsEl = document.getElementById('slots');
+// ====== Конфиг игр ======
+const gamesConfig = {
+    slot: {rows:3,cols:5,base:['🍒','🍋','🍊','🍉','🍀'], jackpots:['💎','⭐'], secret:['🎩'], el:'slots'},
+    book: {rows:3,cols:3,base:['🪙','💰','⭐'], jackpots:['📖'], secret:['🎩'], el:'bookSlots'}
+};
 let grid=[], matrix=[];
-for(let r=0;r<3;r++){
-    grid[r]=[];
-    for(let c=0;c<5;c++){
-        const d=document.createElement('div');
-        d.className='slot';
-        d.textContent='❔';
-        slotsEl.appendChild(d);
-        grid[r][c]=d;
-    }
-}
 
-function clearWin(){
-    grid.flat().forEach(s=>s.classList.remove('win','spin'));
-}
-
-function generateSymbols(lines){
-    matrix = [[],[],[]];
-    for(let r=0;r<3;r++){
-        for(let c=0;c<5;c++){
-            let rand = Math.random();
-            if(rand<0.03) matrix[r][c]={t:jackpotSymbols[Math.floor(Math.random()*jackpotSymbols.length)],v:1};
-            else if(rand<0.06) matrix[r][c]={t:secretSymbols[Math.floor(Math.random()*secretSymbols.length)],v:1};
-            else matrix[r][c]={t:baseSymbols[Math.floor(Math.random()*baseSymbols.length)],v:1};
+// ====== Создание сетки ======
+function createGrid(game){
+    const cfg = gamesConfig[game];
+    const container = document.getElementById(cfg.el);
+    container.innerHTML=''; grid=[];
+    for(let r=0;r<cfg.rows;r++){
+        grid[r]=[];
+        for(let c=0;c<cfg.cols;c++){
+            const cell = document.createElement('div');
+            cell.className='slot';
+            cell.textContent='❔';
+            container.appendChild(cell);
+            grid[r][c]=cell;
         }
     }
-    const winLine = paylines[Math.floor(Math.random()*lines)];
-    const symbol = baseSymbols[Math.floor(Math.random()*baseSymbols.length)];
-    for(let i=0;i<5;i++){ if(Math.random()<0.6) matrix[winLine[i][0]][winLine[i][1]].t = symbol; }
-    const multCount = Math.floor(Math.random()*4);
-    let positions=[];
-    for(let r=0;r<3;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
+}
+createGrid('slot'); createGrid('book');
+
+// ====== Генерация символов ======
+function generateSymbols(game,lines){
+    const cfg = gamesConfig[game];
+    matrix = Array(cfg.rows).fill(0).map(()=>Array(cfg.cols).fill(0));
+    for(let r=0;r<cfg.rows;r++){
+        for(let c=0;c<cfg.cols;c++){
+            let rand = Math.random();
+            if(rand<0.05) matrix[r][c]={t:cfg.jackpots[Math.floor(Math.random()*cfg.jackpots.length)],v:1};
+            else if(rand<0.1) matrix[r][c]={t:cfg.secret[Math.floor(Math.random()*cfg.secret.length)],v:1};
+            else matrix[r][c]={t:cfg.base[Math.floor(Math.random()*cfg.base.length)],v:1};
+        }
+    }
+
+    // делаем хотя бы одну линию выигрышной
+    const paylines = [];
+    for(let r=0;r<cfg.rows;r++) paylines.push(Array(cfg.cols).fill(0).map((_,i)=>[r,i]));
+    const activeLines = Math.min(lines, payLinesLength(cfg));
+    const winLine = paylines[Math.floor(Math.random()*activeLines)];
+    const symbol = cfg.base[Math.floor(Math.random()*cfg.base.length)];
+    for(let [r,c] of winLine){ if(Math.random()<0.6) matrix[r][c].t = symbol; }
+
+    // мультипликаторы
+    const multCount = Math.floor(Math.random()*3);
+    let positions=[]; for(let r=0;r<cfg.rows;r++) for(let c=0;c<cfg.cols;c++) positions.push([r,c]);
     positions.sort(()=>Math.random()-0.5);
     const multPos = positions.slice(0,multCount);
-    for(let [r,c] of multPos){ matrix[r][c].v = multipliers[Math.floor(Math.random()*multipliers.length)].v; }
+    for(let [r,c] of multPos){ matrix[r][c].v = 1+Math.floor(Math.random()*5); } // x1-x5
 }
+function payLinesLength(cfg){ return cfg.rows; }
 
+// ====== SPIN ======
 function spin(){
     const bet = +document.getElementById('bet').value;
     const lines = +document.getElementById('lines').value;
     const total = bet*lines;
     if(total>balance){ resultEl.textContent='❌ Недостаточно средств'; return; }
-
-    balance -= total; balanceEl.textContent=balance;
-    resultEl.textContent=''; clearWin();
+    balance -= total; balanceEl.textContent=balance; resultEl.textContent=''; clearWin();
+    const cfg = gamesConfig[currentGame];
     let step=0;
     const anim = setInterval(()=>{
-        generateSymbols(lines);
-        for(let r=0;r<3;r++){
-            for(let c=0;c<5;c++){
-                const s=matrix[r][c];
+        generateSymbols(currentGame,lines);
+        for(let r=0;r<cfg.rows;r++){
+            for(let c=0;c<cfg.cols;c++){
+                const s = matrix[r][c];
                 grid[r][c].innerHTML = s.v>1 ? `<span class="mult">x${s.v}</span>` : s.t;
                 grid[r][c].classList.add('spin');
             }
         }
-        if(++step>6){ clearInterval(anim); clearWin(); bonusAmount = calcWin(bet,lines); }
+        if(++step>5){ clearInterval(anim); clearWin(); calcWin(bet,lines,cfg); }
     },100);
 }
+function clearWin(){ grid.flat().forEach(c=>c.classList.remove('win','spin')); }
 
-function calcWin(bet,lines){
+// ====== Выигрыш ======
+function calcWin(bet,lines,cfg){
     let win=0;
-    for(let i=0;i<lines;i++){
-        const line = paylines[i];
+    for(let r=0;r<cfg.rows;r++){
         let symbol=null,count=0,mult=1;
-        for(let p of line){
-            const s = matrix[p[0]][p[1]];
-            if(s.v>1){ mult*=s.v; grid[p[0]][p[1]].classList.add('win'); continue; }
-            if(!symbol){ symbol=s.t; count=1; grid[p[0]][p[1]].classList.add('win'); }
-            else if(s.t===symbol){ count++; grid[p[0]][p[1]].classList.add('win'); }
+        for(let c=0;c<cfg.cols;c++){
+            const s = matrix[r][c];
+            if(s.v>1){ mult*=s.v; grid[r][c].classList.add('win'); continue; }
+            if(!symbol){ symbol=s.t; count=1; grid[r][c].classList.add('win'); }
+            else if(s.t===symbol){ count++; grid[r][c].classList.add('win'); }
         }
-        if(count>=3) win += bet*count*mult*streakMultiplier;
+        if(count>=2) win += bet*count*mult*streakMultiplier;
     }
-    if(win>0) streakMultiplier += 0.1; else streakMultiplier=1;
+    if(win>0) streakMultiplier+=0.1; else streakMultiplier=1;
     balance += win; balanceEl.textContent=balance;
     resultEl.innerHTML = win ? `<span class="won">🎉 Выигрыш: ${win}</span>` : `<span class="lost">😞 Проигрыш</span>`;
-    return win;
 }
 
+// ====== AUTOSPIN ======
 function toggleAuto(){
     auto=!auto;
-    const btn=document.getElementById('autoBtn');
-    btn.textContent=auto?'STOP':'AUTOSPIN';
+    document.getElementById('autoBtn').textContent=auto?'STOP':'AUTOSPIN';
     if(auto){ autoInt=setInterval(()=>{ if(balance>0) spin(); else toggleAuto(); },1200); }
     else clearInterval(autoInt);
 }
-
-// =================== BOOK OF RA ===================
-const borEl = document.getElementById('bookOfRa');
-const borGrid = document.getElementById('bor-grid');
-const borResult = document.getElementById('bor-result');
-let borWin=0;
-let borBonusActive=false;
-let borBonusSpins=0;
-const borSymbols = ['💰','🪙','⭐','📖'];
-
-function openBookOfRa(){
-    borEl.style.display='flex'; borGrid.innerHTML=''; borResult.innerHTML=''; borWin=0; borBonusActive=false;
-    for(let i=0;i<9;i++){
-        const cell = document.createElement('div'); cell.className='bor-cell';
-        cell.style.height='60px'; cell.onclick = ()=>pickBOR(cell);
-        borGrid.appendChild(cell);
-    }
-}
-function pickBOR(cell){
-    if(cell.dataset.clicked==='1') return; cell.dataset.clicked='1';
-    let sym;
-    if(Math.random()<0.1){ sym='📖'; borBonusActive=true; borBonusSpins=3; }
-    else sym = borSymbols[Math.floor(Math.random()*(borSymbols.length-1))];
-    cell.textContent = sym;
-    if(sym==='💰') borWin+=50;
-    if(sym==='🪙') borWin+=20;
-    if(sym==='⭐') borWin+=100;
-}
-function closeBookOfRa(){
-    balance+=borWin; balanceEl.textContent=balance;
-    if(borBonusActive) resultEl.innerHTML = `📖 Book of Ra бонус! +${borWin}, ${borBonusSpins} бесплатных спинов!`;
-    else resultEl.innerHTML = `📖 Book of Ra закончено! +${borWin}`;
-    borEl.style.display='none'; borWin=0; borBonusActive=false; borBonusSpins=0;
-}
 </script>
+
 </body>
 </html>
+
+
 
 
 
