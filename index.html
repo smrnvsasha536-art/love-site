@@ -186,23 +186,36 @@ function openBonus(){
     clearInterval(autoInt);
     autoBtn.textContent='AUTOSPIN';
 
-    // Генерируем 5 карт для бонусного раунда
-    const currentCardValue = Math.floor(Math.random() * 10) + 1;  // Сгенерируем случайную карту (1-10)
+    // Генерация текущей карты
+    const currentCardValue = Math.floor(Math.random() * 10) + 1;  // Текущая карта
     bonusCard = currentCardValue;
 
-    // Создаем карточки
-    cardsContainer.innerHTML = ''; // очищаем контейнер
+    // Создание 5 карт для бонусного раунда
+    cardsContainer.innerHTML = '';
     for (let i = 0; i < 5; i++) {
         const cardValue = Math.floor(Math.random() * 10) + 1; // Генерация случайной карты от 1 до 10
         const card = document.createElement('div');
         card.className = 'card';
         card.textContent = `Карта ${cardValue}`;
-        card.onclick
-
+        card.onclick = function() {
+            if (cardValue > currentCardValue) {
+                alert("Поздравляем! Вы выбрали карту старше и выиграли!");
+                balance += 500;  // Пример бонуса
+                balanceEl.textContent = balance;
+            } else {
+                alert("Проигрыш. Попробуйте снова.");
+            }
+            bonusEl.style.display = 'none';  // Закрываем бонусный экран
+        };
+        cardsContainer.appendChild(card);
+    }
+}
 </script>
 
 </body>
 </html>
+
+
 
 
 
