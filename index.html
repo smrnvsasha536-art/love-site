@@ -33,11 +33,9 @@
         }
 
         .slot {
-            width: 80px;
+            width: 100px;
             height: 100px;
             background-color: #444;
-            color: white;
-            font-size: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -79,8 +77,8 @@
         }
 
         .slot img {
-            max-width: 60px;
-            max-height: 60px;
+            max-width: 80px;
+            max-height: 80px;
         }
     </style>
 </head>
@@ -91,13 +89,13 @@
     <div class="container">
         <div class="slots">
             <div class="slot" id="slot1">
-                <img src="https://via.placeholder.com/60x60/ff6347/ffffff?text=🍉" alt="Арбуз">
+                <img src="https://via.placeholder.com/80x80.png?text=%F0%9F%8D%89" alt="Арбуз">
             </div>
             <div class="slot" id="slot2">
-                <img src="https://via.placeholder.com/60x60/ffeb3b/ffffff?text=🍌" alt="Банан">
+                <img src="https://via.placeholder.com/80x80.png?text=%F0%9F%8D%8C" alt="Банан">
             </div>
             <div class="slot" id="slot3">
-                <img src="https://via.placeholder.com/60x60/ff6347/ffffff?text=🍓" alt="Клубника">
+                <img src="https://via.placeholder.com/80x80.png?text=%F0%9F%8D%93" alt="Клубника">
             </div>
         </div>
 
@@ -109,16 +107,17 @@
     </div>
 
     <script>
-        // Доступные картинки (включаем их как эмодзи для простоты)
+        // Доступные картинки (с реальными изображениями)
         const images = [
-            "🍉", // Арбуз
-            "🍌", // Банан
-            "🍓", // Клубника
-            "⭐",  // Звездочка
-            "7️⃣", // Семерка
-            "🎁"   // Бонус
+            "https://via.placeholder.com/80x80.png?text=%F0%9F%8D%89", // Арбуз
+            "https://via.placeholder.com/80x80.png?text=%F0%9F%8D%8C", // Банан
+            "https://via.placeholder.com/80x80.png?text=%F0%9F%8D%93", // Клубника
+            "https://via.placeholder.com/80x80.png?text=%E2%AD%90",  // Звездочка
+            "https://via.placeholder.com/80x80.png?text=%E2%AD%90%EF%B8%8F", // Семерка
+            "https://via.placeholder.com/80x80.png?text=%F0%9F%8E%81"   // Бонус
         ];
 
+        // Функция для вращения барабанов
         function spin() {
             // Сбросить результат
             document.getElementById("result").textContent = '';
@@ -129,9 +128,9 @@
             let slot3 = getRandomImage();
 
             // Обновляем изображение на слотах
-            document.getElementById('slot1').innerHTML = `<img src="https://via.placeholder.com/60x60/ff6347/ffffff?text=${slot1}" alt="${slot1}">`;
-            document.getElementById('slot2').innerHTML = `<img src="https://via.placeholder.com/60x60/ffeb3b/ffffff?text=${slot2}" alt="${slot2}">`;
-            document.getElementById('slot3').innerHTML = `<img src="https://via.placeholder.com/60x60/ff6347/ffffff?text=${slot3}" alt="${slot3}">`;
+            document.getElementById('slot1').innerHTML = `<img src="${slot1}" alt="Слот 1">`;
+            document.getElementById('slot2').innerHTML = `<img src="${slot2}" alt="Слот 2">`;
+            document.getElementById('slot3').innerHTML = `<img src="${slot3}" alt="Слот 3">`;
 
             // Проверка на выигрыш
             if (slot1 === slot2 && slot2 === slot3) {
@@ -145,6 +144,7 @@
             }
         }
 
+        // Функция для получения случайной картинки
         function getRandomImage() {
             // Возвращаем случайный элемент из массива картинок
             return images[Math.floor(Math.random() * images.length)];
@@ -153,6 +153,8 @@
 
 </body>
 </html>
+
+
 
 
 
