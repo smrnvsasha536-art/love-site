@@ -213,7 +213,10 @@ function startBonusGame() {
     let spins = 0;
     const bonusAnim = setInterval(() => {
         if (spins < freeSpins) {
-            spin(); // Make spins
+            // Генерируем случайные символы для бонусных прокрутов
+            generateSymbols(5);
+            // Вычисляем результат бонусного спина
+            currentBonusWin += calcWin(+betInput.value, 5);
             spins++;
         } else {
             clearInterval(bonusAnim);
@@ -231,6 +234,8 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
+
 
 
 
