@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Казино 777</title>
+    <title>Казино 777 - Слот-машина</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -22,28 +22,32 @@
             background-color: #333;
             padding: 20px;
             border-radius: 15px;
-            width: 300px;
+            width: 400px;
             margin: 0 auto;
         }
 
-        .balance {
-            font-size: 20px;
+        .slots {
+            display: flex;
+            justify-content: center;
             margin-bottom: 20px;
         }
 
-        .bet-input {
-            font-size: 18px;
-            padding: 10px;
-            width: 60%;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            border: 1px solid #ffcc00;
+        .slot {
+            width: 80px;
+            height: 100px;
             background-color: #444;
             color: white;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 10px;
+            border-radius: 10px;
+            border: 2px solid #ffcc00;
         }
 
         .buttons {
-            margin: 10px 0;
+            margin: 20px;
         }
 
         .button {
@@ -66,83 +70,91 @@
             font-weight: bold;
         }
 
+        .won {
+            color: limegreen;
+        }
+
         .lost {
             color: red;
         }
 
-        .won {
-            color: limegreen;
+        .slot img {
+            max-width: 60px;
+            max-height: 60px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Казино 777</h1>
+    <h1>Казино 777 - Слот-машина</h1>
 
     <div class="container">
-        <div class="balance">
-            Баланс: <span id="balance">1000</span> монет
+        <div class="slots">
+            <div class="slot" id="slot1">
+                <img src="https://via.placeholder.com/60x60/ff6347/ffffff?text=🍉" alt="Арбуз">
+            </div>
+            <div class="slot" id="slot2">
+                <img src="https://via.placeholder.com/60x60/ffeb3b/ffffff?text=🍌" alt="Банан">
+            </div>
+            <div class="slot" id="slot3">
+                <img src="https://via.placeholder.com/60x60/ff6347/ffffff?text=🍓" alt="Клубника">
+            </div>
         </div>
-        
-        <input type="number" id="bet" class="bet-input" placeholder="Введите ставку" min="1">
-        
+
         <div class="buttons">
-            <button class="button" onclick="playGame()">Крутить!</button>
+            <button class="button" onclick="spin()">Крутить!</button>
         </div>
-        
+
         <div id="result" class="result"></div>
     </div>
 
     <script>
-        let balance = 1000;  // Начальный баланс
+        // Доступные картинки (включаем их как эмодзи для простоты)
+        const images = [
+            "🍉", // Арбуз
+            "🍌", // Банан
+            "🍓", // Клубника
+            "⭐",  // Звездочка
+            "7️⃣", // Семерка
+            "🎁"   // Бонус
+        ];
 
-        // Функция для игры
-        function playGame() {
-            let betAmount = parseInt(document.getElementById("bet").value); // Ставка пользователя
-            let resultDiv = document.getElementById("result");
+        function spin() {
+            // Сбросить результат
+            document.getElementById("result").textContent = '';
 
-            // Проверка на допустимость ставки
-            if (isNaN(betAmount) || betAmount <= 0 || betAmount > balance) {
-                resultDiv.textContent = "Введите допустимую сумму ставки!";
-                resultDiv.classList.remove("won", "lost");
-                resultDiv.classList.add("lost");
-                return;
-            }
+            // Симуляция кручения барабанов
+            let slot1 = getRandomImage();
+            let slot2 = getRandomImage();
+            let slot3 = getRandomImage();
 
-            // Игровой процесс
-            let randomNum = Math.random(); // Генерация случайного числа для игры
-            let win = false;
+            // Обновляем изображение на слотах
+            document.getElementById('slot1').innerHTML = `<img src="https://via.placeholder.com/60x60/ff6347/ffffff?text=${slot1}" alt="${slot1}">`;
+            document.getElementById('slot2').innerHTML = `<img src="https://via.placeholder.com/60x60/ffeb3b/ffffff?text=${slot2}" alt="${slot2}">`;
+            document.getElementById('slot3').innerHTML = `<img src="https://via.placeholder.com/60x60/ff6347/ffffff?text=${slot3}" alt="${slot3}">`;
 
-            if (randomNum < 0.5) {
-                win = true;  // Победа при шансах 50%
-            }
-
-            // Обновление баланса и вывод результата
-            if (win) {
-                balance += betAmount;  // Добавляем к балансу
-                resultDiv.textContent = "Поздравляем! Вы выиграли " + betAmount + " монет!";
-                resultDiv.classList.remove("lost");
-                resultDiv.classList.add("won");
+            // Проверка на выигрыш
+            if (slot1 === slot2 && slot2 === slot3) {
+                document.getElementById('result').textContent = "Поздравляем! Вы выиграли! 🎉";
+                document.getElementById('result').classList.add('won');
+                document.getElementById('result').classList.remove('lost');
             } else {
-                balance -= betAmount;  // Вычитаем из баланса
-                resultDiv.textContent = "Увы, вы проиграли " + betAmount + " монет.";
-                resultDiv.classList.remove("won");
-                resultDiv.classList.add("lost");
+                document.getElementById('result').textContent = "Увы, вы не выиграли. Попробуйте снова! 😞";
+                document.getElementById('result').classList.add('lost');
+                document.getElementById('result').classList.remove('won');
             }
+        }
 
-            // Обновляем отображение баланса
-            document.getElementById("balance").textContent = balance;
-
-            // Проверка, не обанкротился ли пользователь
-            if (balance <= 0) {
-                resultDiv.textContent = "У вас больше нет монет. Вы обанкротились!";
-                resultDiv.classList.remove("won", "lost");
-            }
+        function getRandomImage() {
+            // Возвращаем случайный элемент из массива картинок
+            return images[Math.floor(Math.random() * images.length)];
         }
     </script>
 
 </body>
 </html>
+
+
 
 
 
