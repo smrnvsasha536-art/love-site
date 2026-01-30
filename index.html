@@ -45,7 +45,16 @@
             border: 2px solid #ffcc00;
             font-size: 32px;
             font-weight: bold;
-            transition: transform 0.5s ease;
+            animation: spin 1s infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .buttons {
@@ -183,11 +192,6 @@
             document.getElementById("result").textContent = '';
             document.getElementById("historyList").innerHTML = '';
 
-            // Запуск анимации вращения слотов
-            document.getElementById('slot1').style.transform = 'rotate(360deg)';
-            document.getElementById('slot2').style.transform = 'rotate(360deg)';
-            document.getElementById('slot3').style.transform = 'rotate(360deg)';
-
             // Симуляция кручения барабанов
             setTimeout(() => {
                 let slot1 = getRandomSymbol();
@@ -230,22 +234,9 @@
                 // Обновляем баланс
                 document.getElementById("balance").textContent = balance;
 
-                // Проверяем, не обанкротился ли игрок
-                if (balance <= 0) {
-                    document.getElementById("result").textContent = "У вас закончились монеты! Попробуйте снова.";
-                    playSound('bankrupt');  // Звук банкротства
-                }
+                // Проверяем, не обанк
 
-            }, 1000);  // Задержка анимации
 
-        }
-
-        // Функция для получения случайного символа
-        function getRandomSymbol() {
-            return symbols[Math.floor(Math.random() * symbols.length)];
-        }
-
-        // Функция для добавления записи
 
 
 
