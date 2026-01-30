@@ -7,9 +7,26 @@
 
 <style>
 body { background:#222; color:white; font-family:Arial; text-align:center; margin:0; padding:10px; }
-.container { max-width:520px; margin:auto; background:#333; padding:15px; border-radius:15px; }
-.slots { display:grid; grid-template-columns:repeat(10,1fr); grid-template-rows:repeat(5,80px); gap:8px; margin:15px 0; }
-.slot { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; }
+.container { max-width:100%; margin:auto; background:#333; padding:15px; border-radius:15px; }
+.slots { 
+    display:grid; 
+    grid-template-columns: repeat(10, 1fr); /* 10 колонок, равные по ширине */
+    grid-template-rows: repeat(5, 80px); /* 5 рядов */
+    gap:8px; 
+    margin:15px 0; 
+    justify-content: center; /* Центрирует всю сетку по горизонтали */
+    width: 100%; /* Устанавливает максимальную ширину */
+}
+.slot { 
+    background:#444; 
+    border-radius:10px; 
+    font-size:26px; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+    transition:.15s;
+    text-align: center;
+}
 .spin { transform:scale(1.1); }
 .win { box-shadow:0 0 10px gold; border:2px solid gold; }
 .mult { color:#ffd700; font-weight:bold; }
@@ -24,7 +41,8 @@ button:hover { background:#ff4500; }
 .red { background:#c0392b; }
 .black { background:#000; }
 .bonus-game-box { background:#444; padding:20px; margin-top:15px; border-radius:15px; }
-@media(max-width:480px){ .slot{ font-size:22px; } }
+@media(max-width:1024px) { .slot { font-size:20px; } } /* Для экрана средних размеров */
+@media(max-width:480px) { .slot { font-size:18px; } } /* Для мобильных устройств */
 </style>
 </head>
 <body>
@@ -290,6 +308,8 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
+
 
 
 
