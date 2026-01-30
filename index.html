@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slot 10x5 Ultimate - Улучшенный</title>
+<title>Slot 5x7 Ultimate - Улучшенный</title>
 
 <style>
 body { background:#222; color:white; font-family:Arial; text-align:center; margin:0; padding:10px; }
 .container { max-width:520px; margin:auto; background:#333; padding:15px; border-radius:15px; }
-.slots { display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(10,80px); gap:8px; margin:15px 0; }
+.slots { display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(7,80px); gap:8px; margin:15px 0; }
 .slot { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; }
 .spin { transform:scale(1.1); }
 .win { box-shadow:0 0 10px gold; border:2px solid gold; }
@@ -29,7 +29,7 @@ button:hover { background:#ff4500; }
 </head>
 <body>
 
-<h2>🎰 Slot 10x5 Ultimate</h2>
+<h2>🎰 Slot 5x7 Ultimate</h2>
 
 <div class="container">
     <div>Баланс: <b><span id="balance">15000</span></b></div>
@@ -40,7 +40,7 @@ button:hover { background:#ff4500; }
             <option value="1">1 линия</option>
             <option value="3">3 линии</option>
             <option value="5">5 линий</option>
-            <option value="10">10 линий</option>
+            <option value="7">7 линий</option>
         </select>
     </div>
     <div class="controls">
@@ -78,7 +78,7 @@ let pickedColor = null; // Для сохранения выбранного цв
 const baseSymbols = ['🍒','🍋','🍊','🍉','7️⃣']; // Заменили клевера на семерочки
 const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10}]; // Removed x100
 
-// Обновляем линии для поля 10x5
+// Обновляем линии для поля 5x7
 const paylines = [
     [[0,0],[0,1],[0,2],[0,3],[0,4]],
     [[1,0],[1,1],[1,2],[1,3],[1,4]],
@@ -87,18 +87,16 @@ const paylines = [
     [[4,0],[4,1],[4,2],[4,3],[4,4]],
     [[5,0],[5,1],[5,2],[5,3],[5,4]],
     [[6,0],[6,1],[6,2],[6,3],[6,4]],
-    [[7,0],[7,1],[7,2],[7,3],[7,4]],
     [[0,0],[1,1],[2,2],[3,3],[4,4]],
     [[1,0],[2,1],[3,2],[4,3],[5,4]],
     [[2,0],[3,1],[4,2],[5,3],[6,4]],
-    [[3,0],[4,1],[5,2],[6,3],[7,4]],
-    [[4,0],[5,1],[6,2],[7,3],[8,4]],
-    [[5,0],[6,1],[7,2],[8,3],[9,4]],
     [[0,4],[1,3],[2,2],[3,1],[4,0]],
     [[1,4],[2,3],[3,2],[4,1],[5,0]],
     [[2,4],[3,3],[4,2],[5,1],[6,0]],
-    [[3,4],[4,3],[5,2],[6,1],[7,0]],
-
+    [[3,4],[4,3],[5,2],[6,1],[0,0]],
+    [[4,4],[5,3],[6,2],[0,1],[1,0]],
+    [[5,4],[6,3],[0,2],[1,1],[2,0]],
+    [[6,4],[0,3],[1,2],[2,1],[3,0]],
 ];
 
 const slotsEl = document.getElementById('slots');
@@ -108,8 +106,8 @@ const bonusEl = document.getElementById('bonus');
 
 let grid=[], matrix=[];
 
-// создаём поле 10x5
-for(let r=0;r<10;r++){
+// создаём поле 5x7
+for(let r=0;r<7;r++){
     grid[r]=[];
     for(let c=0;c<5;c++){
         const d=document.createElement('div');
@@ -126,8 +124,8 @@ function clearWin(){
 
 // функция для генерации выигрыша чаще
 function generateSymbols(lines){
-    matrix = [[],[],[],[],[],[],[],[],[],[]]; // Для 10 рядов
-    for(let r=0;r<10;r++){
+    matrix = [[],[],[],[],[],[],[]]; // Для 7 рядов
+    for(let r=0;r<7;r++){
         for(let c=0;c<5;c++){
             matrix[r][c] = {t: baseSymbols[Math.floor(Math.random()*baseSymbols.length)], v:1};
         }
@@ -143,7 +141,7 @@ function generateSymbols(lines){
     // Уменьшаем шанс выпадения множителей
     const multCount = Math.floor(Math.random()*3); // Меньше множителей
     let positions=[];
-    for(let r=0;r<10;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
+    for(let r=0;r<7;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
     positions.sort(()=>Math.random()-0.5);
     const multPos = positions.slice(0,multCount); // Меньше позиций с множителями
     for(let [r,c] of multPos){
@@ -169,7 +167,7 @@ function spin(){
     const anim = setInterval(()=>{
         generateSymbols(lines);
 
-        for(let r=0;r<10;r++){
+        for(let r=0;r<7;r++){
             for(let c=0;c<5;c++){
                 const s = matrix[r][c];
                 grid[r][c].innerHTML = s.v>1 ? `<span class="mult">x${s.v}</span>` : s.t;
@@ -238,7 +236,7 @@ function startBonusGame() {
             generateSymbols(5);
 
             // Обновляем визуальные элементы на экране
-            for (let r = 0; r < 10; r++) {
+            for (let r = 0; r < 7; r++) {
                 for (let c = 0; c < 5; c++) {
                     const s = matrix[r][c];
                     grid[r][c].innerHTML = s.v > 1 ? `<span class="mult">x${s.v}</span>` : s.t;
@@ -280,6 +278,7 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
 
 
 
