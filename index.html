@@ -58,11 +58,16 @@ button:hover { background:#ff4500; }
 </div>
 
 <script>
+// Колода карт
+const suits = ['♥', '♦', '♣', '♠']; // червы, бубны, трефы, пики
+const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']; // карты от 2 до туза
+
 let balance = 15000;
 let auto = false, autoInt;
 let bonusAmount = 0;
 let bonusCard;
 
+// Инициализация игрового поля
 const baseSymbols = ['🍒','🍋','🍊','🍉','🍀'];
 const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10},{t:'x100',v:100}];
 const paylines = [
@@ -186,19 +191,24 @@ function openBonus(){
     clearInterval(autoInt);
     autoBtn.textContent='AUTOSPIN';
 
-    // Генерация текущей карты
-    const currentCardValue = Math.floor(Math.random() * 10) + 1;  // Текущая карта
-    bonusCard = currentCardValue;
+    // Генерация текущей карты (случайная карта)
+    const currentCardValue = Math.floor(Math.random() * 13);  // Текущий ранг карты
+    const currentSuit = suits[Math.floor(Math.random() * suits.length)]; // Текущая масть
+    const currentCard = { rank: ranks[currentCardValue], suit: currentSuit };
 
-    // Создание 5 карт для бонусного раунда
+    // Генерация 5 карт для бонусного раунда
     cardsContainer.innerHTML = '';
     for (let i = 0; i < 5; i++) {
-        const cardValue = Math.floor(Math.random() * 10) + 1; // Генерация случайной карты от 1 до 10
+        const randomRank = ranks[Math.floor(Math.random() * ranks.length)];
+        const randomSuit = suits[Math.floor(Math.random() * suits.length)];
         const card = document.createElement('div');
         card.className = 'card';
-        card.textContent = `Карта ${cardValue}`;
+        card.textContent = `${randomRank} ${randomSuit}`;
         card.onclick = function() {
-            if (cardValue > currentCardValue) {
+            // Проверка, старше ли выбранная карта
+            const selectedCardRank = ranks.indexOf(randomRank);
+            const currentCardRank = ranks.indexOf(currentCard.rank);
+            if (selectedCardRank > currentCardRank) {
                 alert("Поздравляем! Вы выбрали карту старше и выиграли!");
                 balance += 500;  // Пример бонуса
                 balanceEl.textContent = balance;
@@ -215,7 +225,7 @@ function toggleAuto(){
     auto = !auto;
     autoBtn.textContent = auto ? 'STOP' : 'AUTOSPIN';
     if(auto){
-        autoInt = setInterval(()=> {
+        autoInt = setInterval(()=>{
             if(balance > 0) spin();
             else toggleAuto();
         }, 1200);
@@ -229,6 +239,8 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
+
 
 
 
