@@ -7,7 +7,7 @@
 <style>
 body { background:#222; color:white; font-family:Arial; text-align:center; margin:0; padding:10px; }
 .container { max-width:520px; margin:auto; background:#333; padding:15px; border-radius:15px; }
-.slots { display:grid; gap:8px; margin:15px 0; }
+.slots { display:grid; gap:8px; margin:15px 0; grid-template-columns: repeat(5, 1fr); }
 .slot { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; position:relative; }
 .spin { transform:scale(1.1); }
 .win { box-shadow:0 0 10px gold; border:2px solid gold; animation:flash 0.5s infinite alternate; }
@@ -91,6 +91,7 @@ function createGrid(game){
     const cfg = gamesConfig[game];
     const container = document.getElementById(cfg.el);
     container.innerHTML=''; grid=[];
+    container.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`; // Устанавливаем количество колонок динамически
     for(let r=0;r<cfg.rows;r++){
         grid[r]=[];
         for(let c=0;c<cfg.cols;c++){
@@ -186,6 +187,8 @@ function toggleAuto(){
 
 </body>
 </html>
+
+
 
 
 
