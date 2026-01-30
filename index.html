@@ -24,6 +24,7 @@
             border-radius: 15px;
             width: 400px;
             margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .slots {
@@ -44,6 +45,7 @@
             border: 2px solid #ffcc00;
             font-size: 32px;
             font-weight: bold;
+            transition: transform 0.5s ease;
         }
 
         .buttons {
@@ -95,6 +97,22 @@
             margin-top: 20px;
             color: #aaa;
         }
+
+        .reset-button {
+            background-color: #1e90ff;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 10px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background-color: #4682b4;
+        }
+
     </style>
 </head>
 <body>
@@ -127,6 +145,8 @@
             <h3>История игры:</h3>
             <ul id="historyList"></ul>
         </div>
+
+        <button class="reset-button" onclick="resetGame()">Сбросить игру</button>
     </div>
 
     <script>
@@ -163,40 +183,52 @@
             document.getElementById("result").textContent = '';
             document.getElementById("historyList").innerHTML = '';
 
+            // Запуск анимации вращения слотов
+            document.getElementById('slot1').style.transform = 'rotate(360deg)';
+            document.getElementById('slot2').style.transform = 'rotate(360deg)';
+            document.getElementById('slot3').style.transform = 'rotate(360deg)';
+
             // Симуляция кручения барабанов
-            let slot1 = getRandomNumber();
-            let slot2 = getRandomNumber();
-            let slot3 = getRandomNumber();
+            setTimeout(() => {
+                let slot1 = getRandomNumber();
+                let slot2 = getRandomNumber();
+                let slot3 = getRandomNumber();
 
-            // Обновляем числа на слотах
-            document.getElementById('slot1').textContent = slot1;
-            document.getElementById('slot2').textContent = slot2;
-            document.getElementById('slot3').textContent = slot3;
+                // Обновляем числа на слотах
+                document.getElementById('slot1').textContent = slot1;
+                document.getElementById('slot2').textContent = slot2;
+                document.getElementById('slot3').textContent = slot3;
 
-            // Проверка на выигрыш
-            if (slot1 === slot2 && slot2 === slot3) {
-                const winAmount = betAmount * 5;  // Выигрыш = ставка * 5
-                balance += winAmount;
-                gainExperience(200); // Выигрыш даёт опыт
-                addToHistory(`Вы выиграли ${winAmount} монет!`);
-                document.getElementById('result').textContent = `Поздравляем! Вы выиграли ${winAmount} монет! 🎉`;
-                document.getElementById('result').classList.add('won');
-                document.getElementById('result').classList.remove('lost');
-            } else {
-                balance -= betAmount;
-                addToHistory(`Вы проиграли ${betAmount} монет.`);
-                document.getElementById('result').textContent = `Увы, вы не выиграли. Попробуйте снова! 😞`;
-                document.getElementById('result').classList.add('lost');
-                document.getElementById('result').classList.remove('won');
-            }
+                // Проверка на выигрыш
+                if (slot1 === slot2 && slot2 === slot3) {
+                    const winAmount = betAmount * 5;  // Выигрыш = ставка * 5
+                    balance += winAmount;
+                    gainExperience(200); // Выигрыш даёт опыт
+                    addToHistory(`Вы выиграли ${winAmount} монет!`);
+                    document.getElementById('result').textContent = `Поздравляем! Вы выиграли ${winAmount} монет! 🎉`;
+                    document.getElementById('result').classList.add('won');
+                    document.getElementById('result').classList.remove('lost');
+                    playSound('win');  // Звук выигрыша
+                } else {
+                    balance -= betAmount;
+                    addToHistory(`Вы проиграли ${betAmount} монет.`);
+                    document.getElementById('result').textContent = `Увы, вы не выиграли. Попробуйте снова! 😞`;
+                    document.getElementById('result').classList.add('lost');
+                    document.getElementById('result').classList.remove('won');
+                    playSound('lose');  // Звук проигрыша
+                }
 
-            // Обновляем баланс
-            document.getElementById("balance").textContent = balance;
+                // Обновляем баланс
+                document.getElementById("balance").textContent = balance;
 
-            // Проверяем, не обанкротился ли игрок
-            if (balance <= 0) {
-                document.getElementById("result").textContent = "У вас закончились монеты! Попробуйте снова.";
-            }
+                // Проверяем, не обанкротился ли игрок
+                if (balance <= 0) {
+                    document.getElementById("result").textContent = "У вас закончились монеты! Попробуйте снова.";
+                    playSound('bankrupt');  // Звук банкротства
+                }
+
+            }, 1000);  // Задержка анимации
+
         }
 
         // Функция для получения случайного числа
@@ -212,10 +244,23 @@
             listItem.textContent = message;
             historyList.appendChild(listItem);
         }
-    </script>
 
-</body>
-</html>
+        // Функция для воспроизведения звуков
+        function playSound(type) {
+            const sound = new Audio();
+            if (type === 'win') {
+                sound.src = 'https://www.soundjay.com/button/beep-07.wav'; // Пример звука выигрыша
+            } else if (type === 'lose') {
+                sound.src = 'https://www.soundjay.com/button/beep-08b.wav'; // Пример звука проигрыша
+            } else if (type === 'bankrupt') {
+                sound.src = 'https://www.soundjay.com/button/beep-09.wav'; // Пример звука банкротства
+            }
+            sound.play();
+        }
+
+        // Функция для сброс
+
+
 
 
 
