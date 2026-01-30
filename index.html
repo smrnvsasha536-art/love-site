@@ -4,53 +4,59 @@
 <meta charset="UTF-8">
 <title>Системное уведомление</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#000000">
 
 <style>
 html,body{
-    margin:0;padding:0;background:black;color:#00ff00;
-    font-family:Consolas,monospace;height:100%;
+  margin:0;padding:0;background:black;color:#00ff00;
+  font-family:Consolas,monospace;height:100%;
+  overscroll-behavior:none;touch-action:none;
 }
 #terminal{padding:16px;white-space:pre-wrap;font-size:16px}
 @media (max-width:600px){#terminal{font-size:18px}}
 
 .red{color:#ff3b3b}.yellow{color:#ffe600}
-@keyframes blink{50%{opacity:0}}
 
 #lock{
-    position:fixed;inset:0;background:black;z-index:9;
-    display:none;align-items:center;justify-content:center;
-    color:red;font-size:22px;text-align:center;
+  position:fixed;inset:0;background:black;z-index:9;
+  display:none;align-items:center;justify-content:center;
+  color:red;font-size:22px;text-align:center;
 }
 
 #final{
-    display:none;min-height:100vh;background:#0f0f14;color:white;
-    font-family:"Segoe UI",system-ui,sans-serif;
-    text-align:center;padding:32px;
+  display:none;min-height:100vh;background:#0f0f14;color:white;
+  font-family:"Segoe UI",system-ui,sans-serif;
+  text-align:center;padding:32px;
 }
 #ring{font-size:64px;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{transform:scale(1.15)}}
 
 .btn{
-    margin-top:16px;padding:14px 26px;font-size:20px;
-    border-radius:999px;border:none;cursor:pointer;
-    background:#ff6bcb;color:white;
+  margin-top:16px;padding:14px 26px;font-size:20px;
+  border-radius:999px;border:none;cursor:pointer;
+  background:#ff6bcb;color:white;
 }
-.btn.fun{
-    background:#ffd166;color:#333;margin-left:12px;
-}
+.btn.fun{background:#ffd166;color:#333;margin-left:12px}
 .btn:active{transform:scale(.97)}
 
 .small{opacity:.85;margin-top:12px}
 
-.hearts{
-    position:fixed;inset:0;pointer-events:none;overflow:hidden;
-}
+.hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden}
 .heart{
-    position:absolute;bottom:-40px;font-size:22px;
-    animation:fly 4s linear forwards;
+  position:absolute;bottom:-40px;font-size:22px;
+  animation:fly 4s linear forwards;
 }
 @keyframes fly{
-    to{transform:translateY(-110vh) rotate(360deg);opacity:0}
+  to{transform:translateY(-110vh) rotate(360deg);opacity:0}
+}
+
+/* Fake vibration for iPhone */
+.shake{animation:shake .15s infinite}
+@keyframes shake{
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-2px)}
+  50%{transform:translateX(2px)}
+  75%{transform:translateX(-2px)}
 }
 </style>
 </head>
@@ -90,16 +96,38 @@ html,body{
 <div class="hearts" id="hearts"></div>
 
 <script>
-const t = document.getElementById("terminal");
-const lock = document.getElementById("lock");
-const final = document.getElementById("final");
-const hearts = document.getElementById("hearts");
-const question = document.getElementById("question");
+/* Fullscreen (Android + iOS after tap) */
+function goFullscreen(){
+  const el=document.documentElement;
+  if(el.requestFullscreen) el.requestFullscreen();
+  else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+}
+document.body.addEventListener("click",goFullscreen,{once:true});
+document.body.addEventListener("touchstart",goFullscreen,{once:true});
 
+/* Back-button trap */
+history.pushState(null,"",location.href);
+window.addEventListener("popstate",()=>{
+  history.pushState(null,"",location.href);
+});
+
+/* Fake vibration for iOS */
+function fakeVibrate(){
+  document.body.classList.add("shake");
+  setTimeout(()=>document.body.classList.remove("shake"),200);
+}
+
+const t=document.getElementById("terminal");
+const lock=document.getElementById("lock");
+const final=document.getElementById("final");
+const hearts=document.getElementById("hearts");
+const question=document.getElementById("question");
 let i=0;
 
+function r(){return Math.floor(Math.random()*255)}
+
 const lines=[
-"ФЕДЕРАЛЬНАЯ СЛУЖБА БЕЗОПАСНОСТИ РФ",
+"ФЕДЕРАЛЬНАЯ СЛУЖБА БЕЗОПАСНОСТИ",
 "Управление кибернадзора",
 "",
 "<span class='yellow'>ВНИМАНИЕ</span>",
@@ -125,58 +153,62 @@ const lines=[
 "<span class='red'>СИСТЕМНАЯ ОШИБКА</span>"
 ];
 
-function r(){return Math.floor(Math.random()*255)}
-
 function type(){
-    if(i<lines.length){
-        t.innerHTML+=lines[i]+"\n";
-        window.scrollTo(0,99999);
-        if(navigator.vibrate) navigator.vibrate(35);
-        i++;
-        setTimeout(type,Math.random()*220+80);
-    }else{
-        lock.style.display="flex";
-        setTimeout(showFinal,3500);
-    }
+  if(i<lines.length){
+    t.innerHTML+=lines[i]+"\n";
+    window.scrollTo(0,99999);
+    if(navigator.vibrate) navigator.vibrate(35);
+    else fakeVibrate();
+    i++;
+    setTimeout(type,Math.random()*220+80);
+  }else{
+    lock.style.display="flex";
+    setTimeout(showFinal,3500);
+  }
 }
 
 function showFinal(){
-    document.body.style.background="#0f0f14";
-    t.style.display="none";
-    lock.style.display="none";
-    final.style.display="block";
+  document.body.style.background="#0f0f14";
+  t.style.display="none";
+  lock.style.display="none";
+  final.style.display="block";
+  document.querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content","#ff6bcb");
 }
 
 function yes(mode){
-    if(mode==="fun"){
-        question.textContent="Я знал(а)! 😄❤️";
-    }else{
-        question.textContent="Я люблю тебя ❤️";
-    }
+  question.textContent = mode==="fun"
+    ? "Я знал(а)! 😄❤️"
+    : "Я люблю тебя ❤️";
 
-    for(let i=0;i<45;i++){
-        const h=document.createElement("div");
-        h.className="heart";
-        h.textContent = mode==="fun" ? "💖" : "❤️";
-        h.style.left=Math.random()*100+"%";
-        h.style.animationDuration=(3+Math.random()*2)+"s";
-        hearts.appendChild(h);
-        setTimeout(()=>h.remove(),5000);
-    }
+  for(let i=0;i<45;i++){
+    const h=document.createElement("div");
+    h.className="heart";
+    h.textContent=mode==="fun"?"💖":"❤️";
+    h.style.left=Math.random()*100+"%";
+    h.style.animationDuration=(3+Math.random()*2)+"s";
+    hearts.appendChild(h);
+    setTimeout(()=>h.remove(),5000);
+  }
 
-    if(navigator.vibrate){
-        navigator.vibrate([200,100,200]);
-    }
+  if(navigator.vibrate) navigator.vibrate([200,100,200]);
+  else fakeVibrate();
 }
 
-window.addEventListener("keydown",e=>e.preventDefault());
-window.addEventListener("touchstart",e=>e.preventDefault(),{passive:false});
+/* iOS hint */
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)){
+  setTimeout(()=>{
+    alert("Для максимального эффекта: Поделиться → «На экран Домой» 💫");
+  },1500);
+}
 
 type();
 </script>
 
 </body>
 </html>
+
+
 
 
 
