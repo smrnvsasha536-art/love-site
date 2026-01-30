@@ -20,9 +20,9 @@ button:hover { background:#ff4500; }
 .won { color:lime; }
 .lost { color:red; }
 .bonus { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; }
-.bonus-box { background:#333; padding:20px; border-radius:15px; width:300px; }
-.red { background:#c0392b; }
-.black { background:#000; }
+.bonus-box { background:#333; padding:20px; border-radius:15px; width:350px; }
+.card { background:#444; color:white; padding:10px; font-size:18px; border-radius:8px; cursor:pointer; margin:5px; }
+.card:hover { background:#555; }
 @media(max-width:480px){ .slot{ font-size:22px; } }
 </style>
 </head>
@@ -39,6 +39,8 @@ button:hover { background:#ff4500; }
             <option value="1">1 линия</option>
             <option value="3">3 линии</option>
             <option value="5">5 линий</option>
+            <option value="7">7 линий</option>
+            <option value="9">9 линий</option>
         </select>
     </div>
     <div class="controls">
@@ -51,18 +53,23 @@ button:hover { background:#ff4500; }
 <!-- BONUS X2 -->
 <div class="bonus" id="bonus">
     <div class="bonus-box">
-        <h3>🔥 БОНУС X2</h3>
-        <p>Выбери цвет</p>
-        <button class="red" onclick="pickColor('red')">🔴 Красное</button>
-        <button class="black" onclick="pickColor('black')">⚫ Чёрное</button>
+        <h3>🔥 БОНУС: Выбери карту старше!</h3>
+        <p>Выбери карту старше текущей:</p>
+        <div id="cardsContainer"></div>
     </div>
 </div>
 
 <script>
+// Колода карт
+const suits = ['♥', '♦', '♣', '♠']; // червы, бубны, трефы, пики
+const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']; // карты от 2 до туза
+
 let balance = 15000;
 let auto = false, autoInt;
 let bonusAmount = 0;
+let bonusCard;
 
+// Инициализация игрового поля
 const baseSymbols = ['🍒','🍋','🍊','🍉','🍀'];
 const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10},{t:'x100',v:100}];
 const paylines = [
@@ -70,13 +77,18 @@ const paylines = [
     [[0,0],[0,1],[0,2],[0,3],[0,4]],
     [[2,0],[2,1],[2,2],[2,3],[2,4]],
     [[0,0],[1,1],[2,2],[1,3],[0,4]],
-    [[2,0],[1,1],[0,2],[1,3],[2,4]]
+    [[2,0],[1,1],[0,2],[1,3],[2,4]],
+    [[0,0],[0,1],[0,2],[1,2],[1,3]],  // Новая линия 6
+    [[1,0],[1,1],[1,2],[2,2],[2,3]],  // Новая линия 7
+    [[2,0],[2,1],[2,2],[1,2],[0,2]],  // Новая линия 8
+    [[1,0],[2,1],[1,2],[2,3],[1,4]]   // Новая линия 9
 ];
 
 const slotsEl = document.getElementById('slots');
 const balanceEl = document.getElementById('balance');
 const resultEl = document.getElementById('result');
 const bonusEl = document.getElementById('bonus');
+const cardsContainer = document.getElementById('cardsContainer');
 
 let grid=[], matrix=[];
 
@@ -96,7 +108,7 @@ function clearWin(){
     grid.flat().forEach(s=>s.classList.remove('win','spin'));
 }
 
-// функция для генерации выигрыша чаще
+// функция для генерации выигрыша
 function generateSymbols(lines){
     matrix = [[],[],[]];
     for(let r=0;r<3;r++){
@@ -109,12 +121,12 @@ function generateSymbols(lines){
     const winLine = paylines[Math.floor(Math.random()*lines)];
     const symbol = baseSymbols[Math.floor(Math.random()*baseSymbols.length)];
     for(let i=0;i<5;i++){
-        if(Math.random()<0.6) matrix[winLine[i][0]][winLine[i][1]].t = symbol; // 60% шанс одинаковых
+        if(Math.random()<0.5) matrix[winLine[i][0]][winLine[i][1]].t = symbol; // 50% шанс одинаковых
     }
 
     // добавляем случайные мультипликаторы
     const multCount = Math.floor(Math.random()*4);
-    let positions=[];
+    let positions=[]; 
     for(let r=0;r<3;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
     positions.sort(()=>Math.random()-0.5);
     const multPos = positions.slice(0,multCount);
@@ -184,18 +196,35 @@ function openBonus(){
     auto=false;
     clearInterval(autoInt);
     autoBtn.textContent='AUTOSPIN';
-}
 
-function pickColor(choice){
-    const result = Math.random()<0.5?'red':'black';
-    if(choice===result){
-        balance += bonusAmount;
-        resultEl.innerHTML = `🔥 БОНУС X2! +${bonusAmount}`;
-    } else {
-        resultEl.innerHTML = '💥 Бонус проигран';
+    // Генерация текущей карты (случайная карта)
+    const currentCardValue = Math.floor(Math.random() * 13);  // Текущий ранг карты
+    const currentSuit = suits[Math.floor(Math.random() * suits.length)]; // Текущая масть
+    const currentCard = { rank: ranks[currentCardValue], suit: currentSuit };
+
+    // Генерация 5 карт для бонусного раунда
+    cardsContainer.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+        const randomRank = ranks[Math.floor(Math.random() * ranks.length)];
+        const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.textContent = `${randomRank} ${randomSuit}`;
+        card.onclick = function() {
+            // Проверка, старше ли выбранная карта
+            const selectedCardRank = ranks.indexOf(randomRank);
+            const currentCardRank = ranks.indexOf(currentCard.rank);
+            if (selectedCardRank > currentCardRank) {
+                alert("Поздравляем! Вы выбрали карту старше и выиграли!");
+                balance += 500;  // Пример бонуса
+                balanceEl.textContent = balance;
+            } else {
+                alert("Проигрыш. Попробуйте снова.");
+            }
+            bonusEl.style.display = 'none';  // Закрываем бонусный экран
+        };
+        cardsContainer.appendChild(card);
     }
-    balanceEl.textContent=balance;
-    bonusEl.style.display='none';
 }
 
 function toggleAuto(){
@@ -203,9 +232,9 @@ function toggleAuto(){
     autoBtn.textContent = auto ? 'STOP' : 'AUTOSPIN';
     if(auto){
         autoInt = setInterval(()=>{
-            if(balance>0) spin();
+            if(balance > 0) spin();
             else toggleAuto();
-        },1200);
+        }, 1200);
     } else clearInterval(autoInt);
 }
 
@@ -216,6 +245,8 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
+
 
 
 
