@@ -2,82 +2,140 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Windows Security</title>
+<title>Windows Security Alert</title>
+
 <style>
-    body {
-        margin: 0;
-        background: black;
-        color: #00ff00;
-        font-family: Consolas, monospace;
-        font-size: 16px;
-    }
-    #terminal {
-        padding: 20px;
-        white-space: pre-wrap;
-    }
-    .blink {
-        animation: blink 1s infinite;
-    }
-    @keyframes blink {
-        50% { opacity: 0; }
-    }
+html, body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    color: #00ff00;
+    font-family: Consolas, monospace;
+    font-size: 16px;
+    height: 100%;
+}
+
+#terminal {
+    padding: 20px;
+    white-space: pre-wrap;
+}
+
+.red { color: #ff3b3b; }
+.yellow { color: #ffe600; }
+.blue { color: #00b7ff; }
+
+.blink {
+    animation: blink 1s infinite;
+}
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+#overlay {
+    position: fixed;
+    inset: 0;
+    background: black;
+    display: none;
+    z-index: 999;
+}
+
+#bsod {
+    display: none;
+    background: #0000aa;
+    color: white;
+    font-family: Consolas, monospace;
+    padding: 40px;
+    height: 100vh;
+}
 </style>
 </head>
 <body>
 
 <div id="terminal"></div>
+<div id="overlay"></div>
+<div id="bsod">
+A problem has been detected and Windows has been shut down to prevent damage.
+
+KERNEL_SECURITY_CHECK_FAILURE
+
+If this is the first time you've seen this error screen,
+restart your computer.
+
+Technical information:
+*** STOP: 0x00000139 (0x0000000000000003)
+
+Collecting data for crash dump...
+Initializing disk for crash dump...
+Beginning dump of physical memory...
+</div>
+
+<audio id="beep" src="https://www.soundjay.com/button/sounds/beep-07.mp3"></audio>
 
 <script>
 const terminal = document.getElementById("terminal");
+const overlay = document.getElementById("overlay");
+const bsod = document.getElementById("bsod");
+const beep = document.getElementById("beep");
+
+const ip = `185.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
 
 const lines = [
-    "Microsoft Windows [Version 10.0.19045]",
-    "(c) Microsoft Corporation. All rights reserved.",
-    "",
-    "Initializing security protocols...",
-    "Scanning system...",
-    "",
-    "WARNING: Unauthorized access detected",
-    "Establishing remote connection...",
-    "Remote host connected.",
-    "",
-    "IP Address: 185.23.91.***",
-    "Location: UNKNOWN",
-    "Access level: ADMIN",
-    "",
-    "Collecting user data...",
-    " → Documents",
-    " → Desktop",
-    " → Browser data",
-    " → Saved passwords",
-    "",
-    "Uploading data to remote server...",
-    "Progress: 14%",
-    "Progress: 37%",
-    "Progress: 58%",
-    "Progress: 76%",
-    "Progress: 92%",
-    "Progress: 100%",
-    "",
-    "Disabling antivirus...",
-    "Antivirus status: OFF",
-    "",
-    "Encrypting files...",
-    "████████████████████████████ 100%",
-    "",
-    "SYSTEM FAILURE",
-    "ALL FILES SECURED",
-    "",
-    "Contacting command server...",
-    "",
-    "--------------------------------",
-    "Just kidding 😎",
-    "Это шуточный сайт.",
-    "Никто тебя не взломал.",
-    "Но выглядело правдоподобно, да?",
-    "--------------------------------",
-    "",
-    "Press F5 to panic again █"
+"Microsoft Windows [Version 10.0.19045]",
+"(c) Microsoft Corporation. All rights reserved.",
+"",
+"Initializing Windows Security Core...",
+"Loading kernel modules...",
+"",
+"<span class='yellow'>[WARNING]</span> Unusual outbound traffic detected",
+"Verifying system integrity...",
+"",
+"<span class='red'>[CRITICAL]</span> Remote access established",
+"",
+`Remote Host IP: ${ip}`,
+"Access Level: SYSTEM",
+"Encryption Mode: AES-256",
+"",
+"Enumerating user directories...",
+" → C:\\Users\\Public",
+" → C:\\Users\\Admin",
+" → C:\\Users\\Default",
+"",
+"<span class='yellow'>Extracting browser credentials...</span>",
+"Chrome: OK",
+"Edge: OK",
+"Firefox: OK",
+"",
+"<span class='red'>Disabling Windows Defender...</span>",
+"Defender status: OFF",
+"",
+"Uploading personal data...",
+"Progress: 12%",
+"Progress: 38%",
+"Progress: 67%",
+"Progress: 89%",
+"Progress: 100%",
+"",
+"<span class='red'>Encrypting local drives...</span>",
+"Drive C: ████████████████████ 100%",
+"Drive D: ████████████████████ 100%",
+"",
+"<span class='red'>ALL FILES LOCKED</span>",
+"",
+"Deleting system restore points...",
+"",
+"<span class='yellow'>System instability detected...</span>",
+"",
+"<span class='red'>KERNEL PANIC IN 10 SECONDS</span>",
+"10...",
+"9...",
+"8...",
+"7...",
+"6...",
+"5...",
+"4...",
+"3...",
+"2...",
+"1..."
 ];
 
 let i = 0;
@@ -85,19 +143,55 @@ let i = 0;
 function typeLine() {
     if (i < lines.length) {
         terminal.innerHTML += lines[i] + "\n";
-        i++;
         window.scrollTo(0, document.body.scrollHeight);
-        setTimeout(typeLine, Math.random() * 300 + 100);
+        beep.currentTime = 0;
+        beep.play().catch(()=>{});
+        i++;
+        setTimeout(typeLine, Math.random()*250 + 80);
     } else {
-        terminal.innerHTML += "<span class='blink'></span>";
+        crash();
     }
 }
 
+function crash() {
+    overlay.style.display = "block";
+    setTimeout(() => {
+        document.body.innerHTML = "";
+        document.body.appendChild(bsod);
+        bsod.style.display = "block";
+        setTimeout(joke, 6000);
+    }, 1500);
+}
+
+function joke() {
+    document.body.innerHTML = "";
+    terminal.innerHTML = "";
+    document.body.appendChild(terminal);
+    terminal.innerHTML =
+`--------------------------------
+😎 JUST KIDDING
+Это шуточный сайт.
+Никто не получил доступ.
+Никакие файлы не пострадали.
+
+Но выглядело реально, да?
+--------------------------------
+
+Обнови страницу, если не страшно █`;
+}
+
 typeLine();
+
+// фейковая блокировка
+window.addEventListener("keydown", e => {
+    e.preventDefault();
+});
 </script>
 
 </body>
 </html>
+
+
 
 
 
