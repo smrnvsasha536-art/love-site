@@ -127,9 +127,9 @@
         </div>
 
         <div class="slots">
-            <div class="slot" id="slot1">1</div>
-            <div class="slot" id="slot2">2</div>
-            <div class="slot" id="slot3">3</div>
+            <div class="slot" id="slot1">🍒</div>
+            <div class="slot" id="slot2">🍋</div>
+            <div class="slot" id="slot3">🍊</div>
         </div>
 
         <input type="number" id="bet" class="input" placeholder="Ставка" min="1" max="100">
@@ -153,7 +153,7 @@
         let balance = 5000;
         let level = 1;
         let experience = 0;
-        const symbols = ['1', '2', '3', '7']; // Символы слотов: 1, 2, 3 и 7 (джекпот)
+        const symbols = ['🍒', '🍋', '🍊', '🍀']; // Символы слотов: 🍒, 🍋, 🍊 и 🍀 (джекпот)
         const history = []; // Массив для хранения истории игры
 
         // Функция для обновления опыта и уровня
@@ -192,8 +192,8 @@
             document.getElementById('slot2').textContent = slot2;
             document.getElementById('slot3').textContent = slot3;
 
-            // Проверка на джекпот (все слоты показывают 7)
-            if (slot1 === '7' && slot2 === '7' && slot3 === '7') {
+            // Проверка на джекпот (все слоты показывают 🍀)
+            if (slot1 === '🍀' && slot2 === '🍀' && slot3 === '🍀') {
                 const jackpotAmount = betAmount * 20;  // Джекпот = ставка * 20
                 balance += jackpotAmount;
                 gainExperience(500); // Джекпот даёт опыт
@@ -243,6 +243,21 @@
         }
 
         // Функция для сброса игры
+        function resetGame() {
+            balance = 5000;
+            level = 1;
+            experience = 0;
+            document.getElementById("balance").textContent = balance;
+            document.getElementById("level").textContent = level;
+            document.getElementById("experience").textContent = experience;
+            document.getElementById('result').textContent = '';
+            document.getElementById('historyList').innerHTML = '';
+        }
+    </script>
+
+</body>
+</html>
+
 
 
 
