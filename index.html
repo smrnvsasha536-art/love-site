@@ -3,79 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест на петуха</title>
+    <title>Казино 777</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #fafafa;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
+            background-color: #222;
+            color: white;
+            text-align: center;
+            padding: 20px;
         }
+
         h1 {
-            color: #FF6347;
+            color: #ffcc00;
         }
-        .question {
-            margin: 20px 0;
+
+        .container {
+            margin-top: 50px;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        .balance {
             font-size: 20px;
+            margin-bottom: 20px;
         }
-        .answers {
-            display: flex;
-            flex-direction: column;
+
+        .bet-input {
+            font-size: 18px;
+            padding: 10px;
+            width: 60%;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ffcc00;
+            background-color: #444;
+            color: white;
         }
-        .answers button {
-            background-color: #ffeb3b;
+
+        .buttons {
+            margin: 10px 0;
+        }
+
+        .button {
+            background-color: #ff6347;
             border: none;
             padding: 10px 20px;
-            margin: 5px;
-            font-size: 16px;
+            font-size: 18px;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 10px;
             transition: background-color 0.3s ease;
         }
-        .answers button:hover {
-            background-color: #ff9800;
+
+        .button:hover {
+            background-color: #ff4500;
         }
+
         .result {
+            font-size: 22px;
             margin-top: 20px;
-            font-size: 24px;
             font-weight: bold;
-            color: #FF6347;
+        }
+
+        .lost {
+            color: red;
+        }
+
+        .won {
+            color: limegreen;
         }
     </style>
 </head>
 <body>
 
-    <h1>Тест на петуха 🐓</h1>
-    <div class="question">
-        Ты уже утро? 🕖
-    </div>
-    
-    <div class="answers">
-        <button onclick="checkAnswer('yes')">Да, я проснулся!</button>
-        <button onclick="checkAnswer('no')">Нет, я только просыпаюсь.</button>
-    </div>
+    <h1>Казино 777</h1>
 
-    <div id="result" class="result"></div>
+    <div class="container">
+        <div class="balance">
+            Баланс: <span id="balance">1000</span> монет
+        </div>
+        
+        <input type="number" id="bet" class="bet-input" placeholder="Введите ставку" min="1">
+        
+        <div class="buttons">
+            <button class="button" onclick="playGame()">Крутить!</button>
+        </div>
+        
+        <div id="result" class="result"></div>
+    </div>
 
     <script>
-        function checkAnswer(answer) {
-            const resultDiv = document.getElementById('result');
-            
-            if (answer === 'yes') {
-                resultDiv.textContent = 'Ты точно петух! 🐔';
+        let balance = 1000;  // Начальный баланс
+
+        // Функция для игры
+        function playGame() {
+            let betAmount = parseInt(document.getElementById("bet").value); // Ставка пользователя
+            let resultDiv = document.getElementById("result");
+
+            // Проверка на допустимость ставки
+            if (isNaN(betAmount) || betAmount <= 0 || betAmount > balance) {
+                resultDiv.textContent = "Введите допустимую сумму ставки!";
+                resultDiv.classList.remove("won", "lost");
+                resultDiv.classList.add("lost");
+                return;
+            }
+
+            // Игровой процесс
+            let randomNum = Math.random(); // Генерация случайного числа для игры
+            let win = false;
+
+            if (randomNum < 0.5) {
+                win = true;  // Победа при шансах 50%
+            }
+
+            // Обновление баланса и вывод результата
+            if (win) {
+                balance += betAmount;  // Добавляем к балансу
+                resultDiv.textContent = "Поздравляем! Вы выиграли " + betAmount + " монет!";
+                resultDiv.classList.remove("lost");
+                resultDiv.classList.add("won");
             } else {
-                resultDiv.textContent = 'Ты не петух, ещё можно поспать! 😴';
+                balance -= betAmount;  // Вычитаем из баланса
+                resultDiv.textContent = "Увы, вы проиграли " + betAmount + " монет.";
+                resultDiv.classList.remove("won");
+                resultDiv.classList.add("lost");
+            }
+
+            // Обновляем отображение баланса
+            document.getElementById("balance").textContent = balance;
+
+            // Проверка, не обанкротился ли пользователь
+            if (balance <= 0) {
+                resultDiv.textContent = "У вас больше нет монет. Вы обанкротились!";
+                resultDiv.classList.remove("won", "lost");
             }
         }
     </script>
 
 </body>
 </html>
+
+
 
 
 
