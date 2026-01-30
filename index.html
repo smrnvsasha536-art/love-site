@@ -42,6 +42,7 @@
             margin: 0 10px;
             border-radius: 10px;
             border: 2px solid #ffcc00;
+            font-size: 32px;
         }
 
         .buttons {
@@ -75,11 +76,6 @@
         .lost {
             color: red;
         }
-
-        .slot img {
-            max-width: 80px;
-            max-height: 80px;
-        }
     </style>
 </head>
 <body>
@@ -88,15 +84,9 @@
 
     <div class="container">
         <div class="slots">
-            <div class="slot" id="slot1">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e5/Watermelon_Slice_2.jpg" alt="Арбуз">
-            </div>
-            <div class="slot" id="slot2">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/85/Banana.jpg" alt="Банан">
-            </div>
-            <div class="slot" id="slot3">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/Strawberry_1.jpg" alt="Клубника">
-            </div>
+            <div class="slot" id="slot1">1</div>
+            <div class="slot" id="slot2">2</div>
+            <div class="slot" id="slot3">3</div>
         </div>
 
         <div class="buttons">
@@ -107,15 +97,8 @@
     </div>
 
     <script>
-        // Доступные картинки с реальными изображениями
-        const images = [
-            "https://upload.wikimedia.org/wikipedia/commons/e/e5/Watermelon_Slice_2.jpg", // Арбуз
-            "https://upload.wikimedia.org/wikipedia/commons/8/85/Banana.jpg",    // Банан
-            "https://upload.wikimedia.org/wikipedia/commons/8/87/Strawberry_1.jpg", // Клубника
-            "https://upload.wikimedia.org/wikipedia/commons/3/39/Star_symbol_%28svg%29.png",  // Звездочка
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Seven-segment_7.svg/1024px-Seven-segment_7.svg.png", // Семерка
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Present_icon_%28GIF%29.svg/1200px-Present_icon_%28GIF%29.svg.png" // Бонус
-        ];
+        // Доступные цифры для игры
+        const numbers = [1, 2, 3, 4, 5, 6, 7];
 
         // Функция для вращения барабанов
         function spin() {
@@ -123,14 +106,14 @@
             document.getElementById("result").textContent = '';
 
             // Симуляция кручения барабанов
-            let slot1 = getRandomImage();
-            let slot2 = getRandomImage();
-            let slot3 = getRandomImage();
+            let slot1 = getRandomNumber();
+            let slot2 = getRandomNumber();
+            let slot3 = getRandomNumber();
 
-            // Обновляем изображение на слотах
-            document.getElementById('slot1').innerHTML = `<img src="${slot1}" alt="Слот 1">`;
-            document.getElementById('slot2').innerHTML = `<img src="${slot2}" alt="Слот 2">`;
-            document.getElementById('slot3').innerHTML = `<img src="${slot3}" alt="Слот 3">`;
+            // Обновляем число на слотах
+            document.getElementById('slot1').textContent = slot1;
+            document.getElementById('slot2').textContent = slot2;
+            document.getElementById('slot3').textContent = slot3;
 
             // Проверка на выигрыш
             if (slot1 === slot2 && slot2 === slot3) {
@@ -144,15 +127,16 @@
             }
         }
 
-        // Функция для получения случайной картинки
-        function getRandomImage() {
-            // Возвращаем случайный элемент из массива картинок
-            return images[Math.floor(Math.random() * images.length)];
+        // Функция для получения случайного числа
+        function getRandomNumber() {
+            // Возвращаем случайное число из массива от 1 до 7
+            return numbers[Math.floor(Math.random() * numbers.length)];
         }
     </script>
 
 </body>
 </html>
+
 
 
 
