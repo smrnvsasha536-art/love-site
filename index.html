@@ -72,6 +72,7 @@ let auto = false, autoInt;
 let bonusAmount = 0;
 let freeSpins = 0;
 let currentBonusWin = 0;
+let pickedColor = null; // Для сохранения выбранного цвета
 
 const baseSymbols = ['🍒','🍋','🍊','🍉','7️⃣']; // Заменили клевера на семерочки
 const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10}]; // Removed x100
@@ -220,11 +221,25 @@ function startBonusGame() {
             spins++;
         } else {
             clearInterval(bonusAnim);
+            // Умножаем общий выигрыш на 10
             resultEl.innerHTML = `🎉 Итоговый выигрыш умножен на 10! Выигрыш: ${currentBonusWin * 10}`;
             balance += currentBonusWin * 10;
             balanceEl.textContent = balance;
         }
     }, 1000);
+}
+
+function pickColor(color) {
+    pickedColor = color; // Сохраняем выбранный цвет
+    const result = Math.random() < 0.5 ? 'red' : 'black'; // случайный результат
+    if (pickedColor === result) {
+        resultEl.textContent = `🎉 Вы выбрали правильно! Выигрыш: ${bonusAmount}`;
+        balance += bonusAmount;
+    } else {
+        resultEl.textContent = `💥 Вы выбрали неправильно. Бонус проигран.`;
+    }
+    balanceEl.textContent = balance;
+    bonusEl.style.display = 'none';
 }
 
 const betInput = document.getElementById('bet');
@@ -234,6 +249,7 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
 
 
 
