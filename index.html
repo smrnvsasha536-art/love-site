@@ -210,10 +210,27 @@ function openBonus(){
         cardsContainer.appendChild(card);
     }
 }
+
+function toggleAuto(){
+    auto = !auto;
+    autoBtn.textContent = auto ? 'STOP' : 'AUTOSPIN';
+    if(auto){
+        autoInt = setInterval(()=> {
+            if(balance > 0) spin();
+            else toggleAuto();
+        }, 1200);
+    } else clearInterval(autoInt);
+}
+
+const betInput = document.getElementById('bet');
+const linesInput = document.getElementById('lines');
+const autoBtn = document.getElementById('autoBtn');
 </script>
 
 </body>
 </html>
+
+
 
 
 
