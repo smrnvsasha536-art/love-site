@@ -3,33 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slot 5x3 Ultimate - Улучшенный</title>
-
+<title>Slot 5x3 Ultimate - Pro Edition</title>
 <style>
 body { background:#222; color:white; font-family:Arial; text-align:center; margin:0; padding:10px; }
 .container { max-width:520px; margin:auto; background:#333; padding:15px; border-radius:15px; }
 .slots { display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(3,80px); gap:8px; margin:15px 0; }
-.slot { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; }
+.slot { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; position:relative; }
 .spin { transform:scale(1.1); }
-.win { box-shadow:0 0 10px gold; border:2px solid gold; }
+.win { box-shadow:0 0 10px gold; border:2px solid gold; animation:flash 0.5s infinite alternate; }
+@keyframes flash { 0%{box-shadow:0 0 10px gold;} 100%{box-shadow:0 0 20px gold;} }
 .mult { color:#ffd700; font-weight:bold; }
 .controls { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
 button,input,select { padding:10px; font-size:16px; border-radius:8px; border:none; }
 button { background:#ff6347; color:#fff; cursor:pointer; }
 button:hover { background:#ff4500; }
-.won { color:lime; }
-.lost { color:red; }
+.won { color:lime; font-weight:bold; }
+.lost { color:red; font-weight:bold; }
 .bonus { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; }
-.bonus-box { background:#333; padding:20px; border-radius:15px; width:300px; }
+.bonus-box { background:#333; padding:20px; border-radius:15px; width:320px; text-align:center; }
 .red { background:#c0392b; }
 .black { background:#000; }
+.line-anim { position:absolute; width:100%; height:100%; border:2px solid lime; border-radius:10px; pointer-events:none; }
 @media(max-width:480px){ .slot{ font-size:22px; } }
 </style>
 </head>
 <body>
 
-<h2>🎰 Slot 5x3 Ultimate</h2>
-
+<h2>🎰 Slot 5x3 Ultimate Pro</h2>
 <div class="container">
     <div>Баланс: <b><span id="balance">15000</span></b></div>
     <div class="slots" id="slots"></div>
@@ -51,20 +51,27 @@ button:hover { background:#ff4500; }
 <!-- BONUS X2 -->
 <div class="bonus" id="bonus">
     <div class="bonus-box">
-        <h3>🔥 БОНУС X2</h3>
-        <p>Выбери цвет</p>
-        <button class="red" onclick="pickColor('red')">🔴 Красное</button>
-        <button class="black" onclick="pickColor('black')">⚫ Чёрное</button>
+        <h3>🔥 БОНУС – Колесо удачи</h3>
+        <p>Выбери сегмент</p>
+        <button class="red" onclick="pickBonus(2)">x2</button>
+        <button class="black" onclick="pickBonus(3)">x3</button>
+        <button class="red" onclick="pickBonus(5)">x5</button>
+        <button class="black" onclick="pickBonus(10)">x10</button>
     </div>
 </div>
 
 <script>
+// === Переменные ===
 let balance = 15000;
-let auto = false, autoInt;
-let bonusAmount = 0;
+let auto=false, autoInt;
+let bonusAmount=0;
+let streakMultiplier=1; // прогрессивный множитель
 
+// Символы
 const baseSymbols = ['🍒','🍋','🍊','🍉','🍀'];
-const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10},{t:'x100',v:100}];
+const jackpotSymbols = ['💎','⭐'];
+const secretSymbols = ['🎩'];
+const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10},{t:'x50',v:50}];
 const paylines = [
     [[1,0],[1,1],[1,2],[1,3],[1,4]],
     [[0,0],[0,1],[0,2],[0,3],[0,4]],
@@ -96,23 +103,27 @@ function clearWin(){
     grid.flat().forEach(s=>s.classList.remove('win','spin'));
 }
 
-// функция для генерации выигрыша чаще
+// Генерация символов с частыми выигрышами, джекпотами и секретными символами
 function generateSymbols(lines){
     matrix = [[],[],[]];
     for(let r=0;r<3;r++){
         for(let c=0;c<5;c++){
-            matrix[r][c] = {t: baseSymbols[Math.floor(Math.random()*baseSymbols.length)], v:1};
+            // базовые + редкие джекпоты + секрет
+            let rand = Math.random();
+            if(rand<0.03) matrix[r][c]={t:jackpotSymbols[Math.floor(Math.random()*jackpotSymbols.length)],v:1};
+            else if(rand<0.06) matrix[r][c]={t:secretSymbols[Math.floor(Math.random()*secretSymbols.length)],v:1};
+            else matrix[r][c]={t:baseSymbols[Math.floor(Math.random()*baseSymbols.length)],v:1};
         }
     }
 
-    // увеличиваем шанс хотя бы одной линии выиграть
+    // делаем хотя бы одну линию выигрышной
     const winLine = paylines[Math.floor(Math.random()*lines)];
     const symbol = baseSymbols[Math.floor(Math.random()*baseSymbols.length)];
     for(let i=0;i<5;i++){
-        if(Math.random()<0.6) matrix[winLine[i][0]][winLine[i][1]].t = symbol; // 60% шанс одинаковых
+        if(Math.random()<0.6) matrix[winLine[i][0]][winLine[i][1]].t = symbol;
     }
 
-    // добавляем случайные мультипликаторы
+    // случайные мультипликаторы
     const multCount = Math.floor(Math.random()*4);
     let positions=[];
     for(let r=0;r<3;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
@@ -123,12 +134,13 @@ function generateSymbols(lines){
     }
 }
 
+// === СПИН ===
 function spin(){
     const bet = +betInput.value;
     const lines = +linesInput.value;
     const total = bet*lines;
     if(total>balance){
-        resultEl.textContent = '❌ Недостаточно средств';
+        resultEl.textContent='❌ Недостаточно средств';
         return;
     }
 
@@ -143,7 +155,7 @@ function spin(){
 
         for(let r=0;r<3;r++){
             for(let c=0;c<5;c++){
-                const s = matrix[r][c];
+                const s=matrix[r][c];
                 grid[r][c].innerHTML = s.v>1 ? `<span class="mult">x${s.v}</span>` : s.t;
                 grid[r][c].classList.add('spin');
             }
@@ -153,6 +165,10 @@ function spin(){
             clearInterval(anim);
             clearWin();
             bonusAmount = calcWin(bet,lines);
+            if(bonusAmount>0 && matrix.flat().some(s=>jackpotSymbols.includes(s.t))){
+                streakMultiplier=1; // джекпот сбрасывает прогрессию
+                resultEl.innerHTML += ' 🎉 Джекпот!';
+            }
             if(bonusAmount>0 && matrix.flat().filter(s=>s.t==='🍀').length>=3){
                 openBonus();
             }
@@ -160,6 +176,7 @@ function spin(){
     },100);
 }
 
+// === ВЫИГРЫШ ===
 function calcWin(bet,lines){
     let win=0;
     for(let i=0;i<lines;i++){
@@ -171,14 +188,16 @@ function calcWin(bet,lines){
             if(!symbol){ symbol=s.t; count=1; grid[p[0]][p[1]].classList.add('win'); }
             else if(s.t===symbol){ count++; grid[p[0]][p[1]].classList.add('win'); }
         }
-        if(count>=3) win += bet*count*mult;
+        if(count>=3) win += bet*count*mult*streakMultiplier;
     }
+    if(win>0) streakMultiplier += 0.1; else streakMultiplier=1; // прогрессия
     balance += win;
-    balanceEl.textContent=balance;
+    balanceEl.textContent = balance;
     resultEl.innerHTML = win ? `<span class="won">🎉 Выигрыш: ${win}</span>` : `<span class="lost">😞 Проигрыш</span>`;
     return win;
 }
 
+// === БОНУС – Колесо удачи ===
 function openBonus(){
     bonusEl.style.display='flex';
     auto=false;
@@ -186,36 +205,33 @@ function openBonus(){
     autoBtn.textContent='AUTOSPIN';
 }
 
-function pickColor(choice){
-    const result = Math.random()<0.5?'red':'black';
-    if(choice===result){
-        balance += bonusAmount;
-        resultEl.innerHTML = `🔥 БОНУС X2! +${bonusAmount}`;
-    } else {
-        resultEl.innerHTML = '💥 Бонус проигран';
-    }
-    balanceEl.textContent=balance;
+function pickBonus(mult){
+    balance += bonusAmount*mult;
+    resultEl.innerHTML = `🔥 Бонус x${mult}! +${bonusAmount*mult}`;
+    balanceEl.textContent = balance;
     bonusEl.style.display='none';
 }
 
+// === AUTOSPIN ===
 function toggleAuto(){
-    auto = !auto;
-    autoBtn.textContent = auto ? 'STOP' : 'AUTOSPIN';
+    auto=!auto;
+    autoBtn.textContent=auto?'STOP':'AUTOSPIN';
     if(auto){
-        autoInt = setInterval(()=>{
+        autoInt=setInterval(()=>{
             if(balance>0) spin();
             else toggleAuto();
         },1200);
     } else clearInterval(autoInt);
 }
 
-const betInput = document.getElementById('bet');
-const linesInput = document.getElementById('lines');
-const autoBtn = document.getElementById('autoBtn');
+const betInput=document.getElementById('bet');
+const linesInput=document.getElementById('lines');
+const autoBtn=document.getElementById('autoBtn');
 </script>
-
 </body>
 </html>
+
+
 
 
 
