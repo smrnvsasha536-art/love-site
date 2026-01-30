@@ -3,94 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slot 5x3 Ultimate</title>
+<title>Slot 5x3 Ultimate - Улучшенный</title>
 
 <style>
-body {
-    background:#222;
-    color:white;
-    font-family:Arial;
-    text-align:center;
-    margin:0;
-    padding:10px;
-}
-.container {
-    max-width:520px;
-    margin:auto;
-    background:#333;
-    padding:15px;
-    border-radius:15px;
-}
-.slots {
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    grid-template-rows:repeat(3,80px);
-    gap:8px;
-    margin:15px 0;
-}
-.slot {
-    background:#444;
-    border-radius:10px;
-    font-size:26px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:.15s;
-}
-.spin{ transform:scale(1.1); }
-.win{
-    box-shadow:0 0 10px gold;
-    border:2px solid gold;
-}
-.mult{ color:#ffd700; font-weight:bold; }
-.controls{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
-button,input,select{
-    padding:10px;
-    font-size:16px;
-    border-radius:8px;
-    border:none;
-}
-button{
-    background:#ff6347;
-    color:#fff;
-    cursor:pointer;
-}
-button:hover{ background:#ff4500; }
-.won{ color:lime; }
-.lost{ color:red; }
-
-.bonus {
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.85);
-    display:none;
-    align-items:center;
-    justify-content:center;
-}
-.bonus-box {
-    background:#333;
-    padding:20px;
-    border-radius:15px;
-    width:300px;
-}
+body { background:#222; color:white; font-family:Arial; text-align:center; margin:0; padding:10px; }
+.container { max-width:520px; margin:auto; background:#333; padding:15px; border-radius:15px; }
+.slots { display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(3,80px); gap:8px; margin:15px 0; }
+.slot { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; }
+.spin { transform:scale(1.1); }
+.win { box-shadow:0 0 10px gold; border:2px solid gold; }
+.mult { color:#ffd700; font-weight:bold; }
+.controls { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+button,input,select { padding:10px; font-size:16px; border-radius:8px; border:none; }
+button { background:#ff6347; color:#fff; cursor:pointer; }
+button:hover { background:#ff4500; }
+.won { color:lime; }
+.lost { color:red; }
+.bonus { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; }
+.bonus-box { background:#333; padding:20px; border-radius:15px; width:300px; }
 .red { background:#c0392b; }
 .black { background:#000; }
-
-@media(max-width:480px){
-    .slot{ font-size:22px; }
-}
+@media(max-width:480px){ .slot{ font-size:22px; } }
 </style>
 </head>
-
 <body>
 
 <h2>🎰 Slot 5x3 Ultimate</h2>
 
 <div class="container">
     <div>Баланс: <b><span id="balance">15000</span></b></div>
-
     <div class="slots" id="slots"></div>
-
     <div class="controls">
         <input type="number" id="bet" value="10" min="1">
         <select id="lines">
@@ -99,12 +41,10 @@ button:hover{ background:#ff4500; }
             <option value="5">5 линий</option>
         </select>
     </div>
-
     <div class="controls">
         <button onclick="spin()">SPIN</button>
         <button onclick="toggleAuto()" id="autoBtn">AUTOSPIN</button>
     </div>
-
     <div id="result" style="margin-top:10px;font-size:18px;"></div>
 </div>
 
@@ -119,18 +59,12 @@ button:hover{ background:#ff4500; }
 </div>
 
 <script>
-// === Переменные ===
 let balance = 15000;
 let auto = false, autoInt;
 let bonusAmount = 0;
 
-// базовые смайлы и множители
 const baseSymbols = ['🍒','🍋','🍊','🍉','🍀'];
-const multipliers = [
-    {t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10},{t:'x100',v:100}
-];
-
-// линии
+const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10},{t:'x100',v:100}];
 const paylines = [
     [[1,0],[1,1],[1,2],[1,3],[1,4]],
     [[0,0],[0,1],[0,2],[0,3],[0,4]],
@@ -158,49 +92,59 @@ for(let r=0;r<3;r++){
     }
 }
 
-// очистка
 function clearWin(){
     grid.flat().forEach(s=>s.classList.remove('win','spin'));
 }
 
-// === СПИН ===
+// функция для генерации выигрыша чаще
+function generateSymbols(lines){
+    matrix = [[],[],[]];
+    for(let r=0;r<3;r++){
+        for(let c=0;c<5;c++){
+            matrix[r][c] = {t: baseSymbols[Math.floor(Math.random()*baseSymbols.length)], v:1};
+        }
+    }
+
+    // увеличиваем шанс хотя бы одной линии выиграть
+    const winLine = paylines[Math.floor(Math.random()*lines)];
+    const symbol = baseSymbols[Math.floor(Math.random()*baseSymbols.length)];
+    for(let i=0;i<5;i++){
+        if(Math.random()<0.6) matrix[winLine[i][0]][winLine[i][1]].t = symbol; // 60% шанс одинаковых
+    }
+
+    // добавляем случайные мультипликаторы
+    const multCount = Math.floor(Math.random()*4);
+    let positions=[];
+    for(let r=0;r<3;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
+    positions.sort(()=>Math.random()-0.5);
+    const multPos = positions.slice(0,multCount);
+    for(let [r,c] of multPos){
+        matrix[r][c].v = multipliers[Math.floor(Math.random()*multipliers.length)].v;
+    }
+}
+
 function spin(){
     const bet = +betInput.value;
     const lines = +linesInput.value;
     const total = bet*lines;
-    if(total>balance) return;
+    if(total>balance){
+        resultEl.textContent = '❌ Недостаточно средств';
+        return;
+    }
 
-    balance-=total;
-    balanceEl.textContent=balance;
+    balance -= total;
+    balanceEl.textContent = balance;
     resultEl.textContent='';
     clearWin();
 
     let step=0;
-
     const anim = setInterval(()=>{
-        // сколько множителей (0-3)
-        let multCount = Math.floor(Math.random()*4);
-        let positions=[];
-        for(let r=0;r<3;r++){
-            for(let c=0;c<5;c++){
-                positions.push([r,c]);
-            }
-        }
-        positions.sort(()=>Math.random()-0.5);
-        const multPos = positions.slice(0,multCount);
-
-        matrix=[[],[],[]];
+        generateSymbols(lines);
 
         for(let r=0;r<3;r++){
             for(let c=0;c<5;c++){
-                let symbol;
-                if(multPos.some(p=>p[0]===r && p[1]===c)){
-                    symbol = multipliers[Math.floor(Math.random()*multipliers.length)];
-                }else{
-                    symbol = {t: baseSymbols[Math.floor(Math.random()*baseSymbols.length)], v:1};
-                }
-                matrix[r][c]=symbol;
-                grid[r][c].innerHTML = symbol.v>1 ? `<span class="mult">${symbol.t}</span>` : symbol.t;
+                const s = matrix[r][c];
+                grid[r][c].innerHTML = s.v>1 ? `<span class="mult">x${s.v}</span>` : s.t;
                 grid[r][c].classList.add('spin');
             }
         }
@@ -216,14 +160,11 @@ function spin(){
     },100);
 }
 
-// === ВЫИГРЫШ ===
 function calcWin(bet,lines){
     let win=0;
-
     for(let i=0;i<lines;i++){
         const line = paylines[i];
         let symbol=null,count=0,mult=1;
-
         for(let p of line){
             const s = matrix[p[0]][p[1]];
             if(s.v>1){ mult*=s.v; grid[p[0]][p[1]].classList.add('win'); continue; }
@@ -232,14 +173,12 @@ function calcWin(bet,lines){
         }
         if(count>=3) win += bet*count*mult;
     }
-
-    balance+=win;
+    balance += win;
     balanceEl.textContent=balance;
     resultEl.innerHTML = win ? `<span class="won">🎉 Выигрыш: ${win}</span>` : `<span class="lost">😞 Проигрыш</span>`;
     return win;
 }
 
-// === БОНУС X2 ===
 function openBonus(){
     bonusEl.style.display='flex';
     auto=false;
@@ -250,7 +189,7 @@ function openBonus(){
 function pickColor(choice){
     const result = Math.random()<0.5?'red':'black';
     if(choice===result){
-        balance+=bonusAmount;
+        balance += bonusAmount;
         resultEl.innerHTML = `🔥 БОНУС X2! +${bonusAmount}`;
     } else {
         resultEl.innerHTML = '💥 Бонус проигран';
@@ -259,20 +198,26 @@ function pickColor(choice){
     bonusEl.style.display='none';
 }
 
-// === AUTOSPIN ===
 function toggleAuto(){
-    auto=!auto;
-    autoBtn.textContent=auto?'STOP':'AUTOSPIN';
-    auto ? autoInt=setInterval(()=>balance>0&&spin(),1200) : clearInterval(autoInt);
+    auto = !auto;
+    autoBtn.textContent = auto ? 'STOP' : 'AUTOSPIN';
+    if(auto){
+        autoInt = setInterval(()=>{
+            if(balance>0) spin();
+            else toggleAuto();
+        },1200);
+    } else clearInterval(autoInt);
 }
 
-const betInput=document.getElementById('bet');
-const linesInput=document.getElementById('lines');
-const autoBtn=document.getElementById('autoBtn');
+const betInput = document.getElementById('bet');
+const linesInput = document.getElementById('lines');
+const autoBtn = document.getElementById('autoBtn');
 </script>
 
 </body>
 </html>
+
+
 
 
 
