@@ -182,54 +182,51 @@
             document.getElementById("result").textContent = '';
             document.getElementById("historyList").innerHTML = '';
 
-            // Симуляция кручения барабанов
-            setTimeout(() => {
-                let slot1 = getRandomSymbol();
-                let slot2 = getRandomSymbol();
-                let slot3 = getRandomSymbol();
+            // Симуляция кручения барабанов (обновление символов мгновенно)
+            let slot1 = getRandomSymbol();
+            let slot2 = getRandomSymbol();
+            let slot3 = getRandomSymbol();
 
-                // Обновляем символы на слотах
-                document.getElementById('slot1').textContent = slot1;
-                document.getElementById('slot2').textContent = slot2;
-                document.getElementById('slot3').textContent = slot3;
+            // Обновляем символы на слотах
+            document.getElementById('slot1').textContent = slot1;
+            document.getElementById('slot2').textContent = slot2;
+            document.getElementById('slot3').textContent = slot3;
 
-                // Проверка на джекпот (все слоты показывают 🍀)
-                if (slot1 === '🍀' && slot2 === '🍀' && slot3 === '🍀') {
-                    const jackpotAmount = betAmount * 20;  // Джекпот = ставка * 20
-                    balance += jackpotAmount;
-                    gainExperience(500); // Джекпот даёт опыт
-                    addToHistory(`ДЖЕКПОТ! Вы выиграли ${jackpotAmount} монет! 🎉`);
-                    document.getElementById('result').textContent = `ДЖЕКПОТ! Вы выиграли ${jackpotAmount} монет! 🎉`;
-                    document.getElementById('result').classList.add('won');
-                    document.getElementById('result').classList.remove('lost');
-                } else if (slot1 === slot2 && slot2 === slot3) {
-                    const winAmount = betAmount * 5;  // Обычный выигрыш = ставка * 5
-                    balance += winAmount;
-                    gainExperience(200); // Выигрыш даёт опыт
-                    addToHistory(`Вы выиграли ${winAmount} монет!`);
-                    document.getElementById('result').textContent = `Поздравляем! Вы выиграли ${winAmount} монет! 🎉`;
-                    document.getElementById('result').classList.add('won');
-                    document.getElementById('result').classList.remove('lost');
-                } else {
-                    balance -= betAmount;
-                    addToHistory(`Вы проиграли ${betAmount} монет.`);
-                    document.getElementById('result').textContent = `Увы, вы не выиграли. Попробуйте снова! 😞`;
-                    document.getElementById('result').classList.add('lost');
-                    document.getElementById('result').classList.remove('won');
-                }
+            // Проверка на джекпот (все слоты показывают 🍀)
+            if (slot1 === '🍀' && slot2 === '🍀' && slot3 === '🍀') {
+                const jackpotAmount = betAmount * 20;  // Джекпот = ставка * 20
+                balance += jackpotAmount;
+                gainExperience(500); // Джекпот даёт опыт
+                addToHistory(`ДЖЕКПОТ! Вы выиграли ${jackpotAmount} монет! 🎉`);
+                document.getElementById('result').textContent = `ДЖЕКПОТ! Вы выиграли ${jackpotAmount} монет! 🎉`;
+                document.getElementById('result').classList.add('won');
+                document.getElementById('result').classList.remove('lost');
+            } else if (slot1 === slot2 && slot2 === slot3) {
+                const winAmount = betAmount * 5;  // Обычный выигрыш = ставка * 5
+                balance += winAmount;
+                gainExperience(200); // Выигрыш даёт опыт
+                addToHistory(`Вы выиграли ${winAmount} монет!`);
+                document.getElementById('result').textContent = `Поздравляем! Вы выиграли ${winAmount} монет! 🎉`;
+                document.getElementById('result').classList.add('won');
+                document.getElementById('result').classList.remove('lost');
+            } else {
+                balance -= betAmount;
+                addToHistory(`Вы проиграли ${betAmount} монет.`);
+                document.getElementById('result').textContent = `Увы, вы не выиграли. Попробуйте снова! 😞`;
+                document.getElementById('result').classList.add('lost');
+                document.getElementById('result').classList.remove('won');
+            }
 
-                // Обновляем баланс
-                document.getElementById("balance").textContent = balance;
+            // Обновляем баланс
+            document.getElementById("balance").textContent = balance;
 
-                // Проверяем, не обанкротился ли пользователь
-                if (balance <= 0) {
-                    document.getElementById("result").textContent = "Ваш баланс истёк. Начните новую игру!";
-                    document.getElementById('result').classList.remove('won');
-                    document.getElementById('result').classList.remove('lost');
-                    document.getElementById('historyList').innerHTML = '';
-                }
-
-            }, 1000); // Задержка для имитации вращения
+            // Проверяем, не обанкротился ли пользователь
+            if (balance <= 0) {
+                document.getElementById("result").textContent = "Ваш баланс истёк. Начните новую игру!";
+                document.getElementById('result').classList.remove('won');
+                document.getElementById('result').classList.remove('lost');
+                document.getElementById('historyList').innerHTML = '';
+            }
         }
 
         // Функция для получения случайного символа
@@ -248,7 +245,8 @@
         // Функция для сброса игры
         function resetGame() {
             balance = 5000;
-            level = 1;
+            level = 1
+
 
 
 
