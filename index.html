@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Book of Ra</title>
+<title>Slot 5x3 Ultimate - Улучшенный</title>
 
 <style>
 body { background:#222; color:white; font-family:Arial; text-align:center; margin:0; padding:10px; }
 .container { max-width:520px; margin:auto; background:#333; padding:15px; border-radius:15px; }
-.slots { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,80px); gap:8px; margin:15px 0; }
+.slots { display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(3,80px); gap:8px; margin:15px 0; }
 .slot { background:#444; border-radius:10px; font-size:26px; display:flex; align-items:center; justify-content:center; transition:.15s; }
 .spin { transform:scale(1.1); }
 .win { box-shadow:0 0 10px gold; border:2px solid gold; }
@@ -28,7 +28,7 @@ button:hover { background:#ff4500; }
 </head>
 <body>
 
-<h2>🎰 Book of Ra</h2>
+<h2>🎰 Slot 5x3 Ultimate</h2>
 
 <div class="container">
     <div>Баланс: <b><span id="balance">15000</span></b></div>
@@ -63,14 +63,14 @@ let balance = 15000;
 let auto = false, autoInt;
 let bonusAmount = 0;
 
-const baseSymbols = ['🪙','💰','⭐','📖','🎩'];
+const baseSymbols = ['🍒','🍋','🍊','🍉','🍀'];
 const multipliers = [{t:'x2',v:2},{t:'x5',v:5},{t:'x10',v:10},{t:'x100',v:100}];
 const paylines = [
-    [[0,0],[0,1],[0,2]], // первая линия
-    [[1,0],[1,1],[1,2]], // вторая линия
-    [[2,0],[2,1],[2,2]], // третья линия
-    [[0,0],[1,1],[2,2]], // диагональ
-    [[0,2],[1,1],[2,0]]  // обратная диагональ
+    [[1,0],[1,1],[1,2],[1,3],[1,4]],
+    [[0,0],[0,1],[0,2],[0,3],[0,4]],
+    [[2,0],[2,1],[2,2],[2,3],[2,4]],
+    [[0,0],[1,1],[2,2],[1,3],[0,4]],
+    [[2,0],[1,1],[0,2],[1,3],[2,4]]
 ];
 
 const slotsEl = document.getElementById('slots');
@@ -83,7 +83,7 @@ let grid=[], matrix=[];
 // создаём поле
 for(let r=0;r<3;r++){
     grid[r]=[];
-    for(let c=0;c<3;c++){
+    for(let c=0;c<5;c++){
         const d=document.createElement('div');
         d.className='slot';
         d.textContent='❔';
@@ -100,7 +100,7 @@ function clearWin(){
 function generateSymbols(lines){
     matrix = [[],[],[]];
     for(let r=0;r<3;r++){
-        for(let c=0;c<3;c++){
+        for(let c=0;c<5;c++){
             matrix[r][c] = {t: baseSymbols[Math.floor(Math.random()*baseSymbols.length)], v:1};
         }
     }
@@ -108,15 +108,14 @@ function generateSymbols(lines){
     // увеличиваем шанс хотя бы одной линии выиграть
     const winLine = paylines[Math.floor(Math.random()*lines)];
     const symbol = baseSymbols[Math.floor(Math.random()*baseSymbols.length)];
-    for(let i=0;i<3;i++){
+    for(let i=0;i<5;i++){
         if(Math.random()<0.6) matrix[winLine[i][0]][winLine[i][1]].t = symbol; // 60% шанс одинаковых
     }
 
     // добавляем случайные мультипликаторы
     const multCount = Math.floor(Math.random()*4);
     let positions=[];
-
-    for(let r=0;r<3;r++){ for(let c=0;c<3;c++) positions.push([r,c]); }
+    for(let r=0;r<3;r++){ for(let c=0;c<5;c++) positions.push([r,c]); }
     positions.sort(()=>Math.random()-0.5);
     const multPos = positions.slice(0,multCount);
     for(let [r,c] of multPos){
@@ -143,7 +142,7 @@ function spin(){
         generateSymbols(lines);
 
         for(let r=0;r<3;r++){
-            for(let c=0;c<3;c++){
+            for(let c=0;c<5;c++){
                 const s = matrix[r][c];
                 grid[r][c].innerHTML = s.v>1 ? `<span class="mult">x${s.v}</span>` : s.t;
                 grid[r][c].classList.add('spin');
@@ -154,7 +153,7 @@ function spin(){
             clearInterval(anim);
             clearWin();
             bonusAmount = calcWin(bet,lines);
-            if(bonusAmount>0 && matrix.flat().filter(s=>s.t==='📖').length>=3){
+            if(bonusAmount>0 && matrix.flat().filter(s=>s.t==='🍀').length>=3){
                 openBonus();
             }
         }
@@ -217,6 +216,7 @@ const autoBtn = document.getElementById('autoBtn');
 
 </body>
 </html>
+
 
 
 
