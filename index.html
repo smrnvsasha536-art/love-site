@@ -184,7 +184,7 @@ function setBg(b){
 // Контролируемый RNG
 function randSymbol(reelIndex){
  const rtpCurrent = totalBets ? totalWins/totalBets : 0;
- let allowWin = Math.random()<0.2 && rtpCurrent<TARGET_RTP; // редкий шанс выиграть
+ let allowWin = Math.random()<0.2 && rtpCurrent<TARGET_RTP;
  let pool=[];
  symbols.forEach(s=>{
    let weight=1;
@@ -268,16 +268,17 @@ function showBigWin(amount,symbol){
 
 function spin(auto=false){
  clearLines();
- const bet=+document.getElementById('bet').value;
- let lines = +document.getElementById('lines').value;
- lines = Math.min(lines, linesArr.length);
- const cost=bet*lines;
+ let bet = +document.getElementById('bet').value;
+ let lines = Math.min(+document.getElementById('lines').value, linesArr.length);
+ const cost = bet * lines;
+
+ // Ограничение ставки
+ if(bet <= 0) { resultEl.textContent='❌ Ставка должна быть >0'; return; }
+ if(bet > 10000) { resultEl.textContent='❌ Ставка слишком большая'; return; }
+ if(balance<cost && freeSpins<=0 && !auto){ resultEl.textContent='❌ Недостаточно средств'; return; }
 
  if(freeSpins>0) freeSpins--;
- else if(!auto){
-   if(balance<cost){resultEl.textContent='❌ Нет денег'; return;}
-   balance-=cost; totalBets+=cost;
- }
+ else if(!auto){ balance -= cost; totalBets += cost; }
 
  let col=0;
  function spinReel(){
@@ -325,6 +326,8 @@ updateUI();
 </script>
 </body>
 </html>
+
+
 
 
 
