@@ -5,11 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎰 Slot 5x3 Ultimate MAX Jackpot + $ Symbol</title>
 <style>
-body { margin:0; background: radial-gradient(circle,#111,#000); font-family:Arial,sans-serif; color:#fff; text-align:center; overflow-x:hidden;}
+body {
+  margin:0;
+  background: radial-gradient(circle,#111,#000);
+  font-family:Arial,sans-serif;
+  color:#fff;
+  text-align:center;
+  overflow-x:hidden;
+}
 .container{max-width:520px;margin:auto;padding:10px;}
-.slots{display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(3,90px); gap:8px; margin:15px 0; position:relative;}
-.slot{background:linear-gradient(145deg,#555,#222); border-radius:16px; font-size:36px; display:flex; align-items:center; justify-content:center; box-shadow:inset 0 0 10px #000,0 4px 8px rgba(0,0,0,0.3); transition:transform .3s; cursor:default; perspective:400px; overflow:hidden; color:#fff;}
-@keyframes fall{0%{transform:translateY(-200%) rotateX(90deg);opacity:0;}50%{transform:translateY(10%) rotateX(-10deg);opacity:1;}70%{transform:translateY(-5%) rotateX(5deg);}100%{transform:translateY(0) rotateX(0deg);}}
+.slots {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  grid-template-rows:repeat(3,90px);
+  gap:8px;
+  margin:15px 0;
+  position:relative;
+  background: rgba(0,0,0,0.6);
+  padding:10px;
+  border-radius:16px;
+}
+.slot {
+  background: linear-gradient(145deg,#555,#222);
+  border-radius:16px;
+  font-size:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow: inset 0 0 10px #000, 0 4px 8px rgba(0,0,0,.3);
+  color:#fff;
+  transition:transform .3s;
+  cursor:default;
+  perspective:400px;
+  overflow:hidden;
+}
+@keyframes fall{
+  0%{transform:translateY(-200%) rotateX(90deg);opacity:0;}
+  50%{transform:translateY(10%) rotateX(-10deg);opacity:1;}
+  70%{transform:translateY(-5%) rotateX(5deg);}
+  100%{transform:translateY(0) rotateX(0deg);}
+}
 .slot.animate{animation:fall .6s cubic-bezier(0.68,-0.55,0.265,1.55);}
 .slot.win{animation:pulse .8s ease-in-out infinite alternate; text-shadow:0 0 10px #fff,0 0 20px gold,0 0 30px #ff8800;}
 @keyframes pulse{0%{transform:scale(1);}100%{transform:scale(1.2);}}
@@ -46,10 +81,7 @@ button:hover{transform:scale(1.05);}
 <script>
 let balance=50000, freeSpins=0, bonusGames=0, totalBets=0, totalWins=0;
 const history=[];
-const symbols=[
-  {s:'🍒',w:80},{s:'🍋',w:70},{s:'🍉',w:60},{s:'7️⃣',w:5},
-  {s:'⭐',w:15,scatter:true},{s:'🧲',w:20,wild:true},{s:'$',w:10}
-];
+const symbols=[{s:'🍒',w:80},{s:'🍋',w:70},{s:'🍉',w:60},{s:'7️⃣',w:5},{s:'⭐',w:15,scatter:true},{s:'🧲',w:20,wild:true},{s:'$',w:10}];
 const linesArr=[
   [[0,0],[0,1],[0,2],[0,3],[0,4]],
   [[1,0],[1,1],[1,2],[1,3],[1,4]],
@@ -75,8 +107,7 @@ function vibrate(ms){if(navigator.vibrate) navigator.vibrate(ms);}
 function showWinAnimation(amount){if(amount>=5000){const div=document.createElement('div');div.className='win-anim';div.textContent=`🚀 JACKPOT ${amount}!`;div.style.animation='winMega 1s forwards';document.body.appendChild(div);spawnConfetti();setTimeout(()=>div.remove(),1500);}}
 function spawnConfetti(){for(let i=0;i<30;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*slotsEl.offsetWidth+'px';document.body.appendChild(c);setTimeout(()=>c.remove(),1500);}}
 function highlightLine(line){const h=document.createElement('div');h.className='line-highlight';const rowH=grid[0][0].offsetHeight+8;h.style.top=(line[0][0]*rowH+4)+'px';h.style.width=slotsEl.offsetWidth+'px';slotsEl.appendChild(h);setTimeout(()=>h.remove(),1000);}
-function animateBalance(amount){let start=balance-amount,end=balance,dur=600,startTime=performance.now();function step(time){let p=(time-startTime)/dur;if(p>1)p=1;balanceEl.textContent=Math.floor(start+(end-start)*p);if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
-function updateHistory(win){history.unshift(win);if(history.length>20)history.pop();let rtp=Math.round((totalWins/(totalBets||1))*100);historyEl.innerHTML='История: '+history.join(', ')+'<br>RTP: '+rtp+'%';}
+function updateHistory(win){history.unshift(win);if(history.length>20)history.pop();let rtp=Math.round((totalWins/(totalBets||1))*100);historyEl.innerHTML='История: '+history.join(',')+'<br>RTP: '+rtp+'%';}
 
 function spin(auto=false){
   let bet=Math.max(1,Math.min(1000,parseInt(betInput.value)||1));
@@ -91,7 +122,6 @@ function spin(auto=false){
   playSound('https://freesound.org/data/previews/414/414209_5121236-lq.mp3');
   vibrate(100);
 
-  // анимация барабанов с задержкой
   for(let c=0;c<5;c++){setTimeout(()=>{for(let r=0;r<3;r++){let sym=randSymbol();grid[r][c].textContent=sym.s;grid[r][c].classList.add('animate');setTimeout(()=>grid[r][c].classList.remove('animate'),600);}}, c*150);}
 
   setTimeout(()=>{
@@ -99,6 +129,7 @@ function spin(auto=false){
     for(let r=0;r<3;r++) for(let c=0;c<5;c++){if(grid[r][c].textContent=='$') dollarCount++;}
     if(dollarCount>=3){ freeSpins+=10; fsEl.textContent=freeSpins; resultEl.textContent='💵 3 $! +10 Free Spins!'; setTimeout(runFreeSpins,800); }
     else if(dollarCount>0){ resultEl.textContent=`💵 ${dollarCount} $ на поле`; }
+    else resultEl.textContent='😞 Проигрыш';
 
     balanceEl.textContent=balance;
     updateHistory(0);
@@ -117,6 +148,8 @@ updateLinesOptions(); fsEl.textContent=freeSpins; bonusElCount.textContent=bonus
 </script>
 </body>
 </html>
+
+
 
 
 
