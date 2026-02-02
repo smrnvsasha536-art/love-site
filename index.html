@@ -184,7 +184,10 @@ function spin(){
 
     // ===== Джекпот раз в ~8 спинов =====
     let totalWin=0;
-    if(Math.random()<0.12){ totalWin = Math.floor(Math.random()*15000)+5000; highlightLine([ [1,0],[1,1],[1,2],[1,3],[1,4] ]); }
+    if(Math.random()<0.12){ 
+      totalWin = Math.floor(Math.random()*15000)+5000; 
+      highlightLine([ [1,0],[1,1],[1,2],[1,3],[1,4] ]);
+    }
 
     if(totalWin>0){
       balance += totalWin; totalWins += totalWin;
@@ -230,6 +233,8 @@ bonusElCount.textContent = bonusGames;
 
 </body>
 </html>
+
+
 
 
 
