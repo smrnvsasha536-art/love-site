@@ -11,7 +11,6 @@
   --btn-bg: linear-gradient(145deg,#e74c3c,#c0392b);
   --line-color: gold;
 }
-/* Базовые стили */
 body{
   margin:0;
   background:var(--bg);
@@ -120,23 +119,20 @@ button{
 </div>
 
 <script>
-// Баланс и статистика
 let balance=50000, freeSpins=0, totalBets=0, totalWins=0, history=[];
-const TARGET_RTP=0.9; // Целевая отдача казино ~90%
+const TARGET_RTP=0.9;
 
-// Символы
 const symbols=[
  {s:'🍒', pay:5},
  {s:'🍋', pay:4},
  {s:'🍉', pay:4},
- {s:'7️⃣', pay:20},   // BIG WIN
+ {s:'7️⃣', pay:20},
  {s:'⭐', scatter:true},
  {s:'🧲', wild:true},
  {s:'$', fs:true},
- {s:'💎', pay:100}    // JACKPOT
+ {s:'💎', pay:100}
 ];
 
-// Линии
 const linesArr=[
  [[0,0],[0,1],[0,2],[0,3],[0,4]],
  [[1,0],[1,1],[1,2],[1,3],[1,4]],
@@ -145,7 +141,6 @@ const linesArr=[
  [[2,0],[1,1],[0,2],[1,3],[2,4]]
 ];
 
-// Сетка
 const slotsEl=document.getElementById('slots');
 const grid=[];
 for(let r=0;r<3;r++){
@@ -159,13 +154,11 @@ for(let r=0;r<3;r++){
  }
 }
 
-// UI элементы
 const balanceEl=document.getElementById('balance');
 const fsEl=document.getElementById('fs');
 const historyEl=document.getElementById('history');
 const resultEl=document.getElementById('result');
 
-// Темы
 function setTheme(t){
  const r=document.documentElement;
  if(t==='dark'){
@@ -181,6 +174,7 @@ function setTheme(t){
   r.style.setProperty('--btn-bg','linear-gradient(145deg,#ffd700,#ff8c00)');
  }
 }
+
 function setBg(b){
  if(b==='space') document.body.style.background='radial-gradient(circle,#111,#000)';
  if(b==='fire')  document.body.style.background='radial-gradient(circle,#ff4500,#000)';
@@ -188,27 +182,23 @@ function setBg(b){
 }
 
 // Контролируемый RNG
-function randSymbol(allowWin=false){
-  // Определяем текущий RTP
-  const currentRTP = totalBets ? totalWins/totalBets : 0;
-  const giveWin = allowWin && (currentRTP<TARGET_RTP);
-  let pool=[];
-  
-  symbols.forEach(s=>{
-    // Делаем обычные символы чаще, но если RTP уже высокий → уменьшаем шанс выигрыша
-    let weight=1;
-    if(s.s==='💎') weight = giveWin?1:0.02;       // JACKPOT почти никогда
-    if(s.s==='7️⃣') weight = giveWin?1:0.05;      // BIG WIN редкий
-    if(s.s==='🍒'||s.s==='🍋'||s.s==='🍉') weight = giveWin?1:0.2;
-    if(s.s==='🧲') weight = 0.05;
-    if(s.s==='⭐') weight = 0.05;
-    if(s.s==='$') weight = 0.02;
-    for(let i=0;i<weight*100;i++) pool.push(s);
-  });
-  return pool[Math.floor(Math.random()*pool.length)];
+function randSymbol(reelIndex){
+ const rtpCurrent = totalBets ? totalWins/totalBets : 0;
+ let allowWin = Math.random()<0.2 && rtpCurrent<TARGET_RTP; // редкий шанс выиграть
+ let pool=[];
+ symbols.forEach(s=>{
+   let weight=1;
+   if(s.s==='💎') weight = allowWin?1:0.02;
+   if(s.s==='7️⃣') weight = allowWin?1:0.05;
+   if(s.s==='🍒'||s.s==='🍋'||s.s==='🍉') weight = allowWin?1:0.2;
+   if(s.s==='🧲') weight=0.05;
+   if(s.s==='⭐') weight=0.05;
+   if(s.s==='$') weight=0.02;
+   for(let i=0;i<weight*100;i++) pool.push(s);
+ });
+ return pool[Math.floor(Math.random()*pool.length)];
 }
 
-// Обновление UI
 function updateUI(){
  balanceEl.textContent=balance;
  fsEl.textContent=freeSpins;
@@ -216,13 +206,11 @@ function updateUI(){
  historyEl.innerHTML=`История: ${history.join(', ')}<br>RTP: ${rtp}%`;
 }
 
-// Очистка линий
 function clearLines(){
  document.querySelectorAll('.line').forEach(l=>l.remove());
  document.querySelectorAll('.slot').forEach(s=>s.classList.remove('win'));
 }
 
-// Проверка линии
 function checkLine(line,bet){
  let base=null,count=0,cells=[];
  for(let i=0;i<line.length;i++){
@@ -237,14 +225,12 @@ function checkLine(line,bet){
  if(!base) return 0;
  cells.forEach(c=>c.classList.add('win'));
  drawZigzagLine(cells);
- // Минимальная длина
  if(base==='💎' && count>=5) return bet*100*count;
  if(base==='7️⃣' && count>=4) return bet*20*count;
  if(count>=4) return bet*symbols.find(s=>s.s===base).pay*count;
  return 0;
 }
 
-// Линия
 function drawZigzagLine(cells){
  for(let i=0;i<cells.length-1;i++){
   const start=cells[i].getBoundingClientRect();
@@ -266,7 +252,6 @@ function drawZigzagLine(cells){
  }
 }
 
-// BIG WIN/JACKPOT эффект
 function showBigWin(amount,symbol){
  let text='';
  if(symbol==='💎') text='💎 JACKPOT! '+amount;
@@ -281,7 +266,6 @@ function showBigWin(amount,symbol){
  }
 }
 
-// Спин
 function spin(auto=false){
  clearLines();
  const bet=+document.getElementById('bet').value;
@@ -301,7 +285,7 @@ function spin(auto=false){
    for(let r=0;r<3;r++) grid[r][col].classList.add('spin');
    setTimeout(()=>{
      for(let r=0;r<3;r++){
-       grid[r][col].textContent = randSymbol(true).s;
+       grid[r][col].textContent = randSymbol(col).s;
        grid[r][col].classList.remove('spin');
      }
      col++; spinReel();
@@ -341,6 +325,8 @@ updateUI();
 </script>
 </body>
 </html>
+
+
 
 
 
