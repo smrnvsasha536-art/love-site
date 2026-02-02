@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 Slot 5x3 Ultimate MAX Rare Mega Wins</title>
+<title>🎰 Slot 5x3 Ultimate MAX Jackpot</title>
 <style>
 body{margin:0;background:radial-gradient(circle,#111,#000);font-family:Arial,sans-serif;color:#fff;text-align:center;}
 .container{max-width:520px;margin:auto;padding:10px;}
@@ -20,7 +20,7 @@ select{padding:6px;margin:5px;border-radius:6px;}
 .buy-buttons button{background:#3498db;}
 .counters{margin:5px;font-size:14px;}
 
-/* ===== Анимации выигрышей ===== */
+/* ===== Анимации Mega выигрышей ===== */
 @keyframes winMega {0%{transform:scale(0.5);opacity:0;color:#e74c3c;text-shadow:0 0 10px #fff}50%{transform:scale(2);opacity:1}100%{transform:scale(1.5);opacity:1}}
 .win-anim{position:absolute;left:50%;top:20%;transform:translateX(-50%);font-size:32px;font-weight:bold;pointer-events:none;z-index:999;}
 </style>
@@ -28,7 +28,7 @@ select{padding:6px;margin:5px;border-radius:6px;}
 <body>
 
 <div class="container">
-  <h2>🎰 Slot 5x3 Ultimate MAX Rare Mega Wins</h2>
+  <h2>🎰 Slot 5x3 Ultimate MAX Jackpot</h2>
   <div>Баланс: <b id="balance">50000</b></div>
   <div class="counters">Free Spins: <b id="fsCount">0</b> | Бонусы: <b id="bonusCount">0</b></div>
 
@@ -58,12 +58,12 @@ const history = [];
 
 // ===== Символы: обычные частые, Mega редкий =====
 const symbols = [
-  {s:'🍒', w:80, pay:{3:10,4:20,5:40}},   
-  {s:'🍋', w:70, pay:{3:12,4:25,5:50}},
-  {s:'🍉', w:60, pay:{3:15,4:30,5:70}},
-  {s:'7️⃣', w:5, pay:{3:500,4:1500,5:5000}}, 
+  {s:'🍒', w:80, pay:{3:0,4:0,5:0}}, // почти всегда проигрыш
+  {s:'🍋', w:70, pay:{3:0,4:0,5:0}},
+  {s:'🍉', w:60, pay:{3:0,4:0,5:0}},
+  {s:'7️⃣', w:5, pay:{3:0,4:0,5:0}}, // будем давать джекпот вручную
   {s:'⭐',  w:15, scatter:true},
-  {s:'🧲', w:20, pay:{3:50,4:150,5:500}, wild:true}
+  {s:'🧲', w:20, pay:{3:0,4:0,5:0}, wild:true}
 ];
 
 const linesArr = [
@@ -132,10 +132,10 @@ function vibrate(ms){if(navigator.vibrate) navigator.vibrate(ms);}
 
 // ===== Анимация Mega выигрыша =====
 function showWinAnimation(amount){
-  if(amount>=500){ 
+  if(amount>=5000){ 
     const div = document.createElement('div');
     div.className='win-anim';
-    div.textContent=`🚀 MEGA ${amount}!`;
+    div.textContent=`🚀 JACKPOT ${amount}!`;
     div.style.animation='winMega 1s forwards';
     document.body.appendChild(div);
     setTimeout(()=>div.remove(),1500);
@@ -170,30 +170,17 @@ function spin(){
       }
     }
 
+    // ===== Редкий джекпот раз в 5-10 спинов =====
     let totalWin=0;
-    for(let l=0;l<linesNum;l++){
-      let line=linesArr[l];
-      let first=matrix[line[0][0]][line[0][1]];
-      let count=1;
-      for(let i=1;i<line.length;i++){
-        let cur=matrix[line[i][0]][line[i][1]];
-        if(cur.s===first.s || (cur.wild && !first.scatter)) count++;
-        else break;
-      }
-      if(count>=3 && !first.scatter) totalWin += first.pay[count]||0;
+    if(Math.random() < 0.12){ // примерно 1/8 спинов
+      totalWin = Math.floor(Math.random()*15000)+5000; // 5000-20000
     }
 
-    if(scatters>=3){
-      freeSpins +=5; fsEl.textContent=freeSpins;
-      resultEl.textContent='⭐ SCATTER! +5 FS';
-      playSound('https://freesound.org/data/previews/400/400292_5121236-lq.mp3');
-      vibrate(200);
-      triggerMegaBonus();
-    } else if(totalWin>0){
+    if(totalWin>0){
       balance += totalWin; totalWins += totalWin;
-      resultEl.textContent='🎉 Выигрыш: '+totalWin;
+      resultEl.textContent='🎉 ВЫИГРЫШ: '+totalWin;
       playSound('https://freesound.org/data/previews/235/235968_3981044-lq.mp3');
-      vibrate(200);
+      vibrate(300);
       showWinAnimation(totalWin);
     } else resultEl.textContent='😞 Проигрыш';
 
@@ -238,7 +225,7 @@ function buyBonusChest(){
 // ===== Мега-бонус =====
 function triggerMegaBonus(){
   bonusEl.innerHTML = '<h3>💎 Мега-Бонус! Выбери сундук</h3>';
-  const rewards = [500,1000,2000];
+  const rewards = [5000,10000,20000];
   for(let i=0;i<3;i++){
     let chest = document.createElement('div');
     chest.className='chest';
@@ -281,6 +268,8 @@ bonusElCount.textContent = bonusGames;
 
 </body>
 </html>
+
+
 
 
 
