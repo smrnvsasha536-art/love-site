@@ -3,36 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 Real Slot 5x3</title>
+<title>🎰 REAL SLOT PRO 5x3</title>
+
 <style>
 body{margin:0;background:#000;color:#fff;font-family:Arial;text-align:center}
 .container{max-width:520px;margin:auto;padding:10px}
 .slots{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,90px);gap:8px;margin:15px 0}
-.slot{background:#222;border-radius:14px;font-size:36px;display:flex;align-items:center;justify-content:center}
-.slot.win{animation:pulse .8s infinite alternate}
-@keyframes pulse{0%{transform:scale(1)}100%{transform:scale(1.2)}}
-button{padding:10px 20px;border-radius:12px;border:none;background:#e74c3c;color:#fff;font-size:16px}
+.slot{background:#222;border-radius:14px;font-size:36px;display:flex;align-items:center;justify-content:center;transition:.3s}
+.slot.win{animation:pulse .6s infinite alternate}
+@keyframes pulse{0%{transform:scale(1)}100%{transform:scale(1.15)}}
+button{padding:10px 18px;border-radius:12px;border:none;background:#e74c3c;color:#fff;font-size:15px;margin:4px}
+#bonus,#dev{margin-top:10px}
+input{border-radius:8px;padding:4px}
 </style>
 </head>
-<body>
 
+<body>
 <div class="container">
-<h2>🎰 REAL SLOT 5x3</h2>
+<h2>🎰 REAL SLOT PRO 5x3</h2>
+
 <div>Баланс: <b id="balance">50000</b></div>
 <div>Free Spins: <b id="fs">0</b></div>
 <div>Ставка: <input id="bet" type="number" value="10" min="1" max="1000"></div>
+
 <div class="slots" id="slots"></div>
+
 <button onclick="spin()">SPIN</button>
+<button onclick="buyBonus()">🎁 BONUS BUY (100x)</button>
+
 <div id="result"></div>
+
+<div id="bonus" style="display:none">
+ <h3>🎁 БОНУС</h3>
+ <button onclick="pickBonus()">🎁</button>
+ <button onclick="pickBonus()">🎁</button>
+ <button onclick="pickBonus()">🎁</button>
+</div>
+
+<div id="dev" style="font-size:12px;opacity:.75">
+ RTP: <b id="rtp">0</b> |
+ Bet: <b id="tb">0</b> |
+ Win: <b id="tw">0</b>
+</div>
 </div>
 
 <script>
+// ====== STATE ======
 let balance=50000, freeSpins=0;
-const betEl=document.getElementById('bet');
+let spinning=false, inBonus=false;
+const RTP=0.96;
+let totalBet=0, totalWin=0;
+let DEV=false;
+
+// ====== ELEMENTS ======
+const betEl=balanceEl=fsEl=resEl=null;
 const balEl=document.getElementById('balance');
 const fsEl=document.getElementById('fs');
 const resEl=document.getElementById('result');
 
+// ====== SYMBOLS ======
 const symbols=[
  {s:'🍒',w:40},
  {s:'🍋',w:35},
@@ -43,6 +72,7 @@ const symbols=[
  {s:'$',w:6}
 ];
 
+// ====== PAYTABLE ======
 const paytable={
  '🍒':[0,0,5,20,100],
  '🍋':[0,0,4,15,75],
@@ -51,21 +81,22 @@ const paytable={
  '7️⃣':[0,0,25,150,1000]
 };
 
-const lines=[
- [[0,0],[0,1],[0,2],[0,3],[0,4]],
- [[1,0],[1,1],[1,2],[1,3],[1,4]],
- [[2,0],[2,1],[2,2],[2,3],[2,4]],
- [[0,0],[1,1],[2,2],[1,3],[0,4]],
- [[2,0],[1,1],[0,2],[1,3],[2,4]]
-];
+// ====== 20 LINES ======
+const lines=[];
+for(let r=0;r<3;r++) lines.push([[r,0],[r,1],[r,2],[r,3],[r,4]]);
+lines.push([[0,0],[1,1],[2,2],[1,3],[0,4]]);
+lines.push([[2,0],[1,1],[0,2],[1,3],[2,4]]);
+lines.push([[0,0],[0,1],[1,2],[2,3],[2,4]]);
+lines.push([[2,0],[2,1],[1,2],[0,3],[0,4]]);
+while(lines.length<20) lines.push(lines[Math.floor(Math.random()*5)]);
 
+// ====== GRID ======
 const grid=[];
 const slotsEl=document.getElementById('slots');
-
 for(let r=0;r<3;r++){
  grid[r]=[];
  for(let c=0;c<5;c++){
-  const d=document.createElement('div');
+  let d=document.createElement('div');
   d.className='slot';
   d.textContent='❔';
   slotsEl.appendChild(d);
@@ -73,33 +104,73 @@ for(let r=0;r<3;r++){
  }
 }
 
-function randSymbol(){
+// ====== RNG RTP ======
+function randSymbolRTP(){
+ let rtp=totalWin/(totalBet||1);
  let pool=[];
- symbols.forEach(o=>{for(let i=0;i<o.w;i++)pool.push(o)});
+ symbols.forEach(o=>{
+  let w=o.w;
+  if(o.wild && rtp>RTP) w*=0.5;
+  if(o.s==='7️⃣' && rtp<RTP) w*=1.4;
+  w=Math.max(1,Math.floor(w));
+  for(let i=0;i<w;i++) pool.push(o);
+ });
  return pool[Math.floor(Math.random()*pool.length)];
 }
 
+// ====== BONUS ======
+function startBonus(){
+ inBonus=true;
+ document.getElementById('bonus').style.display='block';
+}
+function pickBonus(){
+ let prize=[5,10,25,50,100][Math.floor(Math.random()*5)]*betEl.value;
+ balance+=prize;
+ resEl.textContent='🎁 Бонус: '+prize;
+ balEl.textContent=balance;
+ document.getElementById('bonus').style.display='none';
+ inBonus=false;
+ saveGame();
+}
+
+// ====== BONUS BUY ======
+function buyBonus(){
+ let cost=betEl.value*100;
+ if(balance<cost) return;
+ balance-=cost;
+ freeSpins+=10;
+ balEl.textContent=balance;
+ fsEl.textContent=freeSpins;
+}
+
+// ====== SPIN ======
 function spin(auto=false){
+ if(spinning||inBonus) return;
  let bet=parseInt(betEl.value);
- if(!auto && freeSpins<=0 && balance<bet*5){resEl.textContent='❌ Нет денег';return;}
-
+ if(!auto&&freeSpins<=0&&balance<bet*lines.length){
+  resEl.textContent='❌ Нет денег';return;
+ }
+ spinning=true;
  if(freeSpins>0) freeSpins--;
- else if(!auto) balance-=bet*5;
+ else if(!auto) balance-=bet*lines.length;
+ totalBet+=bet*lines.length;
 
- grid.flat().forEach(s=>{s.classList.remove('win'); s.textContent=randSymbol().s});
+ grid.flat().forEach(s=>{
+  s.classList.remove('win');
+  s.textContent=randSymbolRTP().s;
+ });
 
- let win=0, scatter=0, dollar=0;
+ let win=0,scatter=0,dollar=0;
 
  for(let l of lines){
-  let base=null, count=0;
+  let base=null,count=0;
   for(let [r,c] of l){
    let s=grid[r][c].textContent;
    if(s==='⭐'||s==='$') break;
-   if(!base && s!=='🧲') base=s;
-   if(s===base || s==='🧲') count++;
-   else break;
+   if(!base&&s!=='🧲') base=s;
+   if(s===base||s==='🧲') count++; else break;
   }
-  if(base && count>=3){
+  if(base&&count>=3){
    let w=paytable[base][count]*bet;
    win+=w;
    l.forEach(p=>grid[p[0]][p[1]].classList.add('win'));
@@ -112,21 +183,54 @@ function spin(auto=false){
  });
 
  if(scatter>=3){freeSpins+=5;resEl.textContent='⭐ +5 FS';}
- if(dollar>=3){freeSpins+=10;resEl.textContent='💵 +10 FS';}
+ if(dollar>=3) startBonus();
 
  if(win>0){
   balance+=win;
+  totalWin+=win;
   resEl.textContent='🎉 Выигрыш: '+win;
  }
 
  balEl.textContent=balance;
  fsEl.textContent=freeSpins;
 
- if(freeSpins>0) setTimeout(()=>spin(true),800);
+ document.getElementById('rtp').textContent=((totalWin/(totalBet||1))*100).toFixed(2)+'%';
+ document.getElementById('tb').textContent=totalBet;
+ document.getElementById('tw').textContent=totalWin;
+
+ saveGame();
+
+ setTimeout(()=>{
+  spinning=false;
+  if(freeSpins>0) spin(true);
+ },700);
 }
+
+// ====== SAVE / LOAD ======
+function saveGame(){
+ localStorage.setItem('slot_pro',JSON.stringify({balance,freeSpins,totalBet,totalWin}));
+}
+(function(){
+ let d=JSON.parse(localStorage.getItem('slot_pro'));
+ if(!d) return;
+ balance=d.balance;freeSpins=d.freeSpins;
+ totalBet=d.totalBet;totalWin=d.totalWin;
+ balEl.textContent=balance;fsEl.textContent=freeSpins;
+})();
+
+// ====== DEV MODE ======
+document.addEventListener('keydown',e=>{
+ if(e.key==='d') DEV=!DEV;
+ if(DEV&&e.key==='w') balance+=10000;
+ if(DEV&&e.key==='f') freeSpins+=10;
+ balEl.textContent=balance;
+ fsEl.textContent=freeSpins;
+});
 </script>
 </body>
 </html>
+
+
 
 
 
