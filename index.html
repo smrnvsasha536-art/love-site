@@ -6,14 +6,21 @@
 <title>🎰 Slot 5x3 Ultimate MAX</title>
 
 <style>
+:root{
+  --bg: radial-gradient(circle,#111,#000);
+  --slot-bg: linear-gradient(145deg,#555,#222);
+  --btn-bg: linear-gradient(145deg,#e74c3c,#c0392b);
+}
+
 body{
   margin:0;
-  background:radial-gradient(circle,#111,#000);
+  background:var(--bg);
   font-family:Arial,sans-serif;
   color:#fff;
   text-align:center;
 }
 .container{max-width:520px;margin:auto;padding:10px;}
+
 .slots{
   display:grid;
   grid-template-columns:repeat(5,1fr);
@@ -24,8 +31,9 @@ body{
   background:rgba(0,0,0,.6);
   border-radius:16px;
 }
+
 .slot{
-  background:linear-gradient(145deg,#555,#222);
+  background:var(--slot-bg);
   border-radius:16px;
   font-size:36px;
   display:flex;
@@ -33,25 +41,28 @@ body{
   justify-content:center;
   box-shadow:inset 0 0 10px #000;
 }
-.slot.animate{animation:fall .6s;}
-.slot.win{animation:pulse .8s infinite alternate;}
-@keyframes fall{
-  from{transform:translateY(-200%);opacity:0}
-  to{transform:translateY(0);opacity:1}
+
+.slot.spin{
+  animation:spin .4s linear infinite;
 }
-@keyframes pulse{
-  from{transform:scale(1)}
-  to{transform:scale(1.2)}
+
+@keyframes spin{
+  0%{transform:translateY(-100%)}
+  100%{transform:translateY(100%)}
 }
+
 button{
-  padding:12px 22px;
+  padding:10px 18px;
   border:none;
   border-radius:14px;
-  background:linear-gradient(145deg,#e74c3c,#c0392b);
+  background:var(--btn-bg);
   color:#fff;
-  font-size:16px;
+  font-size:14px;
   cursor:pointer;
+  margin:3px;
 }
+
+.controls{margin:6px 0}
 .history{font-size:12px;opacity:.7;margin-top:6px;}
 </style>
 </head>
@@ -60,20 +71,33 @@ button{
 <div class="container">
 <h2>🎰 Slot 5x3 Ultimate MAX</h2>
 
-<div>Баланс: <b id="balance">50000</b></div>
-<div>Free Spins: <b id="fs">0</b></div>
+<div>Баланс: <b id="balance">50000</b> | FS: <b id="fs">0</b></div>
 
 <div>
-Ставка:
-<input type="number" id="bet" value="10" min="1" max="1000">
-Линии:
+Ставка <input type="number" id="bet" value="10" min="1" max="1000">
+Линии
 <select id="lines">
 <option>1</option><option>2</option><option>3</option>
 <option>4</option><option>5</option>
 </select>
 </div>
 
+<div class="controls">
+<b>Темы:</b>
+<button onclick="setTheme('dark')">Dark</button>
+<button onclick="setTheme('neon')">Neon</button>
+<button onclick="setTheme('gold')">Gold</button>
+</div>
+
+<div class="controls">
+<b>Фон:</b>
+<button onclick="setBg('space')">🌌</button>
+<button onclick="setBg('fire')">🔥</button>
+<button onclick="setBg('neon')">💜</button>
+</div>
+
 <div class="slots" id="slots"></div>
+
 <button onclick="spin()">SPIN</button>
 
 <div id="result"></div>
@@ -83,25 +107,20 @@ button{
 
 <script>
 /* ===== STATE ===== */
-let balance = 50000;
-let freeSpins = 0;
-let totalBets = 0;
-let totalWins = 0;
-let history = [];
+let balance=50000, freeSpins=0, totalBets=0, totalWins=0, history=[];
 
 /* ===== SYMBOLS ===== */
-const symbols = [
- {s:'🍒', w:30, pay:5},
- {s:'🍋', w:30, pay:4},
- {s:'🍉', w:25, pay:4},
- {s:'7️⃣', w:8,  pay:20},
- {s:'⭐', w:4,  scatter:true},
- {s:'🧲', w:6,  wild:true},
- {s:'$',  w:3,  fs:true}
+const symbols=[
+ {s:'🍒',w:30,pay:5},
+ {s:'🍋',w:30,pay:4},
+ {s:'🍉',w:25,pay:4},
+ {s:'7️⃣',w:8,pay:20},
+ {s:'⭐',w:4,scatter:true},
+ {s:'🧲',w:6,wild:true},
+ {s:'$',w:3,fs:true}
 ];
 
-/* ===== LINES ===== */
-const linesArr = [
+const linesArr=[
  [[0,0],[0,1],[0,2],[0,3],[0,4]],
  [[1,0],[1,1],[1,2],[1,3],[1,4]],
  [[2,0],[2,1],[2,2],[2,3],[2,4]],
@@ -110,105 +129,135 @@ const linesArr = [
 ];
 
 /* ===== GRID ===== */
-const slotsEl = document.getElementById('slots');
+const slotsEl=document.getElementById('slots');
 const grid=[];
 for(let r=0;r<3;r++){
  grid[r]=[];
  for(let c=0;c<5;c++){
-   const d=document.createElement('div');
-   d.className='slot';
-   d.textContent='❔';
-   slotsEl.appendChild(d);
-   grid[r][c]=d;
+  const d=document.createElement('div');
+  d.className='slot';
+  d.textContent='❔';
+  slotsEl.appendChild(d);
+  grid[r][c]=d;
  }
 }
 
 /* ===== HELPERS ===== */
 function randSymbol(){
  let pool=[];
- symbols.forEach(s=>{
-  for(let i=0;i<s.w;i++) pool.push(s);
- });
+ symbols.forEach(s=>{for(let i=0;i<s.w;i++)pool.push(s)});
  return pool[Math.floor(Math.random()*pool.length)];
 }
 
 function updateUI(){
- document.getElementById('balance').textContent=balance;
- document.getElementById('fs').textContent=freeSpins;
- const rtp = totalBets ? Math.round((totalWins/totalBets)*100) : 0;
- document.getElementById('history').innerHTML =
-  `История: ${history.join(', ')}<br>RTP: ${rtp}%`;
+ balanceEl.textContent=balance;
+ fsEl.textContent=freeSpins;
+ const rtp=totalBets?Math.round(totalWins/totalBets*100):0;
+ historyEl.innerHTML=`История: ${history.join(', ')}<br>RTP: ${rtp}%`;
 }
 
-/* ===== CHECK LINE ===== */
-function checkLine(line, bet){
- let base=null, count=0;
+const balanceEl=document.getElementById('balance');
+const fsEl=document.getElementById('fs');
+const historyEl=document.getElementById('history');
+
+/* ===== THEMES ===== */
+function setTheme(t){
+ const r=document.documentElement;
+ if(t==='dark'){
+  r.style.setProperty('--slot-bg','linear-gradient(145deg,#555,#222)');
+  r.style.setProperty('--btn-bg','linear-gradient(145deg,#e74c3c,#c0392b)');
+ }
+ if(t==='neon'){
+  r.style.setProperty('--slot-bg','linear-gradient(145deg,#00f,#8000ff)');
+  r.style.setProperty('--btn-bg','linear-gradient(145deg,#0ff,#00f)');
+ }
+ if(t==='gold'){
+  r.style.setProperty('--slot-bg','linear-gradient(145deg,#ffd700,#b8860b)');
+  r.style.setProperty('--btn-bg','linear-gradient(145deg,#ffd700,#ff8c00)');
+ }
+}
+
+function setBg(b){
+ if(b==='space')document.body.style.background='radial-gradient(circle,#111,#000)';
+ if(b==='fire')document.body.style.background='radial-gradient(circle,#ff4500,#000)';
+ if(b==='neon')document.body.style.background='radial-gradient(circle,#8000ff,#000)';
+}
+
+/* ===== PAYLINE ===== */
+function checkLine(line,bet){
+ let base=null,count=0;
  for(let i=0;i<line.length;i++){
   const sym=grid[line[i][0]][line[i][1]].textContent;
-  if(sym==='⭐'||sym==='$') break;
-  if(!base && sym!=='🧲') base=sym;
-  if(sym===base || sym==='🧲') count++;
-  else break;
+  if(sym==='⭐'||sym==='$')break;
+  if(!base && sym!=='🧲')base=sym;
+  if(sym===base||sym==='🧲')count++; else break;
  }
- if(count>=3 && base){
-  const obj=symbols.find(s=>s.s===base);
-  return bet*obj.pay*count;
+ if(count>=3&&base){
+  return bet*symbols.find(s=>s.s===base).pay*count;
  }
  return 0;
 }
 
-/* ===== SPIN ===== */
+/* ===== SPIN WITH SEPARATE REELS ===== */
 function spin(auto=false){
- const bet=Math.max(1,+document.getElementById('bet').value);
+ const bet=+document.getElementById('bet').value;
  const lines=+document.getElementById('lines').value;
  const cost=bet*lines;
 
- if(freeSpins<=0 && !auto){
-  if(balance<cost){document.getElementById('result').textContent='❌ Нет денег';return;}
+ if(freeSpins<=0&&!auto){
+  if(balance<cost){result.textContent='❌ Нет денег';return;}
   balance-=cost; totalBets+=cost;
  } else freeSpins--;
 
- for(let c=0;c<5;c++){
-  for(let r=0;r<3;r++){
-   const sym=randSymbol();
-   grid[r][c].textContent=sym.s;
-   grid[r][c].classList.add('animate');
-   setTimeout(()=>grid[r][c].classList.remove('animate'),600);
-  }
+ let col=0;
+ function spinReel(){
+  if(col>=5){finishSpin();return;}
+  for(let r=0;r<3;r++)grid[r][col].classList.add('spin');
+  setTimeout(()=>{
+   for(let r=0;r<3;r++){
+    const sym=randSymbol();
+    grid[r][col].textContent=sym.s;
+    grid[r][col].classList.remove('spin');
+   }
+   col++; spinReel();
+  },300);
  }
+ spinReel();
 
- setTimeout(()=>{
+ function finishSpin(){
   let win=0;
-  for(let i=0;i<lines;i++) win+=checkLine(linesArr[i],bet);
+  for(let i=0;i<lines;i++)win+=checkLine(linesArr[i],bet);
 
   let scat=0,dol=0;
   grid.flat().forEach(c=>{
-   if(c.textContent==='⭐') scat++;
-   if(c.textContent==='$') dol++;
+   if(c.textContent==='⭐')scat++;
+   if(c.textContent==='$')dol++;
   });
 
-  if(scat>=3) freeSpins += scat===3?5:scat===4?10:15;
-  if(dol>=3) freeSpins += 5;
+  if(scat>=3)freeSpins+=scat===3?5:scat===4?10:15;
+  if(dol>=3)freeSpins+=5;
 
   if(win>0){
    balance+=win; totalWins+=win;
    history.unshift(win);
-   document.getElementById('result').textContent=`🎉 Выигрыш ${win}`;
-  } else {
+   result.textContent=`🎉 Выигрыш ${win}`;
+  }else{
    history.unshift(0);
-   document.getElementById('result').textContent='😞 Проигрыш';
+   result.textContent='😞 Проигрыш';
   }
 
   history=history.slice(0,20);
   updateUI();
-  if(freeSpins>0) setTimeout(()=>spin(true),700);
- },900);
+  if(freeSpins>0)setTimeout(()=>spin(true),800);
+ }
 }
 
 updateUI();
 </script>
 </body>
 </html>
+
+
 
 
 
