@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 Slot 5x3 Ultimate MAX</title>
+<title>🎰 Slot 5x3 Hard Mode</title>
 
 <style>
 :root{
@@ -12,7 +12,6 @@
   --btn-bg: linear-gradient(145deg,#e74c3c,#c0392b);
   --line-color: gold;
 }
-
 body{
   margin:0;
   background:var(--bg);
@@ -21,7 +20,6 @@ body{
   text-align:center;
 }
 .container{max-width:520px;margin:auto;padding:10px;position:relative}
-
 .slots{
   display:grid;
   grid-template-columns:repeat(5,1fr);
@@ -33,7 +31,6 @@ body{
   border-radius:16px;
   position:relative;
 }
-
 .slot{
   background:var(--slot-bg);
   border-radius:16px;
@@ -45,22 +42,10 @@ body{
   z-index:2;
   transition: transform .3s, filter .3s;
 }
-
 .slot.spin{animation:spin .4s linear infinite}
-
-@keyframes spin{
-  0%{transform:translateY(-80%)}
-  100%{transform:translateY(80%)}
-}
-
-.slot.win{
-  animation:winPulse .8s infinite alternate;
-}
-@keyframes winPulse{
-  0%{transform:scale(1);filter:drop-shadow(0 0 0 gold)}
-  100%{transform:scale(1.25);filter:drop-shadow(0 0 15px gold)}
-}
-
+@keyframes spin{0%{transform:translateY(-80%)}100%{transform:translateY(80%)}}
+.slot.win{animation:winPulse .8s infinite alternate;}
+@keyframes winPulse{0%{transform:scale(1);filter:drop-shadow(0 0 0 gold)}100%{transform:scale(1.25);filter:drop-shadow(0 0 15px gold)}}
 .line{
   position:absolute;
   height:6px;
@@ -70,11 +55,7 @@ body{
   opacity:.6;
   animation:lineFlash .6s infinite alternate;
 }
-@keyframes lineFlash{
-  from{opacity:.4}
-  to{opacity:1}
-}
-
+@keyframes lineFlash{from{opacity:.4}to{opacity:1}}
 .bigWin{
   position:absolute;
   left:50%; top:30%;
@@ -86,12 +67,7 @@ body{
   pointer-events:none;
   z-index:999;
 }
-@keyframes bigWinAnim{
-  0%{transform:translate(-50%,0) scale(.5);opacity:0;}
-  50%{transform:translate(-50%,-20px) scale(1.5);opacity:1;}
-  100%{transform:translate(-50%,0) scale(1);opacity:1;}
-}
-
+@keyframes bigWinAnim{0%{transform:translate(-50%,0) scale(.5);opacity:0;}50%{transform:translate(-50%,-20px) scale(1.5);opacity:1;}100%{transform:translate(-50%,0) scale(1);opacity:1;}}
 button{
   padding:10px 18px;
   border:none;
@@ -102,7 +78,6 @@ button{
   cursor:pointer;
   margin:3px;
 }
-
 .history{font-size:12px;opacity:.7;margin-top:6px;}
 .controls{margin:6px 0}
 </style>
@@ -110,7 +85,7 @@ button{
 
 <body>
 <div class="container">
-<h2>🎰 Slot 5x3 Ultimate MAX</h2>
+<h2>🎰 Slot 5x3 Hard Mode</h2>
 
 <div>Баланс: <b id="balance">50000</b> | FS: <b id="fs">0</b></div>
 
@@ -121,20 +96,6 @@ button{
 <option>1</option><option>2</option><option>3</option>
 <option>4</option><option>5</option>
 </select>
-</div>
-
-<div class="controls">
-<b>Темы:</b>
-<button onclick="setTheme('dark')">Dark</button>
-<button onclick="setTheme('neon')">Neon</button>
-<button onclick="setTheme('gold')">Gold</button>
-</div>
-
-<div class="controls">
-<b>Фон:</b>
-<button onclick="setBg('space')">🌌</button>
-<button onclick="setBg('fire')">🔥</button>
-<button onclick="setBg('neon')">💜</button>
 </div>
 
 <div class="slots" id="slots"></div>
@@ -153,11 +114,11 @@ const symbols=[
  {s:'🍒', w:35, pay:5},
  {s:'🍋', w:35, pay:4},
  {s:'🍉', w:30, pay:4},
- {s:'7️⃣', w:4, pay:20},   // BIG WIN
+ {s:'7️⃣', w:2, pay:20},   // BIG WIN реже
  {s:'⭐', w:4, scatter:true},
  {s:'🧲', w:6, wild:true},
- {s:'$', w:2, fs:true},
- {s:'💎', w:1, pay:100}    // JACKPOT
+ {s:'$', w:1, fs:true},    // FS редкий
+ {s:'💎', w:1, pay:100}    // JACKPOT почти не выпадает
 ];
 
 const linesArr=[
@@ -203,48 +164,25 @@ function clearLines(){
  document.querySelectorAll('.slot').forEach(s=>s.classList.remove('win'));
 }
 
-function setTheme(t){
- const r=document.documentElement;
- if(t==='dark'){
-  r.style.setProperty('--slot-bg','linear-gradient(145deg,#555,#222)');
-  r.style.setProperty('--btn-bg','linear-gradient(145deg,#e74c3c,#c0392b)');
- }
- if(t==='neon'){
-  r.style.setProperty('--slot-bg','linear-gradient(145deg,#00f,#8000ff)');
-  r.style.setProperty('--btn-bg','linear-gradient(145deg,#0ff,#00f)');
- }
- if(t==='gold'){
-  r.style.setProperty('--slot-bg','linear-gradient(145deg,#ffd700,#b8860b)');
-  r.style.setProperty('--btn-bg','linear-gradient(145deg,#ffd700,#ff8c00)');
- }
-}
-
-function setBg(b){
- if(b==='space')document.body.style.background='radial-gradient(circle,#111,#000)';
- if(b==='fire')document.body.style.background='radial-gradient(circle,#ff4500,#000)';
- if(b==='neon')document.body.style.background='radial-gradient(circle,#8000ff,#000)';
-}
-
 function checkLine(line,bet){
  let base=null,count=0,cells=[];
  for(let i=0;i<line.length;i++){
   const cell=grid[line[i][0]][line[i][1]];
   const sym=cell.textContent;
-  if(sym==='⭐'||sym==='$')break;
-  if(!base&&sym!=='🧲')base=sym;
+  if(sym==='⭐'||sym==='$') break;
+  if(!base&&sym!=='🧲') base=sym;
   if(sym===base||sym==='🧲'){
    count++; cells.push(cell);
   } else break;
  }
- if(count>=3&&base){
-  cells.forEach(c=>c.classList.add('win'));
-  drawZigzagLine(cells);
+ if(!base) return 0;
+ cells.forEach(c=>c.classList.add('win'));
+ drawZigzagLine(cells);
 
-  // JACKPOT или BIG WIN логика
-  if(base==='💎' && count>=3) return bet*100*count; // JACKPOT
-  if(base==='7️⃣') return bet*20*count;            // BIG WIN
-  return bet*symbols.find(s=>s.s===base).pay*count;
- }
+ // Новый хард режим
+ if(base==='💎' && count>=5) return bet*100*count;  // JACKPOT
+ if(base==='7️⃣' && count>=4) return bet*20*count;  // BIG WIN
+ if(count>=3) return bet*symbols.find(s=>s.s===base).pay*count;
  return 0;
 }
 
@@ -270,7 +208,7 @@ function drawZigzagLine(cells){
 }
 
 function showBigWin(amount, symbol){
- let text = '';
+ let text='';
  if(symbol==='💎') text='💎 JACKPOT! '+amount;
  else if(symbol==='7️⃣') text='🎉 BIG WIN! '+amount;
  else if(amount>=50) text='🎉 WIN! '+amount;
@@ -298,10 +236,8 @@ function spin(auto=false){
   if(col>=5){finish(); return;}
   for(let r=0;r<3;r++) grid[r][col].classList.add('spin');
   setTimeout(()=>{
-   for(let r=0;r<3;r++){
-    grid[r][col].textContent=randSymbol().s;
-    grid[r][col].classList.remove('spin');
-   }
+   for(let r=0;r<3;r++) grid[r][col].textContent=randSymbol().s;
+   for(let r=0;r<3;r++) grid[r][col].classList.remove('spin');
    col++; spinReel();
   },250);
  }
@@ -312,9 +248,9 @@ function spin(auto=false){
   for(let i=0;i<lines;i++){
    const lineWin = checkLine(linesArr[i],bet);
    if(lineWin>0){
-     win += lineWin;
-     const base = grid[linesArr[i][0][0]][linesArr[i][0][1]].textContent;
-     if(base==='7️⃣' || base==='💎') winSymbol = base;
+     win+=lineWin;
+     const base=grid[linesArr[i][0][0]][linesArr[i][0][1]].textContent;
+     if(base==='7️⃣'||base==='💎') winSymbol=base;
    }
   }
   grid.flat().forEach(c=>{ if(c.textContent==='⭐') scat++; if(c.textContent==='$') dol++; });
@@ -339,6 +275,8 @@ updateUI();
 </script>
 </body>
 </html>
+
+
 
 
 
