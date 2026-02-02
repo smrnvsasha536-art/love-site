@@ -98,6 +98,20 @@ button{
 </select>
 </div>
 
+<div class="controls">
+<b>Темы:</b>
+<button onclick="setTheme('dark')">Dark</button>
+<button onclick="setTheme('neon')">Neon</button>
+<button onclick="setTheme('gold')">Gold</button>
+</div>
+
+<div class="controls">
+<b>Фон:</b>
+<button onclick="setBg('space')">🌌</button>
+<button onclick="setBg('fire')">🔥</button>
+<button onclick="setBg('neon')">💜</button>
+</div>
+
 <div class="slots" id="slots"></div>
 
 <button onclick="spin()">SPIN</button>
@@ -111,12 +125,12 @@ button{
 let balance=50000, freeSpins=0, totalBets=0, totalWins=0, history=[];
 
 const symbols=[
- {s:'🍒', w:35, pay:5},
- {s:'🍋', w:35, pay:4},
- {s:'🍉', w:30, pay:4},
- {s:'7️⃣', w:2, pay:20},   // BIG WIN реже
+ {s:'🍒', w:10, pay:5},   // обычные символы стали реже
+ {s:'🍋', w:10, pay:4},
+ {s:'🍉', w:8, pay:4},
+ {s:'7️⃣', w:2, pay:20},   // BIG WIN
  {s:'⭐', w:4, scatter:true},
- {s:'🧲', w:6, wild:true},
+ {s:'🧲', w:2, wild:true},  // редкий Wild
  {s:'$', w:1, fs:true},    // FS редкий
  {s:'💎', w:1, pay:100}    // JACKPOT почти не выпадает
 ];
@@ -164,6 +178,28 @@ function clearLines(){
  document.querySelectorAll('.slot').forEach(s=>s.classList.remove('win'));
 }
 
+function setTheme(t){
+ const r=document.documentElement;
+ if(t==='dark'){
+  r.style.setProperty('--slot-bg','linear-gradient(145deg,#555,#222)');
+  r.style.setProperty('--btn-bg','linear-gradient(145deg,#e74c3c,#c0392b)');
+ }
+ if(t==='neon'){
+  r.style.setProperty('--slot-bg','linear-gradient(145deg,#00f,#8000ff)');
+  r.style.setProperty('--btn-bg','linear-gradient(145deg,#0ff,#00f)');
+ }
+ if(t==='gold'){
+  r.style.setProperty('--slot-bg','linear-gradient(145deg,#ffd700,#b8860b)');
+  r.style.setProperty('--btn-bg','linear-gradient(145deg,#ffd700,#ff8c00)');
+ }
+}
+
+function setBg(b){
+ if(b==='space')document.body.style.background='radial-gradient(circle,#111,#000)';
+ if(b==='fire')document.body.style.background='radial-gradient(circle,#ff4500,#000)';
+ if(b==='neon')document.body.style.background='radial-gradient(circle,#8000ff,#000)';
+}
+
 function checkLine(line,bet){
  let base=null,count=0,cells=[];
  for(let i=0;i<line.length;i++){
@@ -179,10 +215,10 @@ function checkLine(line,bet){
  cells.forEach(c=>c.classList.add('win'));
  drawZigzagLine(cells);
 
- // Новый хард режим
+ // Новый хард режим: минимальные комбинации
  if(base==='💎' && count>=5) return bet*100*count;  // JACKPOT
  if(base==='7️⃣' && count>=4) return bet*20*count;  // BIG WIN
- if(count>=3) return bet*symbols.find(s=>s.s===base).pay*count;
+ if(count>=4) return bet*symbols.find(s=>s.s===base).pay*count; // обычные символы
  return 0;
 }
 
@@ -275,6 +311,8 @@ updateUI();
 </script>
 </body>
 </html>
+
+
 
 
 
