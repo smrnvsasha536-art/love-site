@@ -2,179 +2,331 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Slotoking-like Slot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 Slot 5x3 Hard RTP</title>
 <style>
-  body { background:#111; color:#fff; font-family:sans-serif; text-align:center; }
-  .grid { display:grid; grid-template-columns:repeat(5,80px); gap:5px; margin:20px auto; }
-  .cell { width:80px; height:80px; background:#222; display:flex; align-items:center; justify-content:center; font-size:24px; border-radius:8px; }
-  button { padding:10px 20px; font-size:18px; cursor:pointer; }
+:root{
+  --bg: radial-gradient(circle,#111,#000);
+  --slot-bg: linear-gradient(145deg,#555,#222);
+  --btn-bg: linear-gradient(145deg,#e74c3c,#c0392b);
+  --line-color: gold;
+}
+body{
+  margin:0;
+  background:var(--bg);
+  font-family:Arial,sans-serif;
+  color:#fff;
+  text-align:center;
+}
+.container{max-width:520px;margin:auto;padding:10px;position:relative}
+.slots{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  grid-template-rows:repeat(3,90px);
+  gap:8px;
+  margin:15px 0;
+  padding:10px;
+  background:rgba(0,0,0,.6);
+  border-radius:16px;
+  position:relative;
+}
+.slot{
+  background:var(--slot-bg);
+  border-radius:16px;
+  font-size:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:inset 0 0 10px #000;
+  z-index:2;
+  transition: transform .3s, filter .3s;
+}
+.slot.spin{animation:spin .4s linear infinite}
+@keyframes spin{0%{transform:translateY(-80%)}100%{transform:translateY(80%)}}
+.slot.win{animation:winPulse .8s infinite alternate;}
+@keyframes winPulse{0%{transform:scale(1);filter:drop-shadow(0 0 0 gold)}100%{transform:scale(1.25);filter:drop-shadow(0 0 15px gold)}}
+.line{
+  position:absolute;
+  height:6px;
+  background:var(--line-color);
+  border-radius:4px;
+  z-index:1;
+  opacity:.6;
+  animation:lineFlash .6s infinite alternate;
+}
+@keyframes lineFlash{from{opacity:.4}to{opacity:1}}
+.bigWin{
+  position:absolute;
+  left:50%; top:30%;
+  transform:translate(-50%,0);
+  font-size:48px; font-weight:bold;
+  color: gold;
+  text-shadow:0 0 10px #fff,0 0 20px gold;
+  animation:bigWinAnim 1s ease-out forwards;
+  pointer-events:none;
+  z-index:999;
+}
+@keyframes bigWinAnim{0%{transform:translate(-50%,0) scale(.5);opacity:0;}50%{transform:translate(-50%,-20px) scale(1.5);opacity:1;}100%{transform:translate(-50%,0) scale(1);opacity:1;}}
+button{
+  padding:10px 18px;
+  border:none;
+  border-radius:14px;
+  background:var(--btn-bg);
+  color:#fff;
+  font-size:14px;
+  cursor:pointer;
+  margin:3px;
+}
+.history{font-size:12px;opacity:.7;margin-top:6px;}
+.controls{margin:6px 0}
 </style>
 </head>
 <body>
+<div class="container">
+<h2>🎰 Slot 5x3 Hard RTP</h2>
+<div>Баланс: <b id="balance">50000</b> | FS: <b id="fs">0</b></div>
 
-<h1>🎰 Slot Demo</h1>
-<div class="grid" id="grid"></div>
+<div>
+Ставка <input type="number" id="bet" value="10" min="1">
+Линии
+<select id="lines">
+<option>1</option><option>2</option><option>3</option>
+<option>4</option><option>5</option>
+</select>
+</div>
+
+<div class="controls">
+<b>Темы:</b>
+<button onclick="setTheme('dark')">Dark</button>
+<button onclick="setTheme('neon')">Neon</button>
+<button onclick="setTheme('gold')">Gold</button>
+</div>
+
+<div class="controls">
+<b>Фон:</b>
+<button onclick="setBg('space')">🌌</button>
+<button onclick="setBg('fire')">🔥</button>
+<button onclick="setBg('neon')">💜</button>
+</div>
+
+<div class="slots" id="slots"></div>
+
 <button onclick="spin()">SPIN</button>
-<p id="info"></p>
+
+<div id="result"></div>
+<div class="history" id="history"></div>
+<small>⭐ Scatter = FS | 🧲 Wild | $ = FS бонус | 💎 JACKPOT</small>
+</div>
 
 <script>
-/* ================= GAME STATE ================= */
-const GameState = {
-  balance: 1000,
-  bet: 10,
-  totalBets: 0,
-  totalWins: 0,
-  targetRTP: 0.96
-};
+let balance=50000, freeSpins=0, totalBets=0, totalWins=0, history=[];
+const TARGET_RTP=0.9;
 
-/* ================= SYMBOLS ================= */
-const SYMBOLS = {
-  L1: { payout: 1, type: 'low' },
-  L2: { payout: 1.5, type: 'low' },
-  M1: { payout: 3, type: 'mid' },
-  H1: { payout: 8, type: 'high' },
-  W:  { payout: 0, type: 'wild' },
-  S:  { payout: 0, type: 'scatter' }
-};
-
-/* ================= REEL STRIPS ================= */
-const REELS = [
-  createStrip(),
-  createStrip(),
-  createStrip(),
-  createStrip(),
-  createStrip()
+const symbols=[
+ {s:'🍒', pay:5},
+ {s:'🍋', pay:4},
+ {s:'🍉', pay:4},
+ {s:'7️⃣', pay:20},
+ {s:'⭐', scatter:true},
+ {s:'🧲', wild:true},
+ {s:'$', fs:true},
+ {s:'💎', pay:100}
 ];
 
-function createStrip() {
-  const strip = [];
-  for (let i = 0; i < 200; i++) {
-    const r = Math.random();
-    if (r < 0.5) strip.push('L1');
-    else if (r < 0.7) strip.push('L2');
-    else if (r < 0.85) strip.push('M1');
-    else if (r < 0.95) strip.push('H1');
-    else if (r < 0.98) strip.push('W');
-    else strip.push('S');
-  }
-  return strip;
-}
-
-/* ================= RTP CONTROLLER ================= */
-function currentRTP() {
-  return GameState.totalBets === 0
-    ? GameState.targetRTP
-    : GameState.totalWins / GameState.totalBets;
-}
-
-/* ================= SCENARIOS ================= */
-const SCENARIOS = [
-  { name:'LOSS', baseWeight:50 },
-  { name:'SMALL_WIN', baseWeight:25 },
-  { name:'MEDIUM_WIN', baseWeight:15 },
-  { name:'BIG_WIN', baseWeight:3 },
-  { name:'NEAR_MISS', baseWeight:7 }
+const linesArr=[
+ [[0,0],[0,1],[0,2],[0,3],[0,4]],
+ [[1,0],[1,1],[1,2],[1,3],[1,4]],
+ [[2,0],[2,1],[2,2],[2,3],[2,4]],
+ [[0,0],[1,1],[2,2],[1,3],[0,4]],
+ [[2,0],[1,1],[0,2],[1,3],[2,4]]
 ];
 
-function chooseScenario() {
-  let rtp = currentRTP();
-  let adjusted = SCENARIOS.map(s => {
-    let w = s.baseWeight;
-    if (rtp < GameState.targetRTP && s.name.includes('WIN')) w *= 1.3;
-    if (rtp > GameState.targetRTP && s.name === 'LOSS') w *= 1.4;
-    return { ...s, weight: w };
-  });
-
-  const total = adjusted.reduce((a,b)=>a+b.weight,0);
-  let roll = Math.random() * total;
-  for (let s of adjusted) {
-    roll -= s.weight;
-    if (roll <= 0) return s.name;
-  }
+const slotsEl=document.getElementById('slots');
+const grid=[];
+for(let r=0;r<3;r++){
+ grid[r]=[];
+ for(let c=0;c<5;c++){
+  const d=document.createElement('div');
+  d.className='slot';
+  d.textContent='❔';
+  slotsEl.appendChild(d);
+  grid[r][c]=d;
+ }
 }
 
-/* ================= SPIN ENGINE ================= */
-function spin() {
-  if (GameState.balance < GameState.bet) return;
+const balanceEl=document.getElementById('balance');
+const fsEl=document.getElementById('fs');
+const historyEl=document.getElementById('history');
+const resultEl=document.getElementById('result');
 
-  GameState.balance -= GameState.bet;
-  GameState.totalBets += GameState.bet;
-
-  const scenario = chooseScenario();
-  let grid = generateGrid(scenario);
-  let win = calculateWin(grid);
-
-  GameState.balance += win;
-  GameState.totalWins += win;
-
-  render(grid);
-  document.getElementById('info').innerText =
-    `Scenario: ${scenario} | Win: ${win} | RTP: ${currentRTP().toFixed(2)}`;
+function setTheme(t){
+ const r=document.documentElement;
+ if(t==='dark'){
+  r.style.setProperty('--slot-bg','linear-gradient(145deg,#555,#222)');
+  r.style.setProperty('--btn-bg','linear-gradient(145deg,#e74c3c,#c0392b)');
+ }
+ if(t==='neon'){
+  r.style.setProperty('--slot-bg','linear-gradient(145deg,#0ff,#00f)');
+  r.style.setProperty('--btn-bg','linear-gradient(145deg,#f0f,#0ff)');
+ }
+ if(t==='gold'){
+  r.style.setProperty('--slot-bg','linear-gradient(145deg,#ffd700,#b8860b)');
+  r.style.setProperty('--btn-bg','linear-gradient(145deg,#ffd700,#ff8c00)');
+ }
 }
 
-/* ================= GRID GENERATION ================= */
-function generateGrid(scenario) {
-  const grid = Array.from({length:3},()=>Array(5).fill(null));
-
-  for (let r = 0; r < 5; r++) {
-    const strip = REELS[r];
-    let pos = Math.floor(Math.random() * strip.length);
-
-    for (let row = 0; row < 3; row++) {
-      grid[row][r] = strip[(pos + row) % strip.length];
-    }
-  }
-
-  if (scenario === 'NEAR_MISS') {
-    grid[0][0] = 'S';
-    grid[1][2] = 'S';
-  }
-
-  if (scenario === 'BIG_WIN') {
-    grid[1][0] = 'H1';
-    grid[1][1] = 'H1';
-    grid[1][2] = 'H1';
-    grid[1][3] = 'H1';
-    grid[1][4] = 'H1';
-  }
-
-  return grid;
+function setBg(b){
+ if(b==='space') document.body.style.background='radial-gradient(circle,#111,#000)';
+ if(b==='fire')  document.body.style.background='radial-gradient(circle,#ff4500,#000)';
+ if(b==='neon')  document.body.style.background='radial-gradient(circle,#8000ff,#000)';
 }
 
-/* ================= PAYLINES ================= */
-function calculateWin(grid) {
-  let win = 0;
-  const line = grid[1]; // центральная линия
-
-  let symbol = line[0];
-  let count = 1;
-
-  for (let i = 1; i < 5; i++) {
-    if (line[i] === symbol || line[i] === 'W') count++;
-    else break;
-  }
-
-  if (count >= 3 && SYMBOLS[symbol]) {
-    win = SYMBOLS[symbol].payout * count * GameState.bet;
-  }
-
-  return Math.floor(win);
+// Контролируемый RNG
+function randSymbol(reelIndex){
+ const rtpCurrent = totalBets ? totalWins/totalBets : 0;
+ let allowWin = Math.random()<0.2 && rtpCurrent<TARGET_RTP;
+ let pool=[];
+ symbols.forEach(s=>{
+   let weight=1;
+   if(s.s==='💎') weight = allowWin?1:0.02;
+   if(s.s==='7️⃣') weight = allowWin?1:0.05;
+   if(s.s==='🍒'||s.s==='🍋'||s.s==='🍉') weight = allowWin?1:0.2;
+   if(s.s==='🧲') weight=0.05;
+   if(s.s==='⭐') weight=0.05;
+   if(s.s==='$') weight=0.02;
+   for(let i=0;i<weight*100;i++) pool.push(s);
+ });
+ return pool[Math.floor(Math.random()*pool.length)];
 }
 
-/* ================= UI ================= */
-function render(grid) {
-  const el = document.getElementById('grid');
-  el.innerHTML = '';
-  grid.flat().forEach(s => {
-    const d = document.createElement('div');
-    d.className = 'cell';
-    d.innerText = s;
-    el.appendChild(d);
-  });
+function updateUI(){
+ balanceEl.textContent=balance;
+ fsEl.textContent=freeSpins;
+ const rtp=totalBets?Math.round(totalWins/totalBets*100):0;
+ historyEl.innerHTML=`История: ${history.join(', ')}<br>RTP: ${rtp}%`;
 }
+
+function clearLines(){
+ document.querySelectorAll('.line').forEach(l=>l.remove());
+ document.querySelectorAll('.slot').forEach(s=>s.classList.remove('win'));
+}
+
+function checkLine(line,bet){
+ let base=null,count=0,cells=[];
+ for(let i=0;i<line.length;i++){
+   const cell=grid[line[i][0]][line[i][1]];
+   const sym=cell.textContent;
+   if(sym==='⭐'||sym==='$') break;
+   if(!base&&sym!=='🧲') base=sym;
+   if(sym===base||sym==='🧲'){
+     count++; cells.push(cell);
+   } else break;
+ }
+ if(!base) return 0;
+ cells.forEach(c=>c.classList.add('win'));
+ drawZigzagLine(cells);
+ if(base==='💎' && count>=5) return bet*100*count;
+ if(base==='7️⃣' && count>=4) return bet*20*count;
+ if(count>=4) return bet*symbols.find(s=>s.s===base).pay*count;
+ return 0;
+}
+
+function drawZigzagLine(cells){
+ for(let i=0;i<cells.length-1;i++){
+  const start=cells[i].getBoundingClientRect();
+  const end=cells[i+1].getBoundingClientRect();
+  const line=document.createElement('div');
+  line.className='line';
+  const container=slotsEl.getBoundingClientRect();
+  const x1=start.left-container.left + start.width/2;
+  const y1=start.top-container.top + start.height/2;
+  const x2=end.left-container.left + end.width/2;
+  const y2=end.top-container.top + end.height/2;
+  const length=Math.hypot(x2-x1, y2-y1);
+  line.style.width=length+'px';
+  line.style.transform=`rotate(${Math.atan2(y2-y1,x2-x1)}rad)`;
+  line.style.left=x1+'px';
+  line.style.top=y1+'px';
+  slotsEl.appendChild(line);
+  setTimeout(()=>line.remove(),1500);
+ }
+}
+
+function showBigWin(amount,symbol){
+ let text='';
+ if(symbol==='💎') text='💎 JACKPOT! '+amount;
+ else if(symbol==='7️⃣') text='🎉 BIG WIN! '+amount;
+ else if(amount>=50) text='🎉 WIN! '+amount;
+ if(text){
+   const div=document.createElement('div');
+   div.className='bigWin';
+   div.textContent=text;
+   document.body.appendChild(div);
+   setTimeout(()=>div.remove(),1200);
+ }
+}
+
+function spin(auto=false){
+ clearLines();
+ let bet = +document.getElementById('bet').value;
+ let lines = Math.min(+document.getElementById('lines').value, linesArr.length);
+ const cost = bet * lines;
+
+ // Ограничение ставки
+ if(bet <= 0) { resultEl.textContent='❌ Ставка должна быть >0'; return; }
+ if(bet > 10000) { resultEl.textContent='❌ Ставка слишком большая'; return; }
+ if(balance<cost && freeSpins<=0 && !auto){ resultEl.textContent='❌ Недостаточно средств'; return; }
+
+ if(freeSpins>0) freeSpins--;
+ else if(!auto){ balance -= cost; totalBets += cost; }
+
+ let col=0;
+ function spinReel(){
+   if(col>=5){finish(); return;}
+   for(let r=0;r<3;r++) grid[r][col].classList.add('spin');
+   setTimeout(()=>{
+     for(let r=0;r<3;r++){
+       grid[r][col].textContent = randSymbol(col).s;
+       grid[r][col].classList.remove('spin');
+     }
+     col++; spinReel();
+   },250);
+ }
+ spinReel();
+
+ function finish(){
+   let win=0, scat=0, dol=0, winSymbol='';
+   for(let i=0;i<lines;i++){
+     const lineWin = checkLine(linesArr[i],bet);
+     if(lineWin>0){
+       win+=lineWin;
+       const base=grid[linesArr[i][0][0]][linesArr[i][0][1]].textContent;
+       if(base==='7️⃣'||base==='💎') winSymbol=base;
+     }
+   }
+   grid.flat().forEach(c=>{ if(c.textContent==='⭐') scat++; if(c.textContent==='$') dol++; });
+   if(scat>=3) freeSpins+=scat===3?5:scat===4?10:15;
+   if(dol>=3) freeSpins+=5;
+
+   if(win>0){
+     balance+=win; totalWins+=win;
+     history.unshift(win);
+     resultEl.textContent=`🎉 Выигрыш ${win}`;
+     showBigWin(win,winSymbol);
+   } else {
+     history.unshift(0);
+     resultEl.textContent='😞 Проигрыш';
+   }
+   history=history.slice(0,20);
+   updateUI();
+   if(freeSpins>0) setTimeout(()=>spin(true),900);
+ }
+}
+updateUI();
 </script>
 </body>
 </html>
+
 
 
 
