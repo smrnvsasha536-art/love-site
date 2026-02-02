@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 Slot 5x3 Ultimate MAX Jackpot</title>
+<title>🎰 Slot 5x3 Ultimate MAX Jackpot + $ Symbol</title>
 <style>
-/* ===== Основной стиль ===== */
 body {
   margin: 0;
   background: radial-gradient(circle,#111,#000);
@@ -41,146 +40,56 @@ body {
   overflow: hidden;
   color: #fff;
 }
-
-/* ===== Анимация падения символов ===== */
 @keyframes fall {
   0% { transform: translateY(-200%) rotateX(90deg); opacity: 0; }
   50% { transform: translateY(10%) rotateX(-10deg); opacity: 1; }
   70% { transform: translateY(-5%) rotateX(5deg); }
   100% { transform: translateY(0) rotateX(0deg); }
 }
-.slot.animate {
-  animation: fall 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
-}
-
-/* ===== Выигрышные символы ===== */
-.slot.win {
-  animation: pulse 0.8s ease-in-out infinite alternate;
-  text-shadow: 0 0 10px #fff, 0 0 20px gold, 0 0 30px #ff8800;
-}
-@keyframes pulse {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.2); }
-}
-
-/* ===== Подсветка линии ===== */
-.line-highlight {
-  position: absolute;
-  height: 20px;
-  background: rgba(255,255,0,0.4);
-  pointer-events: none;
-  z-index: 500;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 20px rgba(255,255,0,0.6);
-}
-
-/* ===== Mega Win ===== */
-@keyframes winMega {
-  0% { transform: scale(0.5); opacity: 0; color:#e74c3c; text-shadow:0 0 10px #fff; }
-  50% { transform: scale(2); opacity: 1; }
-  100% { transform: scale(1.5); opacity:1; }
-}
-.win-anim {
-  position: absolute;
-  left: 50%;
-  top: 20%;
-  transform: translateX(-50%);
-  font-size: 36px;
-  font-weight: bold;
-  pointer-events: none;
-  z-index: 999;
-  text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #ff8800;
-}
-
-/* ===== Конфетти ===== */
-.confetti {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: gold;
-  opacity: 0.9;
-  border-radius: 50%;
-  pointer-events: none;
-  animation: confettiFall 1.5s linear forwards;
-}
-@keyframes confettiFall {
-  0% { transform: translateY(0) rotate(0deg); opacity:1; }
-  100% { transform: translateY(400px) rotate(720deg); opacity:0; }
-}
-
-/* ===== Кнопки ===== */
-button {
-  padding: 12px 22px;
-  border: none;
-  border-radius: 14px;
-  font-size: 16px;
-  background: linear-gradient(145deg,#e74c3c,#c0392b);
-  color: #fff;
-  margin: 5px;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  transition: transform 0.15s;
-}
-button:hover { transform: scale(1.05); }
-
-/* ===== Контейнеры бонусов и счетчиков ===== */
+.slot.animate { animation: fall 0.6s cubic-bezier(0.68,-0.55,0.265,1.55); }
+.slot.win { animation: pulse 0.8s ease-in-out infinite alternate;
+  text-shadow: 0 0 10px #fff, 0 0 20px gold, 0 0 30px #ff8800; }
+@keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.2); } }
+.line-highlight { position: absolute; height: 20px; background: rgba(255,255,0,0.4); pointer-events: none; z-index: 500; border-radius: 8px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(255,255,0,0.6);}
+@keyframes winMega {0%{transform:scale(0.5);opacity:0;color:#e74c3c;text-shadow:0 0 10px #fff;}50%{transform:scale(2);opacity:1;}100%{transform:scale(1.5);opacity:1;}}
+.win-anim {position:absolute;left:50%;top:20%;transform:translateX(-50%);font-size:36px;font-weight:bold;pointer-events:none;z-index:999;text-shadow:0 0 10px #fff,0 0 20px #ff0,0 0 30px #ff8800;}
+.confetti {position:absolute;width:10px;height:10px;background:gold;opacity:0.9;border-radius:50%;pointer-events:none;animation:confettiFall 1.5s linear forwards;}
+@keyframes confettiFall {0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(400px) rotate(720deg);opacity:0;}}
+button {padding:12px 22px;border:none;border-radius:14px;font-size:16px;background:linear-gradient(145deg,#e74c3c,#c0392b);color:#fff;margin:5px;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.3);transition:transform 0.15s;}
+button:hover {transform:scale(1.05);}
 .counters { margin: 5px; font-size: 14px; }
 .buy-buttons button { background: linear-gradient(145deg,#3498db,#2980b9); }
-.bonus-controls button { background: linear-gradient(145deg,#27ae60,#1e8449); }
-
-/* ===== История ===== */
-.history {
-  font-size: 12px;
-  opacity: .7;
-  margin-top: 6px;
-  text-align: left;
-  max-height: 80px;
-  overflow:auto;
-}
+.history { font-size: 12px; opacity: .7; margin-top: 6px; text-align: left; max-height: 80px; overflow:auto;}
 </style>
 </head>
 <body>
-
 <div class="container">
-  <h2>🎰 Slot 5x3 Ultimate MAX Jackpot</h2>
+  <h2>🎰 Slot 5x3 Ultimate MAX Jackpot + $ Symbol</h2>
   <div>Баланс: <b id="balance">50000</b></div>
   <div class="counters">Free Spins: <b id="fsCount">0</b> | Бонусы: <b id="bonusCount">0</b></div>
-
   <div>
     Ставка: <input type="number" id="betInput" min="1" max="1000" value="10">
     Линии: <select id="linesSelect"></select>
   </div>
-
   <div class="buy-buttons">
     <button onclick="buyBonusFS(1)">Купить 1 Free Spin (100)</button>
     <button onclick="buyBonusFS(5)">Купить 5 Free Spins (450)</button>
     <button onclick="buyBonusChest()">Купить бонус сундука (200)</button>
   </div>
-
   <div class="slots" id="slots"></div>
   <button onclick="spin()">SPIN</button>
   <div class="result" id="result"></div>
-  <small>Scatter ⭐ = 5 FS | Wild 🧲</small>
+  <small>Scatter ⭐ = 5 FS | Wild 🧲 | $ = бонус Free Spins</small>
   <div class="history" id="history"></div>
-  <div id="bonusArea"></div>
 </div>
 
 <script>
-// ===== Настройки =====
-let balance = 50000, freeSpins = 0, bonusGames = 0, totalBets = 0, totalWins = 0;
-const history = [];
-
-// ===== Символы =====
+let balance=50000, freeSpins=0, bonusGames=0, totalBets=0, totalWins=0;
+const history=[];
 const symbols = [
-  {s:'🍒', w:80, pay:{3:0,4:0,5:0}},
-  {s:'🍋', w:70, pay:{3:0,4:0,5:0}},
-  {s:'🍉', w:60, pay:{3:0,4:0,5:0}},
-  {s:'7️⃣', w:5, pay:{3:0,4:0,5:0}},
-  {s:'⭐',  w:15, scatter:true},
-  {s:'🧲', w:20, pay:{3:0,4:0,5:0}, wild:true}
+  {s:'🍒', w:80}, {s:'🍋', w:70}, {s:'🍉', w:60}, {s:'7️⃣', w:5}, 
+  {s:'⭐',  w:15, scatter:true}, {s:'🧲', w:20, wild:true}, {s:'$', w:10}
 ];
-
 const linesArr = [
   [[0,0],[0,1],[0,2],[0,3],[0,4]],
   [[1,0],[1,1],[1,2],[1,3],[1,4]],
@@ -188,184 +97,80 @@ const linesArr = [
   [[0,0],[1,1],[2,2],[1,3],[0,4]],
   [[2,0],[1,1],[0,2],[1,3],[2,4]]
 ];
-
-const linesOptions = [1,2,3,4,5];
-
-// ===== DOM =====
-const slotsEl = document.getElementById('slots');
-const balanceEl = document.getElementById('balance');
-const fsEl = document.getElementById('fsCount');
-const bonusElCount = document.getElementById('bonusCount');
-const resultEl = document.getElementById('result');
-const historyEl = document.getElementById('history');
-const bonusEl = document.getElementById('bonusArea');
-const betInput = document.getElementById('betInput');
-const linesSelect = document.getElementById('linesSelect');
-
-// ===== Поле =====
-let grid = [];
-for(let r=0;r<3;r++){
-  grid[r] = [];
-  for(let c=0;c<5;c++){
-    let d = document.createElement('div');
-    d.className = 'slot';
-    d.textContent = '❔';
-    slotsEl.appendChild(d);
-    grid[r][c] = d;
-  }
-}
-
-// ===== Обновление списков =====
-function updateLinesOptions(){
-  const selectedLines = linesSelect.value;
-  linesSelect.innerHTML = '';
-  linesOptions.forEach(l=>{
-    let o = document.createElement('option'); o.value=l; o.textContent=l;
-    linesSelect.appendChild(o);
-  });
-  linesSelect.value = linesOptions.includes(Number(selectedLines)) ? selectedLines : linesOptions[0];
-}
-
-// ===== RNG =====
-function randSymbol(){
-  let pool = [];
-  symbols.forEach(o=>{for(let i=0;i<o.w;i++) pool.push(o);});
-  return pool[Math.floor(Math.random()*pool.length)];
-}
-
-// ===== Звуки =====
-function playSound(url){let a=new Audio(url); a.play();}
+const linesOptions=[1,2,3,4,5];
+const slotsEl=document.getElementById('slots');
+const balanceEl=document.getElementById('balance');
+const fsEl=document.getElementById('fsCount');
+const bonusElCount=document.getElementById('bonusCount');
+const resultEl=document.getElementById('result');
+const historyEl=document.getElementById('history');
+const betInput=document.getElementById('betInput');
+const linesSelect=document.getElementById('linesSelect');
+let grid=[];
+for(let r=0;r<3;r++){grid[r]=[];for(let c=0;c<5;c++){let d=document.createElement('div');d.className='slot';d.textContent='❔';slotsEl.appendChild(d);grid[r][c]=d;}}
+function updateLinesOptions(){const selectedLines=linesSelect.value;linesSelect.innerHTML='';linesOptions.forEach(l=>{let o=document.createElement('option');o.value=l;o.textContent=l;linesSelect.appendChild(o);});linesSelect.value=linesOptions.includes(Number(selectedLines))?selectedLines:linesOptions[0];}
+function randSymbol(){let pool=[];symbols.forEach(o=>{for(let i=0;i<o.w;i++) pool.push(o);});return pool[Math.floor(Math.random()*pool.length)];}
+function playSound(url){let a=new Audio(url);a.play();}
 function vibrate(ms){if(navigator.vibrate) navigator.vibrate(ms);}
+function showWinAnimation(amount){if(amount>=5000){const div=document.createElement('div');div.className='win-anim';div.textContent=`🚀 JACKPOT ${amount}!`;div.style.animation='winMega 1s forwards';document.body.appendChild(div);spawnConfetti();setTimeout(()=>div.remove(),1500);}}
+function spawnConfetti(){for(let i=0;i<30;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*slotsEl.offsetWidth+'px';document.body.appendChild(c);setTimeout(()=>c.remove(),1500);}}
+function highlightLine(line){const highlight=document.createElement('div');highlight.className='line-highlight';const rowHeight=grid[0][0].offsetHeight+8;highlight.style.top=(line[0][0]*rowHeight+4)+'px';highlight.style.width=slotsEl.offsetWidth+'px';slotsEl.appendChild(highlight);setTimeout(()=>highlight.remove(),1000);}
+function animateBalance(amount){let start=balance-amount,end=balance,duration=600,startTime=performance.now();function step(time){let progress=(time-startTime)/duration;if(progress>1) progress=1;balanceEl.textContent=Math.floor(start+(end-start)*progress);if(progress<1) requestAnimationFrame(step);}requestAnimationFrame(step);}
+function updateHistory(win){history.unshift(win);if(history.length>20) history.pop();let rtp=Math.round((totalWins/(totalBets||1))*100);historyEl.innerHTML='История: '+history.join(', ')+`<br>RTP: ${rtp}%`;}
 
-// ===== Анимация Mega выигрыша =====
-function showWinAnimation(amount){
-  if(amount>=5000){ 
-    const div = document.createElement('div');
-    div.className='win-anim';
-    div.textContent=`🚀 JACKPOT ${amount}!`;
-    div.style.animation='winMega 1s forwards';
-    document.body.appendChild(div);
-    spawnConfetti();
-    setTimeout(()=>div.remove(),1500);
-  }
-}
-
-// ===== Конфетти =====
-function spawnConfetti(){
-  for(let i=0;i<30;i++){
-    const c = document.createElement('div');
-    c.className='confetti';
-    c.style.left = Math.random()*slotsEl.offsetWidth+'px';
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),1500);
-  }
-}
-
-// ===== Подсветка выигрышной линии =====
-function highlightLine(line){
-  const highlight = document.createElement('div');
-  highlight.className='line-highlight';
-  const rowHeight = grid[0][0].offsetHeight + 8; // + gap
-  highlight.style.top = (line[0][0]*rowHeight + 4) + 'px';
-  highlight.style.width = slotsEl.offsetWidth + 'px';
-  slotsEl.appendChild(highlight);
-  setTimeout(()=>highlight.remove(),1000);
-}
-
-// ===== SPIN =====
-function spin(){
-  let bet = Math.max(1, Math.min(1000, parseInt(betInput.value)||1));
-  let linesNum = parseInt(linesSelect.value);
-  let cost = bet*linesNum;
-  if(freeSpins<=0 && bonusGames<=0 && cost>balance){ resultEl.textContent='❌ Недостаточно средств'; return; }
-
-  if(freeSpins>0){ freeSpins--; fsEl.textContent=freeSpins; } 
+function spin(auto=false){
+  let bet=Math.max(1,Math.min(1000,parseInt(betInput.value)||1));
+  let linesNum=parseInt(linesSelect.value);
+  let cost=bet*linesNum;
+  if(freeSpins<=0 && bonusGames<=0 && cost>balance && !auto){ resultEl.textContent='❌ Недостаточно средств'; return; }
+  if(freeSpins>0){ freeSpins--; fsEl.textContent=freeSpins; }
   else if(bonusGames>0){ bonusGames--; bonusElCount.textContent=bonusGames; return; }
-  else { balance -= cost; totalBets += cost; }
+  else{balance-=cost; totalBets+=cost;}
 
   grid.flat().forEach(s=>s.classList.remove('animate','win'));
   playSound('https://freesound.org/data/previews/414/414209_5121236-lq.mp3');
   vibrate(100);
 
-  // ===== Анимация барабанов с задержкой =====
+  // барабаны с задержкой
   for(let c=0;c<5;c++){
     setTimeout(()=>{
       for(let r=0;r<3;r++){
-        let sym = randSymbol();
-        grid[r][c].textContent = sym.s;
+        let sym=randSymbol();
+        grid[r][c].textContent=sym.s;
         grid[r][c].classList.add('animate');
         setTimeout(()=>grid[r][c].classList.remove('animate'),600);
       }
-    }, c*150);
+    },c*150);
   }
 
-  // ===== Джекпот раз в ~8 спинов =====
   setTimeout(()=>{
-    let totalWin=0;
-    if(Math.random()<0.12){ 
-      totalWin = Math.floor(Math.random()*15000)+5000; 
-      highlightLine([ [1,0],[1,1],[1,2],[1,3],[1,4] ]);
-      for(let r=0;r<3;r++) grid[r][2].classList.add('win');
-    }
-    if(totalWin>0){
-      balance += totalWin; totalWins += totalWin;
-      resultEl.textContent='🎉 ВЫИГРЫШ: '+totalWin;
-      playSound('https://freesound.org/data/previews/235/235968_3981044-lq.mp3');
-      vibrate(300);
-      showWinAnimation(totalWin);
-      animateBalance(totalWin);
+    // Проверка символов $
+    let dollarCount=0;
+    for(let r=0;r<3;r++) for(let c=0;c<5;c++){if(grid[r][c].textContent=='$') dollarCount++;}
+    if(dollarCount>=3){
+      freeSpins+=10; fsEl.textContent=freeSpins;
+      resultEl.textContent='💵 3 $! +10 Free Spins!';
+      setTimeout(()=>{while(freeSpins>0){spin(true;}},800);
+    } else if(dollarCount>0){
+      resultEl.textContent=`💵 ${dollarCount} $ на поле`;
     } else resultEl.textContent='😞 Проигрыш';
-    balanceEl.textContent = balance;
-    updateHistory(totalWin);
+
+    balanceEl.textContent=balance;
+    updateHistory(0);
     updateLinesOptions();
-  }, 1000);
+
+    if(freeSpins>0 && !auto){ setTimeout(()=>spin(true),800);}
+  },1000);
 }
 
-// ===== Анимация баланса =====
-function animateBalance(amount){
-  let start = balance-amount;
-  let end = balance;
-  let duration = 600;
-  let startTime = performance.now();
-  function step(time){
-    let progress = (time-startTime)/duration;
-    if(progress>1) progress=1;
-    balanceEl.textContent = Math.floor(start + (end-start)*progress);
-    if(progress<1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
+function buyBonusFS(amount){let price=amount===5?450:100;if(balance<price){alert('Недостаточно средств!');return;}balance-=price;freeSpins+=amount;fsEl.textContent=freeSpins;balanceEl.textContent=balance;resultEl.textContent=`Вы купили ${amount} Free Spins!`;}
+function buyBonusChest(){alert('Бонус сундука пока не активирован');}
 
-// ===== История =====
-function updateHistory(win){
-  history.unshift(win);
-  if(history.length>20) history.pop();
-  let rtp = Math.round((totalWins/(totalBets||1))*100);
-  historyEl.innerHTML = 'История: '+history.join(', ')+'<br>RTP: '+rtp+'%';
-}
-
-// ===== Free Spins =====
-function buyBonusFS(amount){
-  let price = amount===5?450:100;
-  if(balance<price){ alert('Недостаточно средств!'); return; }
-  balance -= price;
-  freeSpins += amount;
-  fsEl.textContent = freeSpins;
-  balanceEl.textContent = balance;
-  resultEl.textContent = `Вы купили ${amount} Free Spins!`;
-}
-
-// ===== Бонусные сундуки =====
-function buyBonusChest(){ alert('Бонус сундука пока не активирован'); }
-
-// ===== Инициализация =====
-updateLinesOptions();
-fsEl.textContent = freeSpins;
-bonusElCount.textContent = bonusGames;
+updateLinesOptions(); fsEl.textContent=freeSpins; bonusElCount.textContent=bonusGames;
 </script>
-
 </body>
 </html>
+
 
 
 
