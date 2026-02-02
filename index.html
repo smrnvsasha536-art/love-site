@@ -5,34 +5,112 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎰 Slot 5x3 Ultimate MAX Jackpot</title>
 <style>
-body{margin:0;background:radial-gradient(circle,#111,#000);font-family:Arial,sans-serif;color:#fff;text-align:center;}
-.container{max-width:520px;margin:auto;padding:10px;}
-.slots{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,80px);gap:6px;margin:15px 0;position:relative;}
-.slot{background:linear-gradient(#444,#222);border-radius:14px;font-size:32px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 10px #000;transition:transform .15s;}
-.spin-anim{animation:spin .3s linear infinite;}
-@keyframes spin{0%{transform:translateY(-20px)}100%{transform:translateY(20px)}}
-button{padding:12px 20px;border:none;border-radius:12px;font-size:16px;background:#e74c3c;color:#fff;margin:5px;cursor:pointer;}
-.result{min-height:26px;margin-top:8px;position:relative;}
-.history{font-size:12px;opacity:.7;margin-top:6px;text-align:left;max-height:80px;overflow:auto;}
-.chest{display:inline-block;width:80px;height:80px;background:#aa8800;margin:6px;border-radius:10px;line-height:80px;font-size:32px;cursor:pointer;}
-.bonus-controls button{margin:5px;background:#27ae60;}
-select, input{padding:6px;margin:5px;border-radius:6px;}
-.buy-buttons button{background:#3498db;}
-.counters{margin:5px;font-size:14px;}
+/* ===== Основной стиль ===== */
+body {
+  margin: 0;
+  background: radial-gradient(circle,#111,#000);
+  font-family: 'Arial', sans-serif;
+  color: #fff;
+  text-align: center;
+  overflow-x: hidden;
+}
+.container {
+  max-width: 520px;
+  margin: auto;
+  padding: 10px;
+}
+.slots {
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  grid-template-rows: repeat(3,90px);
+  gap: 8px;
+  margin: 15px 0;
+  position: relative;
+}
+.slot {
+  background: linear-gradient(145deg,#555,#222);
+  border-radius: 16px;
+  font-size: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 10px #000, 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
+  cursor: default;
+  perspective: 400px;
+  overflow: hidden;
+}
 
-/* ===== Анимации Mega выигрышей ===== */
-@keyframes winMega {0%{transform:scale(0.5);opacity:0;color:#e74c3c;text-shadow:0 0 10px #fff}50%{transform:scale(2);opacity:1}100%{transform:scale(1.5);opacity:1}}
-.win-anim{position:absolute;left:50%;top:20%;transform:translateX(-50%);font-size:32px;font-weight:bold;pointer-events:none;z-index:999;}
+/* ===== Анимация падения символов ===== */
+@keyframes fall {
+  0% { transform: translateY(-150%) rotateX(90deg); opacity: 0; }
+  50% { transform: translateY(10%) rotateX(-10deg); opacity: 1; }
+  70% { transform: translateY(-5%) rotateX(5deg); }
+  100% { transform: translateY(0) rotateX(0deg); }
+}
 
-/* ===== Подсветка выигрышной линии ===== */
-.line-highlight{
-  position:absolute;
-  height:20px;
-  background:rgba(255,255,0,0.3);
-  pointer-events:none;
-  z-index:500;
-  border-radius:8px;
-  transition:all 0.3s ease;
+.slot.animate {
+  animation: fall 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
+}
+
+/* ===== Подсветка линии ===== */
+.line-highlight {
+  position: absolute;
+  height: 20px;
+  background: rgba(255,255,0,0.4);
+  pointer-events: none;
+  z-index: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(255,255,0,0.6);
+}
+
+/* ===== Mega Win ===== */
+@keyframes winMega {
+  0% { transform: scale(0.5); opacity: 0; color:#e74c3c; text-shadow:0 0 10px #fff; }
+  50% { transform: scale(2); opacity: 1; }
+  100% { transform: scale(1.5); opacity:1; }
+}
+.win-anim {
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  transform: translateX(-50%);
+  font-size: 36px;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 999;
+  text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #ff8800;
+}
+
+/* ===== Кнопки ===== */
+button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  background: linear-gradient(145deg,#e74c3c,#c0392b);
+  color: #fff;
+  margin: 5px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.15s;
+}
+button:hover { transform: scale(1.05); }
+
+/* ===== Контейнеры бонусов и счетчиков ===== */
+.counters { margin: 5px; font-size: 14px; }
+.buy-buttons button { background: linear-gradient(145deg,#3498db,#2980b9); }
+.bonus-controls button { background: linear-gradient(145deg,#27ae60,#1e8449); }
+
+/* ===== История ===== */
+.history {
+  font-size: 12px;
+  opacity: .7;
+  margin-top: 6px;
+  text-align: left;
+  max-height: 80px;
+  overflow:auto;
 }
 </style>
 </head>
@@ -149,8 +227,8 @@ function showWinAnimation(amount){
 function highlightLine(line){
   const highlight = document.createElement('div');
   highlight.className='line-highlight';
-  const rowHeight = grid[0][0].offsetHeight + 6; // + gap
-  highlight.style.top = (line[0][0]*rowHeight + 6) + 'px';
+  const rowHeight = grid[0][0].offsetHeight + 8; // + gap
+  highlight.style.top = (line[0][0]*rowHeight + 4) + 'px';
   highlight.style.width = slotsEl.offsetWidth + 'px';
   slotsEl.appendChild(highlight);
   setTimeout(()=>highlight.remove(),1000);
@@ -167,18 +245,19 @@ function spin(){
   else if(bonusGames>0){ bonusGames--; bonusElCount.textContent=bonusGames; triggerMegaBonus(); return; }
   else { balance -= cost; totalBets += cost; }
 
-  grid.flat().forEach(s=>s.classList.add('spin-anim'));
+  grid.flat().forEach(s=>s.classList.remove('animate'));
   playSound('https://freesound.org/data/previews/414/414209_5121236-lq.mp3');
   vibrate(100);
 
   setTimeout(()=>{
-    grid.flat().forEach(s=>s.classList.remove('spin-anim'));
     let matrix=[[],[],[]]; 
     for(let r=0;r<3;r++){
       for(let c=0;c<5;c++){
         let sym=randSymbol();
         matrix[r][c]=sym;
         grid[r][c].textContent=sym.s;
+        grid[r][c].classList.add('animate');
+        setTimeout(() => grid[r][c].classList.remove('animate'), 600);
       }
     }
 
@@ -233,6 +312,8 @@ bonusElCount.textContent = bonusGames;
 
 </body>
 </html>
+
+
 
 
 
