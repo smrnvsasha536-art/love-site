@@ -39,18 +39,28 @@ body {
   cursor: default;
   perspective: 400px;
   overflow: hidden;
+  color: #fff;
 }
 
 /* ===== Анимация падения символов ===== */
 @keyframes fall {
-  0% { transform: translateY(-150%) rotateX(90deg); opacity: 0; }
+  0% { transform: translateY(-200%) rotateX(90deg); opacity: 0; }
   50% { transform: translateY(10%) rotateX(-10deg); opacity: 1; }
   70% { transform: translateY(-5%) rotateX(5deg); }
   100% { transform: translateY(0) rotateX(0deg); }
 }
-
 .slot.animate {
   animation: fall 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
+}
+
+/* ===== Выигрышные символы ===== */
+.slot.win {
+  animation: pulse 0.8s ease-in-out infinite alternate;
+  text-shadow: 0 0 10px #fff, 0 0 20px gold, 0 0 30px #ff8800;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.2); }
 }
 
 /* ===== Подсветка линии ===== */
@@ -81,6 +91,22 @@ body {
   pointer-events: none;
   z-index: 999;
   text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #ff8800;
+}
+
+/* ===== Конфетти ===== */
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: gold;
+  opacity: 0.9;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: confettiFall 1.5s linear forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity:1; }
+  100% { transform: translateY(400px) rotate(720deg); opacity:0; }
 }
 
 /* ===== Кнопки ===== */
@@ -219,7 +245,19 @@ function showWinAnimation(amount){
     div.textContent=`🚀 JACKPOT ${amount}!`;
     div.style.animation='winMega 1s forwards';
     document.body.appendChild(div);
+    spawnConfetti();
     setTimeout(()=>div.remove(),1500);
+  }
+}
+
+// ===== Конфетти =====
+function spawnConfetti(){
+  for(let i=0;i<30;i++){
+    const c = document.createElement('div');
+    c.className='confetti';
+    c.style.left = Math.random()*slotsEl.offsetWidth+'px';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),1500);
   }
 }
 
@@ -242,44 +280,60 @@ function spin(){
   if(freeSpins<=0 && bonusGames<=0 && cost>balance){ resultEl.textContent='❌ Недостаточно средств'; return; }
 
   if(freeSpins>0){ freeSpins--; fsEl.textContent=freeSpins; } 
-  else if(bonusGames>0){ bonusGames--; bonusElCount.textContent=bonusGames; triggerMegaBonus(); return; }
+  else if(bonusGames>0){ bonusGames--; bonusElCount.textContent=bonusGames; return; }
   else { balance -= cost; totalBets += cost; }
 
-  grid.flat().forEach(s=>s.classList.remove('animate'));
+  grid.flat().forEach(s=>s.classList.remove('animate','win'));
   playSound('https://freesound.org/data/previews/414/414209_5121236-lq.mp3');
   vibrate(100);
 
-  setTimeout(()=>{
-    let matrix=[[],[],[]]; 
-    for(let r=0;r<3;r++){
-      for(let c=0;c<5;c++){
-        let sym=randSymbol();
-        matrix[r][c]=sym;
-        grid[r][c].textContent=sym.s;
+  // ===== Анимация барабанов с задержкой =====
+  for(let c=0;c<5;c++){
+    setTimeout(()=>{
+      for(let r=0;r<3;r++){
+        let sym = randSymbol();
+        grid[r][c].textContent = sym.s;
         grid[r][c].classList.add('animate');
-        setTimeout(() => grid[r][c].classList.remove('animate'), 600);
+        setTimeout(()=>grid[r][c].classList.remove('animate'),600);
       }
-    }
+    }, c*150);
+  }
 
-    // ===== Джекпот раз в ~8 спинов =====
+  // ===== Джекпот раз в ~8 спинов =====
+  setTimeout(()=>{
     let totalWin=0;
     if(Math.random()<0.12){ 
       totalWin = Math.floor(Math.random()*15000)+5000; 
       highlightLine([ [1,0],[1,1],[1,2],[1,3],[1,4] ]);
+      for(let r=0;r<3;r++) grid[r][2].classList.add('win');
     }
-
     if(totalWin>0){
       balance += totalWin; totalWins += totalWin;
       resultEl.textContent='🎉 ВЫИГРЫШ: '+totalWin;
       playSound('https://freesound.org/data/previews/235/235968_3981044-lq.mp3');
       vibrate(300);
       showWinAnimation(totalWin);
+      animateBalance(totalWin);
     } else resultEl.textContent='😞 Проигрыш';
-
     balanceEl.textContent = balance;
     updateHistory(totalWin);
     updateLinesOptions();
-  },600);
+  }, 1000);
+}
+
+// ===== Анимация баланса =====
+function animateBalance(amount){
+  let start = balance-amount;
+  let end = balance;
+  let duration = 600;
+  let startTime = performance.now();
+  function step(time){
+    let progress = (time-startTime)/duration;
+    if(progress>1) progress=1;
+    balanceEl.textContent = Math.floor(start + (end-start)*progress);
+    if(progress<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
 }
 
 // ===== История =====
@@ -312,6 +366,8 @@ bonusElCount.textContent = bonusGames;
 
 </body>
 </html>
+
+
 
 
 
