@@ -27,22 +27,8 @@ select{padding:6px;margin:5px;border-radius:6px;}
 
   <!-- Выбор ставки и линий -->
   <div>
-    Ставка: 
-    <select id="betSelect">
-      <option value="10">10</option>
-      <option value="20" selected>20</option>
-      <option value="50">50</option>
-      <option value="100">100</option>
-      <option value="200">200</option>
-    </select>
-    Линии: 
-    <select id="linesSelect">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3" selected>3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-    </select>
+    Ставка: <select id="betSelect"></select>
+    Линии: <select id="linesSelect"></select>
   </div>
 
   <div class="slots" id="slots"></div>
@@ -67,7 +53,6 @@ const symbols=[
   {s:'⭐',  w:5,  scatter:true},
   {s:'🧲', w:12, pay:{3:20,4:50,5:200}, wild:true}
 ];
-
 const linesArr=[
   [[0,0],[0,1],[0,2],[0,3],[0,4]],
   [[1,0],[1,1],[1,2],[1,3],[1,4]],
@@ -75,6 +60,8 @@ const linesArr=[
   [[0,0],[1,1],[2,2],[1,3],[0,4]],
   [[2,0],[1,1],[0,2],[1,3],[2,4]]
 ];
+const betOptions=[10,20,50,100,200];
+const linesOptions=[1,2,3,4,5];
 
 const slotsEl=document.getElementById('slots');
 const balanceEl=document.getElementById('balance');
@@ -97,12 +84,38 @@ for(let r=0;r<3;r++){
   }
 }
 
+// ===== Заполнение выпадающих списков =====
+function updateBetLinesOptions(){
+  betSelect.innerHTML=''; linesSelect.innerHTML='';
+  // Сначала линии
+  linesOptions.forEach(l=>{
+    if(l*parseInt(betSelect.value || 10)<=balance){
+      let o=document.createElement('option'); o.value=l; o.textContent=l;
+      linesSelect.appendChild(o);
+    }
+  });
+  // Ставки
+  linesOptions.forEach(l=>{
+    betOptions.forEach(b=>{
+      if(b*l<=balance){
+        let o=document.createElement('option'); o.value=b; o.textContent=b;
+        betSelect.appendChild(o);
+      }
+    });
+  });
+
+  // Если нет выбранного, выбрать максимальное доступное
+  if(!betSelect.value) betSelect.value=Math.max(...Array.from(betSelect.options).map(o=>parseInt(o.value)));
+  if(!linesSelect.value) linesSelect.value=Math.max(...Array.from(linesSelect.options).map(o=>parseInt(o.value)));
+}
+
+// Инициализация при загрузке
+updateBetLinesOptions();
+
 // ===== RNG с весами =====
 function randSymbol(){
   let pool=[];
-  symbols.forEach(o=>{
-    for(let i=0;i<o.w;i++) pool.push(o);
-  });
+  symbols.forEach(o=>{for(let i=0;i<o.w;i++) pool.push(o);});
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
@@ -119,7 +132,6 @@ function spin(){
     resultEl.textContent='❌ Недостаточно средств для выбранной ставки/линий';
     return;
   }
-
   if(freeSpins<=0){balance-=cost; totalBets+=cost;}
   else freeSpins--;
 
@@ -129,8 +141,7 @@ function spin(){
 
   setTimeout(()=>{
     grid.flat().forEach(s=>s.classList.remove('spin-anim'));
-    let matrix=[[],[],[]];
-    let scatters=0;
+    let matrix=[[],[],[]]; let scatters=0;
 
     for(let r=0;r<3;r++){
       for(let c=0;c<5;c++){
@@ -151,9 +162,7 @@ function spin(){
         if(cur.s===first.s || cur.wild) count++;
         else break;
       }
-      if(count>=3 && !first.scatter){
-        totalWin+=first.pay[count]||0;
-      }
+      if(count>=3 && !first.scatter) totalWin+=first.pay[count]||0;
     }
 
     if(scatters>=3){
@@ -171,6 +180,7 @@ function spin(){
 
     balanceEl.textContent=balance;
     updateHistory(totalWin);
+    updateBetLinesOptions(); // Обновляем доступные ставки после спина
   },600);
 }
 
@@ -204,8 +214,7 @@ function createDoubleButton(amount){
   const btns=document.createElement('div'); btns.className='bonus-controls';
   const doubleBtn=document.createElement('button'); doubleBtn.textContent='Удвоить';
   doubleBtn.onclick=function(){
-    if(Math.random()<0.5) amount*=2;
-    else amount=0;
+    if(Math.random()<0.5) amount*=2; else amount=0;
     finalizeBonus(amount);
   };
   const takeBtn=document.createElement('button'); takeBtn.textContent='Забрать';
@@ -221,6 +230,7 @@ function finalizeBonus(amount){
   balanceEl.textContent=balance;
   playSound('https://freesound.org/data/previews/331/331912_5121236-lq.mp3');
   vibrate(300);
+  updateBetLinesOptions();
 }
 
 // ===== Telegram WebApp API =====
@@ -235,6 +245,8 @@ if(window.Telegram.WebApp){
 
 </body>
 </html>
+
+
 
 
 
