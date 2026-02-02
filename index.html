@@ -9,20 +9,20 @@
 body{
   margin:0;
   background:radial-gradient(circle,#333,#000);
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
   color:#fff;
   text-align:center;
 }
 .container{
   max-width:520px;
   margin:auto;
-  padding:15px;
+  padding:10px;
 }
 .slots{
   display:grid;
   grid-template-columns:repeat(5,1fr);
-  grid-template-rows:repeat(3,90px);
-  gap:8px;
+  grid-template-rows:repeat(3,80px);
+  gap:6px;
   margin:15px 0;
 }
 .slot{
@@ -33,6 +33,14 @@ body{
   align-items:center;
   justify-content:center;
   box-shadow:inset 0 0 10px #000;
+  transition:transform .15s;
+}
+.spin-anim{
+  animation:spin .3s linear infinite;
+}
+@keyframes spin{
+  0%{transform:translateY(-20px)}
+  100%{transform:translateY(20px)}
 }
 button{
   padding:12px 20px;
@@ -41,98 +49,142 @@ button{
   font-size:16px;
   background:#e74c3c;
   color:#fff;
-  cursor:pointer;
 }
-button:hover{background:#ff6a4d}
-.result{
-  margin-top:10px;
-  font-size:18px;
-  min-height:24px;
-}
+.result{min-height:26px;margin-top:8px}
+small{opacity:.7}
 </style>
 </head>
 <body>
 
 <div class="container">
   <h2>🎰 Slot 5x3 Ultimate</h2>
-  <div>Баланс: <b><span id="balance">15000</span></b></div>
-
+  <div>Баланс: <b id="balance">15000</b></div>
   <div class="slots" id="slots"></div>
-
   <button onclick="spin()">SPIN</button>
-
   <div class="result" id="result"></div>
+  <small>Линии: 5 | Scatter ⭐ = 5 FS</small>
 </div>
 
 <script>
-/* ====== НАСТРОЙКИ ====== */
+/* ===== НАСТРОЙКИ ===== */
 let balance = 15000;
-const symbols = ['🍒','🍋','🍊','🍉','7️⃣'];
+const bet = 20;
+let freeSpins = 0;
 
-/* ====== DOM ====== */
+/* символы + веса (RTP) */
+const symbols = [
+  {s:'🍒', w:30, pay:{3:10,4:20,5:40}},
+  {s:'🍋', w:25, pay:{3:12,4:25,5:50}},
+  {s:'🍉', w:20, pay:{3:15,4:30,5:70}},
+  {s:'7️⃣', w:8,  pay:{3:50,4:150,5:500}},
+  {s:'⭐',  w:5,  scatter:true}
+];
+
+/* линии */
+const lines = [
+  [[0,0],[0,1],[0,2],[0,3],[0,4]],
+  [[1,0],[1,1],[1,2],[1,3],[1,4]],
+  [[2,0],[2,1],[2,2],[2,3],[2,4]],
+  [[0,0],[1,1],[2,2],[1,3],[0,4]],
+  [[2,0],[1,1],[0,2],[1,3],[2,4]]
+];
+
+/* DOM */
 const slotsEl = document.getElementById('slots');
 const balanceEl = document.getElementById('balance');
 const resultEl = document.getElementById('result');
 
-/* ====== СОЗДАНИЕ ПОЛЯ ====== */
+/* поле */
 let grid = [];
 for(let r=0;r<3;r++){
-  grid[r] = [];
+  grid[r]=[];
   for(let c=0;c<5;c++){
-    const d = document.createElement('div');
-    d.className = 'slot';
-    d.textContent = '❔';
+    let d=document.createElement('div');
+    d.className='slot';
+    d.textContent='❔';
     slotsEl.appendChild(d);
-    grid[r][c] = d;
+    grid[r][c]=d;
   }
 }
 
-/* ====== SPIN ====== */
+/* RNG с весами */
+function randSymbol(){
+  let pool=[];
+  symbols.forEach(o=>{
+    for(let i=0;i<o.w;i++) pool.push(o);
+  });
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+/* SPIN */
 function spin(){
-  const bet = 20;
-  const cost = bet * 5;
+  const cost = bet * lines.length;
 
-  if(cost > balance){
-    resultEl.textContent = '❌ Недостаточно средств';
-    return;
-  }
-
-  balance -= cost;
-
-  let matrix = [[],[],[]];
-  for(let r=0;r<3;r++){
-    for(let c=0;c<5;c++){
-      const s = symbols[Math.floor(Math.random()*symbols.length)];
-      matrix[r][c] = s;
-      grid[r][c].textContent = s;
+  if(freeSpins<=0){
+    if(balance < cost){
+      resultEl.textContent='❌ Недостаточно средств';
+      return;
     }
-  }
-
-  // проверка средней линии
-  let win = 0;
-  let line = matrix[1];
-  let sym = line[0];
-  let count = 1;
-
-  for(let i=1;i<5;i++){
-    if(line[i] === sym) count++;
-    else break;
-  }
-
-  if(count >= 3){
-    win = bet * count;
-    balance += win;
-    resultEl.textContent = '🎉 Выигрыш: ' + win;
+    balance -= cost;
   } else {
-    resultEl.textContent = '😞 Проигрыш';
+    freeSpins--;
   }
 
-  balanceEl.textContent = balance;
+  grid.flat().forEach(s=>s.classList.add('spin-anim'));
+
+  setTimeout(()=>{
+    grid.flat().forEach(s=>s.classList.remove('spin-anim'));
+
+    let matrix=[[],[],[]];
+    let scatters=0;
+
+    for(let r=0;r<3;r++){
+      for(let c=0;c<5;c++){
+        let sym=randSymbol();
+        matrix[r][c]=sym;
+        grid[r][c].textContent=sym.s;
+        if(sym.scatter) scatters++;
+      }
+    }
+
+    let totalWin=0;
+
+    lines.forEach(line=>{
+      let first=matrix[line[0][0]][line[0][1]];
+      if(first.scatter) return;
+
+      let count=1;
+      for(let i=1;i<line.length;i++){
+        let cur=matrix[line[i][0]][line[i][1]];
+        if(cur.s===first.s) count++;
+        else break;
+      }
+      if(count>=3){
+        totalWin += first.pay[count];
+      }
+    });
+
+    if(scatters>=3){
+      freeSpins += 5;
+      resultEl.textContent='⭐ SCATTER! +5 FS';
+    }
+
+    if(totalWin>0){
+      balance+=totalWin;
+      resultEl.textContent='🎉 Выигрыш: '+totalWin;
+    } else if(freeSpins<=0){
+      resultEl.textContent='😞 Проигрыш';
+    }
+
+    balanceEl.textContent=balance;
+  },600);
 }
 </script>
 
 </body>
 </html>
+
+
 
 
 
