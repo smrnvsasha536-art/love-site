@@ -47,7 +47,7 @@ body {
 }
 .slot.animate{animation:fall .6s cubic-bezier(0.68,-0.55,0.265,1.55);}
 .slot.win{animation:pulse .8s ease-in-out infinite alternate; text-shadow:0 0 10px #fff,0 0 20px gold,0 0 30px #ff8800;}
-@keyframes pulse{0%{transform:scale(1);}100%{transform:scale(1.2);}}
+@keyframes pulse{0%{transform:scale(1);}100%{transform:scale(1.2);} }
 .line-highlight{position:absolute;height:20px;background:rgba(255,255,0,.4);pointer-events:none;z-index:500;border-radius:8px;transition:all .3s ease;box-shadow:0 0 20px rgba(255,255,0,.6);}
 @keyframes winMega{0%{transform:scale(.5);opacity:0;color:#e74c3c;text-shadow:0 0 10px #fff;}50%{transform:scale(2);opacity:1;}100%{transform:scale(1.5);opacity:1;}}
 .win-anim{position:absolute;left:50%;top:20%;transform:translateX(-50%);font-size:36px;font-weight:bold;pointer-events:none;z-index:999;text-shadow:0 0 10px #fff,0 0 20px #ff0,0 0 30px #ff8800;}
@@ -169,6 +169,20 @@ function updateHistory(win){
   historyEl.innerHTML='История: '+history.join(',')+'<br>RTP: '+rtp+'%';
 }
 
+function checkLine(line){
+  let first = grid[line[0][0]][line[0][1]].textContent;
+  if(first==='⭐' || first==='$') first=null; // не считаем scatter/FS как обычные символы
+  let count = 1;
+  for(let i=1;i<line.length;i++){
+    const sym = grid[line[i][0]][line[i][1]].textContent;
+    if(sym===first || sym==='🧲'){ // Wild заменяет любой
+      count++;
+    } else break;
+  }
+  if(count>=3) return {symbol:first,count};
+  return null;
+}
+
 function spin(auto=false){
   let bet=Math.max(1,Math.min(1000,parseInt(betInput.value)||1));
   let linesNum=parseInt(linesSelect.value);
@@ -209,6 +223,19 @@ function spin(auto=false){
   }
 
   setTimeout(()=>{
+    // Проверка обычных линий
+    let lineWin=false;
+    for(let l=0;l<linesNum;l++){
+      let res = checkLine(linesArr[l]);
+      if(res){
+        lineWin=true;
+        totalWins += bet*res.count; // просто коэффициент = количество символов * ставка
+        resultEl.textContent=`🎉 Выигрыш ${bet*res.count} на линии ${l+1} (${res.symbol})`;
+        linesArr[l].forEach(pos=>grid[pos[0]][pos[1]].classList.add('win'));
+      }
+    }
+
+    // Проверка $
     let dollarCount=0;
     for(let r=0;r<3;r++) for(let c=0;c<5;c++){
       if(grid[r][c].textContent=='$') dollarCount++;
@@ -218,7 +245,6 @@ function spin(auto=false){
       resultEl.textContent='💵 3 $! +10 Free Spins!'; 
       balanceEl.textContent=balance;
 
-      // Добавляем 10 FS
       freeSpins += 10;
       fsEl.textContent = freeSpins;
 
@@ -228,22 +254,19 @@ function spin(auto=false){
           freeSpins--;
           fsEl.textContent = freeSpins;
           spin(true);
-          setTimeout(runAllFS, 800); // небольшой промежуток для визуального эффекта
+          setTimeout(runAllFS, 800);
         }
       }
       runAllFS();
-
     } else if(dollarCount>0){ 
-      resultEl.textContent=`💵 ${dollarCount} $ на поле`; 
-      balanceEl.textContent=balance;
-    } else { 
+      resultEl.textContent+=` 💵 ${dollarCount} $ на поле`; 
+    } else if(!lineWin){
       resultEl.textContent='😞 Проигрыш'; 
-      balanceEl.textContent=balance;
     }
 
+    balanceEl.textContent=balance;
     updateHistory(0);
     updateLinesOptions();
-
   },1000);
 }
 
@@ -263,6 +286,7 @@ updateLinesOptions(); fsEl.textContent=freeSpins; bonusElCount.textContent=bonus
 </script>
 </body>
 </html>
+
 
 
 
