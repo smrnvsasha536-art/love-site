@@ -7,7 +7,7 @@
 <style>
 body{margin:0;background:radial-gradient(circle,#111,#000);font-family:Arial,sans-serif;color:#fff;text-align:center;}
 .container{max-width:520px;margin:auto;padding:10px;}
-.slots{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,80px);gap:6px;margin:15px 0;}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,80px);gap:6px;margin:15px 0;position:relative;}
 .slot{background:linear-gradient(#444,#222);border-radius:14px;font-size:32px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 10px #000;transition:transform .15s;}
 .spin-anim{animation:spin .3s linear infinite;}
 @keyframes spin{0%{transform:translateY(-20px)}100%{transform:translateY(20px)}}
@@ -16,13 +16,24 @@ button{padding:12px 20px;border:none;border-radius:12px;font-size:16px;backgroun
 .history{font-size:12px;opacity:.7;margin-top:6px;text-align:left;max-height:80px;overflow:auto;}
 .chest{display:inline-block;width:80px;height:80px;background:#aa8800;margin:6px;border-radius:10px;line-height:80px;font-size:32px;cursor:pointer;}
 .bonus-controls button{margin:5px;background:#27ae60;}
-select{padding:6px;margin:5px;border-radius:6px;}
+select, input{padding:6px;margin:5px;border-radius:6px;}
 .buy-buttons button{background:#3498db;}
 .counters{margin:5px;font-size:14px;}
 
 /* ===== Анимации Mega выигрышей ===== */
 @keyframes winMega {0%{transform:scale(0.5);opacity:0;color:#e74c3c;text-shadow:0 0 10px #fff}50%{transform:scale(2);opacity:1}100%{transform:scale(1.5);opacity:1}}
 .win-anim{position:absolute;left:50%;top:20%;transform:translateX(-50%);font-size:32px;font-weight:bold;pointer-events:none;z-index:999;}
+
+/* ===== Подсветка выигрышной линии ===== */
+.line-highlight{
+  position:absolute;
+  height:20px;
+  background:rgba(255,255,0,0.3);
+  pointer-events:none;
+  z-index:500;
+  border-radius:8px;
+  transition:all 0.3s ease;
+}
 </style>
 </head>
 <body>
@@ -33,7 +44,7 @@ select{padding:6px;margin:5px;border-radius:6px;}
   <div class="counters">Free Spins: <b id="fsCount">0</b> | Бонусы: <b id="bonusCount">0</b></div>
 
   <div>
-    Ставка: <select id="betSelect"></select>
+    Ставка: <input type="number" id="betInput" min="1" max="1000" value="10">
     Линии: <select id="linesSelect"></select>
   </div>
 
@@ -56,12 +67,12 @@ select{padding:6px;margin:5px;border-radius:6px;}
 let balance = 50000, freeSpins = 0, bonusGames = 0, totalBets = 0, totalWins = 0;
 const history = [];
 
-// ===== Символы: обычные частые, Mega редкий =====
+// ===== Символы =====
 const symbols = [
-  {s:'🍒', w:80, pay:{3:0,4:0,5:0}}, // почти всегда проигрыш
+  {s:'🍒', w:80, pay:{3:0,4:0,5:0}},
   {s:'🍋', w:70, pay:{3:0,4:0,5:0}},
   {s:'🍉', w:60, pay:{3:0,4:0,5:0}},
-  {s:'7️⃣', w:5, pay:{3:0,4:0,5:0}}, // будем давать джекпот вручную
+  {s:'7️⃣', w:5, pay:{3:0,4:0,5:0}},
   {s:'⭐',  w:15, scatter:true},
   {s:'🧲', w:20, pay:{3:0,4:0,5:0}, wild:true}
 ];
@@ -74,7 +85,6 @@ const linesArr = [
   [[2,0],[1,1],[0,2],[1,3],[2,4]]
 ];
 
-const betOptions = [10,20,50,100,200];
 const linesOptions = [1,2,3,4,5];
 
 // ===== DOM =====
@@ -85,7 +95,7 @@ const bonusElCount = document.getElementById('bonusCount');
 const resultEl = document.getElementById('result');
 const historyEl = document.getElementById('history');
 const bonusEl = document.getElementById('bonusArea');
-const betSelect = document.getElementById('betSelect');
+const betInput = document.getElementById('betInput');
 const linesSelect = document.getElementById('linesSelect');
 
 // ===== Поле =====
@@ -102,20 +112,13 @@ for(let r=0;r<3;r++){
 }
 
 // ===== Обновление списков =====
-function updateBetLinesOptions(){
-  const selectedBet = betSelect.value;
+function updateLinesOptions(){
   const selectedLines = linesSelect.value;
-  betSelect.innerHTML = '';
   linesSelect.innerHTML = '';
-  betOptions.forEach(b=>{
-    let o = document.createElement('option'); o.value=b; o.textContent=b;
-    betSelect.appendChild(o);
-  });
   linesOptions.forEach(l=>{
     let o = document.createElement('option'); o.value=l; o.textContent=l;
     linesSelect.appendChild(o);
   });
-  betSelect.value = betOptions.includes(Number(selectedBet)) ? selectedBet : betOptions[0];
   linesSelect.value = linesOptions.includes(Number(selectedLines)) ? selectedLines : linesOptions[0];
 }
 
@@ -126,7 +129,7 @@ function randSymbol(){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
-// ===== Звуки / вибрация =====
+// ===== Звуки =====
 function playSound(url){let a=new Audio(url); a.play();}
 function vibrate(ms){if(navigator.vibrate) navigator.vibrate(ms);}
 
@@ -142,9 +145,20 @@ function showWinAnimation(amount){
   }
 }
 
+// ===== Подсветка выигрышной линии =====
+function highlightLine(line){
+  const highlight = document.createElement('div');
+  highlight.className='line-highlight';
+  const rowHeight = grid[0][0].offsetHeight + 6; // + gap
+  highlight.style.top = (line[0][0]*rowHeight + 6) + 'px';
+  highlight.style.width = slotsEl.offsetWidth + 'px';
+  slotsEl.appendChild(highlight);
+  setTimeout(()=>highlight.remove(),1000);
+}
+
 // ===== SPIN =====
 function spin(){
-  let bet = parseInt(betSelect.value);
+  let bet = Math.max(1, Math.min(1000, parseInt(betInput.value)||1));
   let linesNum = parseInt(linesSelect.value);
   let cost = bet*linesNum;
   if(freeSpins<=0 && bonusGames<=0 && cost>balance){ resultEl.textContent='❌ Недостаточно средств'; return; }
@@ -159,22 +173,18 @@ function spin(){
 
   setTimeout(()=>{
     grid.flat().forEach(s=>s.classList.remove('spin-anim'));
-    let matrix=[[],[],[]]; let scatters=0;
-
+    let matrix=[[],[],[]]; 
     for(let r=0;r<3;r++){
       for(let c=0;c<5;c++){
         let sym=randSymbol();
         matrix[r][c]=sym;
         grid[r][c].textContent=sym.s;
-        if(sym.scatter) scatters++;
       }
     }
 
-    // ===== Редкий джекпот раз в 5-10 спинов =====
+    // ===== Джекпот раз в ~8 спинов =====
     let totalWin=0;
-    if(Math.random() < 0.12){ // примерно 1/8 спинов
-      totalWin = Math.floor(Math.random()*15000)+5000; // 5000-20000
-    }
+    if(Math.random()<0.12){ totalWin = Math.floor(Math.random()*15000)+5000; highlightLine([ [1,0],[1,1],[1,2],[1,3],[1,4] ]); }
 
     if(totalWin>0){
       balance += totalWin; totalWins += totalWin;
@@ -186,11 +196,11 @@ function spin(){
 
     balanceEl.textContent = balance;
     updateHistory(totalWin);
-    updateBetLinesOptions();
+    updateLinesOptions();
   },600);
 }
 
-// ===== История + RTP =====
+// ===== История =====
 function updateHistory(win){
   history.unshift(win);
   if(history.length>20) history.pop();
@@ -207,67 +217,20 @@ function buyBonusFS(amount){
   fsEl.textContent = freeSpins;
   balanceEl.textContent = balance;
   resultEl.textContent = `Вы купили ${amount} Free Spins!`;
-  updateBetLinesOptions();
 }
 
 // ===== Бонусные сундуки =====
-function buyBonusChest(){
-  let price = 200;
-  if(balance<price){ alert('Недостаточно средств!'); return; }
-  balance -= price;
-  bonusGames +=1;
-  bonusElCount.textContent = bonusGames;
-  balanceEl.textContent = balance;
-  triggerMegaBonus();
-  updateBetLinesOptions();
-}
-
-// ===== Мега-бонус =====
-function triggerMegaBonus(){
-  bonusEl.innerHTML = '<h3>💎 Мега-Бонус! Выбери сундук</h3>';
-  const rewards = [5000,10000,20000];
-  for(let i=0;i<3;i++){
-    let chest = document.createElement('div');
-    chest.className='chest';
-    chest.textContent='🎁';
-    chest.onclick=function(){
-      let reward = rewards[i];
-      bonusEl.innerHTML='<div>Вы выиграли: '+reward+'</div>';
-      createDoubleButton(reward);
-    };
-    bonusEl.appendChild(chest);
-  }
-}
-
-function createDoubleButton(amount){
-  const btns=document.createElement('div'); btns.className='bonus-controls';
-  const doubleBtn=document.createElement('button'); doubleBtn.textContent='Удвоить';
-  doubleBtn.onclick=function(){ amount = Math.random()<0.5?amount*2:0; finalizeBonus(amount); };
-  const takeBtn=document.createElement('button'); takeBtn.textContent='Забрать';
-  takeBtn.onclick=function(){finalizeBonus(amount);};
-  btns.appendChild(doubleBtn); btns.appendChild(takeBtn);
-  bonusEl.appendChild(btns);
-}
-
-function finalizeBonus(amount){
-  balance += amount; totalWins += amount;
-  bonusEl.innerHTML='<div>Бонус завершён! Получено: '+amount+'</div>';
-  resultEl.textContent='🎉 Бонус: '+amount;
-  playSound('https://freesound.org/data/previews/331/331912_5121236-lq.mp3');
-  vibrate(300);
-  showWinAnimation(amount);
-  balanceEl.textContent = balance;
-  updateBetLinesOptions();
-}
+function buyBonusChest(){ alert('Бонус сундука пока не активирован'); }
 
 // ===== Инициализация =====
-updateBetLinesOptions();
+updateLinesOptions();
 fsEl.textContent = freeSpins;
 bonusElCount.textContent = bonusGames;
 </script>
 
 </body>
 </html>
+
 
 
 
