@@ -20,7 +20,49 @@ body{
   color:#fff;
   text-align:center;
 }
-.container{max-width:520px;margin:auto;padding:10px;position:relative}
+
+.container {
+  display: flex;
+  max-width: 700px;
+  margin: auto;
+  padding: 10px;
+  position: relative;
+  gap: 10px;
+}
+
+.win-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.win-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid gold;
+  border-radius: 12px;
+  padding: 8px 12px;
+  width: 120px;
+  text-align: center;
+  color: gold;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.win-box.highlight {
+  box-shadow: 0 0 20px gold;
+  transform: scale(1.1);
+}
+
+.win-label {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.win-value {
+  font-size: 18px;
+  margin-top: 4px;
+}
 
 .slots{
   display:grid;
@@ -110,6 +152,24 @@ button{
 
 <body>
 <div class="container">
+
+<!-- Панель с Big Win / Mega Win / Jackpot -->
+<div class="win-panel">
+  <div class="win-box" id="bigWinBox">
+    <div class="win-label">Big Win</div>
+    <div class="win-value">0</div>
+  </div>
+  <div class="win-box" id="megaWinBox">
+    <div class="win-label">Mega Win</div>
+    <div class="win-value">0</div>
+  </div>
+  <div class="win-box" id="jackpotBox">
+    <div class="win-label">Jackpot</div>
+    <div class="win-value">0</div>
+  </div>
+</div>
+
+<div style="flex:1">
 <h2>🎰 Slot 5x3 Ultimate MAX</h2>
 
 <div>Баланс: <b id="balance">50000</b> | FS: <b id="fs">0</b></div>
@@ -144,6 +204,7 @@ button{
 <div id="result"></div>
 <div class="history" id="history"></div>
 <small>⭐ Scatter = FS | 🧲 Wild | $ = FS бонус</small>
+</div>
 </div>
 
 <script>
@@ -184,6 +245,10 @@ const balanceEl=document.getElementById('balance');
 const fsEl=document.getElementById('fs');
 const historyEl=document.getElementById('history');
 const resultEl=document.getElementById('result');
+
+const bigWinBox = document.getElementById('bigWinBox').querySelector('.win-value');
+const megaWinBox = document.getElementById('megaWinBox').querySelector('.win-value');
+const jackpotBox = document.getElementById('jackpotBox').querySelector('.win-value');
 
 function randSymbol(){
  let pool=[];
@@ -275,6 +340,24 @@ function showBigWin(amount){
  }
 }
 
+function updateWinPanel(amount){
+ const bigWinThreshold = 50;
+ const megaWinThreshold = 150;
+ const jackpotThreshold = 500;
+
+ // Сбрасываем классы highlight
+ document.querySelectorAll('.win-box').forEach(b=>b.classList.remove('highlight'));
+
+ bigWinBox.textContent = amount >= bigWinThreshold && amount < megaWinThreshold ? amount : 0;
+ megaWinBox.textContent = amount >= megaWinThreshold && amount < jackpotThreshold ? amount : 0;
+ jackpotBox.textContent = amount >= jackpotThreshold ? amount : 0;
+
+ // Подсвечиваем выигрышную рамку
+ if(amount >= bigWinThreshold && amount < megaWinThreshold) bigWinBox.parentElement.classList.add('highlight');
+ if(amount >= megaWinThreshold && amount < jackpotThreshold) megaWinBox.parentElement.classList.add('highlight');
+ if(amount >= jackpotThreshold) jackpotBox.parentElement.classList.add('highlight');
+}
+
 function spin(auto=false){
  clearLines();
  const bet=+document.getElementById('bet').value;
@@ -282,13 +365,13 @@ function spin(auto=false){
  const cost=bet*lines;
 
  if(freeSpins<=0&&!auto){
-  if(balance<cost){resultEl.textContent='❌ Нет денег';return;}
+  if(balance<cost){resultEl.textContent='❌ Нет денег'; return;}
   balance-=cost; totalBets+=cost;
  } else freeSpins--;
 
  let col=0;
  function spinReel(){
-  if(col>=5){finish();return;}
+  if(col>=5){finish(); return;}
   for(let r=0;r<3;r++)grid[r][col].classList.add('spin');
   setTimeout(()=>{
    for(let r=0;r<3;r++){
@@ -315,21 +398,24 @@ function spin(auto=false){
    history.unshift(win);
    resultEl.textContent=`🎉 Выигрыш ${win}`;
    showBigWin(win);
+   updateWinPanel(win);
   } else {
    history.unshift(0);
    resultEl.textContent='😞 Проигрыш';
+   updateWinPanel(0);
   }
   history=history.slice(0,20);
   updateUI();
   if(freeSpins>0)setTimeout(()=>spin(true),900);
  }
-
 }
 
 updateUI();
 </script>
 </body>
 </html>
+
+
 
 
 
