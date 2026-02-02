@@ -29,7 +29,7 @@ select{padding:6px;margin:5px;border-radius:6px;}
 
 <div class="container">
   <h2>🎰 Slot 5x3 Ultimate MAX Rare Mega Wins</h2>
-  <div>Баланс: <b id="balance">15000</b></div>
+  <div>Баланс: <b id="balance">50000</b></div>
   <div class="counters">Free Spins: <b id="fsCount">0</b> | Бонусы: <b id="bonusCount">0</b></div>
 
   <div>
@@ -53,15 +53,15 @@ select{padding:6px;margin:5px;border-radius:6px;}
 
 <script>
 // ===== Настройки =====
-let balance = 15000, freeSpins = 0, bonusGames = 0, totalBets = 0, totalWins = 0;
+let balance = 50000, freeSpins = 0, bonusGames = 0, totalBets = 0, totalWins = 0;
 const history = [];
 
 // ===== Символы: обычные частые, Mega редкий =====
 const symbols = [
-  {s:'🍒', w:80, pay:{3:10,4:20,5:40}},   // почти всегда проигрыш
+  {s:'🍒', w:80, pay:{3:10,4:20,5:40}},   
   {s:'🍋', w:70, pay:{3:12,4:25,5:50}},
   {s:'🍉', w:60, pay:{3:15,4:30,5:70}},
-  {s:'7️⃣', w:5, pay:{3:500,4:1500,5:5000}}, // редкий, но огромный
+  {s:'7️⃣', w:5, pay:{3:500,4:1500,5:5000}}, 
   {s:'⭐',  w:15, scatter:true},
   {s:'🧲', w:20, pay:{3:50,4:150,5:500}, wild:true}
 ];
@@ -132,7 +132,7 @@ function vibrate(ms){if(navigator.vibrate) navigator.vibrate(ms);}
 
 // ===== Анимация Mega выигрыша =====
 function showWinAnimation(amount){
-  if(amount>=500){ // только Mega
+  if(amount>=500){ 
     const div = document.createElement('div');
     div.className='win-anim';
     div.textContent=`🚀 MEGA ${amount}!`;
@@ -281,6 +281,8 @@ bonusElCount.textContent = bonusGames;
 
 </body>
 </html>
+
+
 
 
 
