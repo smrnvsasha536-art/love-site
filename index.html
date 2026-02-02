@@ -105,23 +105,17 @@ for(let r=0;r<3;r++){
 function updateBetLinesOptions(){
   betSelect.innerHTML = '';
   linesSelect.innerHTML = '';
+  // Добавляем все ставки и линии без проверки баланса
   betOptions.forEach(b=>{
-    linesOptions.forEach(l=>{
-      if(b*l <= balance){
-        let o = document.createElement('option'); o.value=b; o.textContent=b;
-        betSelect.appendChild(o);
-      }
-    });
+    let o = document.createElement('option'); o.value=b; o.textContent=b;
+    betSelect.appendChild(o);
   });
   linesOptions.forEach(l=>{
-    let b = parseInt(betSelect.value) || 10;
-    if(l*b <= balance){
-      let o = document.createElement('option'); o.value=l; o.textContent=l;
-      linesSelect.appendChild(o);
-    }
+    let o = document.createElement('option'); o.value=l; o.textContent=l;
+    linesSelect.appendChild(o);
   });
-  if(!betSelect.value) betSelect.value = Math.max(...Array.from(betSelect.options).map(o=>parseInt(o.value)));
-  if(!linesSelect.value) linesSelect.value = Math.max(...Array.from(linesSelect.options).map(o=>parseInt(o.value)));
+  betSelect.value = betOptions[0];
+  linesSelect.value = linesOptions[0];
 }
 
 // ===== RNG с весами =====
@@ -271,7 +265,7 @@ function finalizeBonus(amount){
 }
 
 // ===== Telegram WebApp API =====
-if(window.Telegram.WebApp){
+if(window.Telegram?.WebApp){
   const tg=window.Telegram.WebApp;
   tg.expand();
   tg.MainButton.setText("BACK");
@@ -279,6 +273,7 @@ if(window.Telegram.WebApp){
   vibrate(100);
 }
 
+// ===== Инициализация =====
 updateBetLinesOptions();
 fsEl.textContent = freeSpins;
 bonusElCount.textContent = bonusGames;
@@ -286,6 +281,8 @@ bonusElCount.textContent = bonusGames;
 
 </body>
 </html>
+
+
 
 
 
