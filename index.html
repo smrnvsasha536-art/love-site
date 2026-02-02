@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 Slot 5x3 Ultimate MAX</title>
+<title>🎰 Slot 5x3 Ultimate MAX Enhanced</title>
 <style>
 body{margin:0;background:radial-gradient(circle,#111,#000);font-family:Arial,sans-serif;color:#fff;text-align:center;}
 .container{max-width:520px;margin:auto;padding:10px;}
@@ -12,29 +12,33 @@ body{margin:0;background:radial-gradient(circle,#111,#000);font-family:Arial,san
 .spin-anim{animation:spin .3s linear infinite;}
 @keyframes spin{0%{transform:translateY(-20px)}100%{transform:translateY(20px)}}
 button{padding:12px 20px;border:none;border-radius:12px;font-size:16px;background:#e74c3c;color:#fff;margin:5px;cursor:pointer;}
-.result{min-height:26px;margin-top:8px}
+.result{min-height:26px;margin-top:8px;position:relative;}
 .history{font-size:12px;opacity:.7;margin-top:6px;text-align:left;max-height:80px;overflow:auto;}
 .chest{display:inline-block;width:80px;height:80px;background:#aa8800;margin:6px;border-radius:10px;line-height:80px;font-size:32px;cursor:pointer;}
 .bonus-controls button{margin:5px;background:#27ae60;}
 select{padding:6px;margin:5px;border-radius:6px;}
 .buy-buttons button{background:#3498db;}
 .counters{margin:5px;font-size:14px;}
+
+/* ===== Анимации выигрышей ===== */
+@keyframes winMini {0%{transform:scale(0.5);opacity:0}50%{transform:scale(1.2);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes winBig {0%{transform:scale(0.5);opacity:0;color:#f1c40f}50%{transform:scale(1.5);opacity:1}100%{transform:scale(1.2);opacity:1}}
+@keyframes winMega {0%{transform:scale(0.5);opacity:0;color:#e74c3c;text-shadow:0 0 10px #fff}50%{transform:scale(2);opacity:1}100%{transform:scale(1.5);opacity:1}}
+.win-anim{position:absolute;left:50%;top:20%;transform:translateX(-50%);font-size:32px;font-weight:bold;pointer-events:none;z-index:999;}
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>🎰 Slot 5x3 Ultimate MAX</h2>
+  <h2>🎰 Slot 5x3 Ultimate MAX Enhanced</h2>
   <div>Баланс: <b id="balance">15000</b></div>
   <div class="counters">Free Spins: <b id="fsCount">0</b> | Бонусы: <b id="bonusCount">0</b></div>
 
-  <!-- Выбор ставки и линий -->
   <div>
     Ставка: <select id="betSelect"></select>
     Линии: <select id="linesSelect"></select>
   </div>
 
-  <!-- Кнопки покупки бонусов -->
   <div class="buy-buttons">
     <button onclick="buyBonusFS(1)">Купить 1 Free Spin (100)</button>
     <button onclick="buyBonusFS(5)">Купить 5 Free Spins (450)</button>
@@ -51,19 +55,17 @@ select{padding:6px;margin:5px;border-radius:6px;}
 
 <script>
 // ===== Настройки =====
-let balance = 15000;
-let freeSpins = 0;
-let bonusGames = 0;
-let totalBets = 0, totalWins = 0;
+let balance = 15000, freeSpins = 0, bonusGames = 0, totalBets = 0, totalWins = 0;
 const history = [];
 
+// ===== Символы с повышенным шансом Mini/Big =====
 const symbols = [
-  {s:'🍒', w:30, pay:{3:10,4:20,5:40}},
-  {s:'🍋', w:25, pay:{3:12,4:25,5:50}},
-  {s:'🍉', w:20, pay:{3:15,4:30,5:70}},
-  {s:'7️⃣', w:8,  pay:{3:50,4:150,5:500}},
-  {s:'⭐',  w:5,  scatter:true},
-  {s:'🧲', w:12, pay:{3:20,4:50,5:200}, wild:true}
+  {s:'🍒', w:40, pay:{3:10,4:20,5:40}},
+  {s:'🍋', w:35, pay:{3:12,4:25,5:50}},
+  {s:'🍉', w:30, pay:{3:15,4:30,5:70}},
+  {s:'7️⃣', w:5,  pay:{3:50,4:150,5:500}},
+  {s:'⭐',  w:8,  scatter:true},
+  {s:'🧲', w:15, pay:{3:20,4:50,5:200}, wild:true}
 ];
 
 const linesArr = [
@@ -101,7 +103,7 @@ for(let r=0;r<3;r++){
   }
 }
 
-// ===== Обновление выпадающих списков (с сохранением выбора) =====
+// ===== Обновление списков =====
 function updateBetLinesOptions(){
   const selectedBet = betSelect.value;
   const selectedLines = linesSelect.value;
@@ -118,11 +120,8 @@ function updateBetLinesOptions(){
     linesSelect.appendChild(o);
   });
 
-  if (betOptions.includes(Number(selectedBet))) betSelect.value = selectedBet;
-  else betSelect.value = betOptions[0];
-
-  if (linesOptions.includes(Number(selectedLines))) linesSelect.value = selectedLines;
-  else linesSelect.value = linesOptions[0];
+  betSelect.value = betOptions.includes(Number(selectedBet)) ? selectedBet : betOptions[0];
+  linesSelect.value = linesOptions.includes(Number(selectedLines)) ? selectedLines : linesOptions[0];
 }
 
 // ===== RNG =====
@@ -136,13 +135,38 @@ function randSymbol(){
 function playSound(url){let a=new Audio(url); a.play();}
 function vibrate(ms){if(navigator.vibrate) navigator.vibrate(ms);}
 
+// ===== Анимация выигрыша =====
+function showWinAnimation(amount){
+  const div = document.createElement('div');
+  div.className='win-anim';
+  if(amount<50){ div.textContent=`🎉 MINI ${amount}!`; div.style.animation='winMini 1s forwards'; }
+  else if(amount<200){ div.textContent=`💥 BIG ${amount}!`; div.style.animation='winBig 1s forwards'; }
+  else { div.textContent=`🚀 MEGA ${amount}!`; div.style.animation='winMega 1s forwards'; }
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(),1000);
+}
+
+// ===== Форсирование небольших выигрышей =====
+function maybeForceWin(matrix, linesNum){
+  for(let l=0;l<linesNum;l++){
+    if(Math.random()<0.15){
+      let line = linesArr[l];
+      let sym = symbols[Math.floor(Math.random()*3)]; // 🍒🍋🍉
+      for(let i=0;i<3;i++){
+        matrix[line[i][0]][line[i][1]] = sym;
+        grid[line[i][0]][line[i][1]].textContent = sym.s;
+      }
+    }
+  }
+}
+
 // ===== SPIN =====
 function spin(){
   let bet = parseInt(betSelect.value);
   let linesNum = parseInt(linesSelect.value);
   let cost = bet*linesNum;
-  if(freeSpins <=0 && bonusGames <=0 && cost>balance){
-    resultEl.textContent='❌ Недостаточно средств для выбранной ставки/линий';
+  if(freeSpins<=0 && bonusGames<=0 && cost>balance){
+    resultEl.textContent='❌ Недостаточно средств';
     return;
   }
 
@@ -167,14 +191,16 @@ function spin(){
       }
     }
 
-    let totalWin = 0;
+    maybeForceWin(matrix, linesNum); // повышаем шанс выигрыша
+
+    let totalWin=0;
     for(let l=0;l<linesNum;l++){
       let line=linesArr[l];
       let first=matrix[line[0][0]][line[0][1]];
       let count=1;
       for(let i=1;i<line.length;i++){
         let cur=matrix[line[i][0]][line[i][1]];
-        if(cur.s===first.s || cur.wild) count++;
+        if(cur.s===first.s || (cur.wild && !first.scatter)) count++;
         else break;
       }
       if(count>=3 && !first.scatter) totalWin += first.pay[count]||0;
@@ -191,6 +217,7 @@ function spin(){
       resultEl.textContent='🎉 Выигрыш: '+totalWin;
       playSound('https://freesound.org/data/previews/235/235968_3981044-lq.mp3');
       vibrate(200);
+      showWinAnimation(totalWin);
     } else resultEl.textContent='😞 Проигрыш';
 
     balanceEl.textContent = balance;
@@ -207,7 +234,7 @@ function updateHistory(win){
   historyEl.innerHTML = 'История: '+history.join(', ')+'<br>RTP: '+rtp+'%';
 }
 
-// ===== Покупка Free Spins =====
+// ===== Free Spins =====
 function buyBonusFS(amount){
   let price = amount===5?450:100;
   if(balance<price){ alert('Недостаточно средств!'); return; }
@@ -215,11 +242,11 @@ function buyBonusFS(amount){
   freeSpins += amount;
   fsEl.textContent = freeSpins;
   balanceEl.textContent = balance;
-  updateBetLinesOptions();
   resultEl.textContent = `Вы купили ${amount} Free Spins!`;
+  updateBetLinesOptions();
 }
 
-// ===== Покупка бонусной игры (сундука) =====
+// ===== Бонусные сундуки =====
 function buyBonusChest(){
   let price = 200;
   if(balance<price){ alert('Недостаточно средств!'); return; }
@@ -227,8 +254,8 @@ function buyBonusChest(){
   bonusGames +=1;
   bonusElCount.textContent = bonusGames;
   balanceEl.textContent = balance;
+  triggerMegaBonus();
   updateBetLinesOptions();
-  triggerMegaBonus(); // бонус запускается сразу
 }
 
 // ===== Мега-бонус =====
@@ -239,9 +266,9 @@ function triggerMegaBonus(){
     let chest = document.createElement('div');
     chest.className='chest';
     chest.textContent='🎁';
-    chest.onclick = function(){
+    chest.onclick=function(){
       let reward = rewards[i];
-      bonusEl.innerHTML = '<div>Вы выиграли: '+reward+'</div>';
+      bonusEl.innerHTML='<div>Вы выиграли: '+reward+'</div>';
       createDoubleButton(reward);
     };
     bonusEl.appendChild(chest);
@@ -265,9 +292,10 @@ function finalizeBonus(amount){
   balance += amount; totalWins += amount;
   bonusEl.innerHTML='<div>Бонус завершён! Получено: '+amount+'</div>';
   resultEl.textContent='🎉 Бонус: '+amount;
-  balanceEl.textContent = balance;
   playSound('https://freesound.org/data/previews/331/331912_5121236-lq.mp3');
   vibrate(300);
+  showWinAnimation(amount);
+  balanceEl.textContent = balance;
   updateBetLinesOptions();
 }
 
@@ -288,6 +316,8 @@ bonusElCount.textContent = bonusGames;
 
 </body>
 </html>
+
+
 
 
 
