@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 REAL SLOT PRO 5x3</title>
+<title>🎰 REAL SLOT 5x3 (Fair RNG)</title>
+
 <style>
-body{margin:0;font-family:Arial;text-align:center;background:#000;color:#fff;transition:0.3s;}
-.container{max-width:520px;margin:auto;padding:10px;}
-.slots{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,90px);gap:8px;margin:15px 0;}
+body{margin:0;font-family:Arial;background:#000;color:#fff;text-align:center}
+.container{max-width:520px;margin:auto;padding:10px}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,90px);gap:8px;margin:15px 0}
 .slot{
  background:linear-gradient(180deg,#333,#111);
  border-radius:16px;
@@ -15,33 +16,20 @@ body{margin:0;font-family:Arial;text-align:center;background:#000;color:#fff;tra
  display:flex;
  align-items:center;
  justify-content:center;
- box-shadow:inset 0 2px 4px rgba(255,255,255,.15), inset 0 -4px 8px rgba(0,0,0,.6), 0 6px 10px rgba(0,0,0,.7);
- color:#fff;
- position:relative;
- overflow:hidden;
- transition:.3s;
+ box-shadow:inset 0 2px 4px rgba(255,255,255,.15), inset 0 -4px 8px rgba(0,0,0,.6);
 }
-.slot.spin{animation:spin .25s linear infinite;}
+.slot.spin{animation:spin .25s linear infinite}
 @keyframes spin{0%{transform:translateY(0)}100%{transform:translateY(-120%)}}
-.slot.drop{animation:drop .25s ease-out;}
-@keyframes drop{0%{transform:translateY(-40px)}80%{transform:translateY(5px)}100%{transform:translateY(0)}}
-.slot.win{animation:winflash .6s infinite alternate;}
-@keyframes winflash{0%{box-shadow:0 0 10px #ffd700}100%{box-shadow:0 0 25px #ffea00}}
-button{padding:10px 18px;border-radius:12px;border:none;background:#e74c3c;color:#fff;font-size:15px;margin:4px;transition:.2s;cursor:pointer;}
-button:active{transform:scale(.92);box-shadow:inset 0 0 10px rgba(0,0,0,.6);}
-#bonus,#dev,#missions{margin-top:10px;font-size:12px;opacity:.8;}
-#bigwin{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;color:#ffd700;text-shadow:0 0 20px #ff0;z-index:999;}
-select,input{border-radius:8px;padding:4px;margin:2px;}
-@media(max-width:500px){.slot{font-size:30px}button{font-size:14px}}
-
-/* THEMES */
-body.gold{background:#2b1b00}.gold .slot{background:#5a3b00}
-body.neon{background:#050014}.neon .slot{background:#12002a;box-shadow:0 0 10px #b700ff}
+.slot.win{box-shadow:0 0 20px #ffd700}
+button{padding:10px 18px;border:none;border-radius:12px;background:#e74c3c;color:#fff;cursor:pointer}
+select,input{padding:4px;border-radius:8px}
 </style>
 </head>
+
 <body>
 <div class="container">
-<h2>🎰 REAL SLOT PRO 5x3</h2>
+<h2>🎰 REAL SLOT 5x3</h2>
+
 <div>Баланс: <b id="balance">50000</b></div>
 <div>Free Spins: <b id="fs">0</b></div>
 <div>Ставка: <input id="bet" type="number" value="10" min="1" max="1000"></div>
@@ -49,195 +37,163 @@ body.neon{background:#050014}.neon .slot{background:#12002a;box-shadow:0 0 10px 
 <div class="slots" id="slots"></div>
 
 <button onclick="spin()">SPIN</button>
-<button onclick="buyBonus()">🎁 BONUS BUY (100x)</button>
+
+<div style="margin-top:8px">
+Volatility:
+<select onchange="VOLATILITY=this.value">
+<option value="low">Low</option>
+<option value="medium" selected>Medium</option>
+<option value="high">High</option>
+</select>
+</div>
 
 <div id="result"></div>
-<div id="bigwin">BIG WIN!</div>
-
-<div>
- Тема:
- <select id="theme" onchange="setTheme(this.value)">
-  <option value="dark">Dark</option>
-  <option value="gold">Gold</option>
-  <option value="neon">Neon</option>
- </select>
-</div>
-
-<div>
- Volatility:
- <select onchange="VOLATILITY=this.value">
-  <option value="low">Low</option>
-  <option value="medium" selected>Medium</option>
-  <option value="high">High</option>
- </select>
-</div>
-
-<div id="missions">
- 🎯 Spins: <b id="ms">0</b> / 100 | 💰 Wins: <b id="mw">0</b> / 50000
-</div>
-
-<div id="bonus" style="display:none;">
- <h3>🎁 БОНУС</h3>
- <button onclick="pickBonus()">🎁</button>
- <button onclick="pickBonus()">🎁</button>
- <button onclick="pickBonus()">🎁</button>
-</div>
-
-<div id="dev">
- RTP: <b id="rtp">0</b> | Bet: <b id="tb">0</b> | Win: <b id="tw">0</b>
-</div>
+<div>RTP: <b id="rtp">0%</b></div>
 </div>
 
 <script>
-// ===== STATE =====
-let balance=50000, freeSpins=0, spinning=false, inBonus=false;
-let totalBet=0, totalWin=0, DEV=false, VOLATILITY='medium';
-let missions={spins:0,wins:0};
-
-// ===== ELEMENTS =====
-const balEl=document.getElementById('balance');
-const fsEl=document.getElementById('fs');
-const resEl=document.getElementById('result');
-
-// ===== SYMBOLS =====
-const symbols=[
- {s:'🍒',w:40},{s:'🍋',w:35},{s:'🍉',w:30},{s:'🧲',w:10,wild:true},
- {s:'7️⃣',w:5},{s:'⭐',w:8,scatter:true},{s:'$',w:6}
+// ================== CONFIG ==================
+const LINES = [
+ [[0,0],[0,1],[0,2],[0,3],[0,4]],
+ [[1,0],[1,1],[1,2],[1,3],[1,4]],
+ [[2,0],[2,1],[2,2],[2,3],[2,4]],
+ [[0,0],[1,1],[2,2],[1,3],[0,4]],
+ [[2,0],[1,1],[0,2],[1,3],[2,4]],
+ [[0,0],[0,1],[1,2],[2,3],[2,4]],
+ [[2,0],[2,1],[1,2],[0,3],[0,4]],
+ [[1,0],[0,1],[1,2],[2,3],[1,4]],
+ [[1,0],[2,1],[1,2],[0,3],[1,4]],
+ [[0,0],[1,1],[1,2],[1,3],[0,4]],
+ [[2,0],[1,1],[1,2],[1,3],[2,4]],
+ [[0,0],[1,1],[2,2],[2,3],[2,4]],
+ [[2,0],[1,1],[0,2],[0,3],[0,4]],
+ [[1,0],[1,1],[0,2],[1,3],[1,4]],
+ [[1,0],[1,1],[2,2],[1,3],[1,4]],
+ [[0,0],[0,1],[0,2],[1,3],[2,4]],
+ [[2,0],[2,1],[2,2],[1,3],[0,4]],
+ [[0,0],[1,1],[0,2],[1,3],[0,4]],
+ [[2,0],[1,1],[2,2],[1,3],[2,4]],
+ [[1,0],[0,1],[2,2],[0,3],[1,4]],
 ];
 
-// ===== PAYTABLE =====
-const paytable={'🍒':[0,0,5,20,100],'🍋':[0,0,4,15,75],'🍉':[0,0,3,10,50],
- '🧲':[0,0,10,50,250],'7️⃣':[0,0,25,150,1000]};
+// ================== SYMBOLS ==================
+const SYMBOLS = {
+ low:[
+  {s:'🍒',w:40,p:[0,0,5,20,100]},
+  {s:'🍋',w:35,p:[0,0,4,15,75]},
+  {s:'🍉',w:30,p:[0,0,3,10,50]},
+  {s:'7️⃣',w:5,p:[0,0,25,150,1000]},
+  {s:'🧲',w:10,wild:true},
+  {s:'⭐',w:6,scatter:true}
+ ],
+ medium:[
+  {s:'🍒',w:35,p:[0,0,5,20,100]},
+  {s:'🍋',w:30,p:[0,0,4,15,75]},
+  {s:'🍉',w:25,p:[0,0,3,10,50]},
+  {s:'7️⃣',w:4,p:[0,0,25,150,1000]},
+  {s:'🧲',w:6,wild:true},
+  {s:'⭐',w:4,scatter:true}
+ ],
+ high:[
+  {s:'🍒',w:20,p:[0,0,5,20,100]},
+  {s:'🍋',w:18,p:[0,0,4,15,75]},
+  {s:'🍉',w:15,p:[0,0,3,10,50]},
+  {s:'7️⃣',w:2,p:[0,0,25,150,1000]},
+  {s:'🧲',w:4,wild:true},
+  {s:'⭐',w:3,scatter:true}
+ ]
+};
 
-// ===== LINES 20 =====
-const lines=[];
-for(let r=0;r<3;r++) lines.push([[r,0],[r,1],[r,2],[r,3],[r,4]]);
-lines.push([[0,0],[1,1],[2,2],[1,3],[0,4]]);
-lines.push([[2,0],[1,1],[0,2],[1,3],[2,4]]);
-lines.push([[0,0],[0,1],[1,2],[2,3],[2,4]]);
-lines.push([[2,0],[2,1],[1,2],[0,3],[0,4]]);
-while(lines.length<20) lines.push(lines[Math.floor(Math.random()*5)]);
+// ================== STATE ==================
+let balance=50000, freeSpins=0;
+let totalBet=0, totalWin=0;
+let spinning=false, VOLATILITY='medium';
 
-// ===== GRID =====
-const grid=[],slotsEl=document.getElementById('slots');
+// ================== GRID ==================
+const slotsEl=document.getElementById('slots');
+const grid=[];
 for(let r=0;r<3;r++){
-  grid[r]=[];
-  for(let c=0;c<5;c++){
-    let d=document.createElement('div');
-    d.className='slot';
-    d.textContent='❔';
-    slotsEl.appendChild(d);
-    grid[r][c]=d;
-  }
+ grid[r]=[];
+ for(let c=0;c<5;c++){
+  let d=document.createElement('div');
+  d.className='slot'; d.textContent='❔';
+  slotsEl.appendChild(d);
+  grid[r][c]=d;
+ }
 }
 
-// ===== RNG RTP =====
-function randSymbolRTP(){
- let rtp=totalWin/(totalBet||1),pool=[];
- symbols.forEach(o=>{
-  let w=o.w;
-  if(o.wild && rtp>0.96) w*=0.5;
-  if(o.s==='7️⃣' && rtp<0.96) w*=1.4;
-  if(VOLATILITY==='low'){if(o.s==='7️⃣')w*=0.6;if(o.wild)w*=1.2;}
-  if(VOLATILITY==='high'){if(o.s==='7️⃣')w*=2;if(o.wild)w*=0.7;}
-  w=Math.max(1,Math.floor(w));
-  for(let i=0;i<w;i++) pool.push(o);
+// ================== RNG ==================
+function getSymbol(){
+ const pool=[];
+ SYMBOLS[VOLATILITY].forEach(o=>{
+  for(let i=0;i<o.w;i++) pool.push(o);
  });
  return pool[Math.floor(Math.random()*pool.length)];
 }
 
-// ===== BONUS =====
-function startBonus(){inBonus=true;document.getElementById('bonus').style.display='block';}
-function pickBonus(){
- let prize=[5,10,25,50,100][Math.floor(Math.random()*5)]*parseInt(document.getElementById('bet').value);
- balance+=prize;resEl.textContent='🎁 Бонус: '+prize;animateBalance(parseInt(balEl.textContent),balance);
- document.getElementById('bonus').style.display='none';inBonus=false;saveGame();
-}
-function buyBonus(){
- let cost=parseInt(document.getElementById('bet').value)*100;
- if(balance<cost)return;balance-=cost;freeSpins+=10;animateBalance(parseInt(balEl.textContent),balance);fsEl.textContent=freeSpins;
-}
-
-// ===== ANIMATE BALANCE =====
-function animateBalance(from,to){
- let step=(to-from)/20;let val=from;
- let i=setInterval(()=>{val+=step;balEl.textContent=Math.floor(val);if((step>0&&val>=to)||(step<0&&val<=to)){balEl.textContent=to;clearInterval(i);}},20);
-}
-
-// ===== THEME =====
-function setTheme(t){document.body.className=t;localStorage.setItem('theme',t);}
-document.body.className=localStorage.getItem('theme')||'dark';
-
-// ===== SPIN =====
+// ================== SPIN ==================
 function spin(auto=false){
- if(spinning||inBonus)return;
- let bet=parseInt(document.getElementById('bet').value);
- if(!auto && freeSpins<=0 && balance<bet*lines.length){resEl.textContent='❌ Нет денег';return;}
- spinning=true;
- if(freeSpins>0) freeSpins--; else balance-=bet*lines.length;
- totalBet+=bet*lines.length;
- missions.spins++;fsEl.textContent=freeSpins;
+ if(spinning) return;
+ const bet=+betInput.value;
+ const cost=bet*LINES.length;
+ if(!auto && freeSpins<=0 && balance<cost) return;
 
- grid.flat().forEach(s=>{s.classList.add('spin');});
+ spinning=true;
+ if(freeSpins>0) freeSpins--; else balance-=cost;
+ totalBet+=cost;
+
+ grid.flat().forEach(s=>s.classList.add('spin'));
+
  setTimeout(()=>{
   grid.flat().forEach(s=>{
-   s.classList.remove('spin');s.textContent=randSymbolRTP().s;s.classList.add('drop');
-   setTimeout(()=>s.classList.remove('drop'),300);
+   s.classList.remove('spin');
+   s.classList.remove('win');
+   s.textContent=getSymbol().s;
   });
 
-  let win=0,scatter=0,dollar=0;
-  for(let l of lines){
+  let win=0, scatter=0;
+
+  for(const line of LINES){
    let base=null,count=0;
-   for(let [r,c] of l){
-    let s=grid[r][c].textContent;
-    if(s==='⭐'||s==='$')break;
-    if(!base&&s!=='🧲')base=s;
-    if(s===base||s==='🧲')count++;else break;
+   for(const [r,c] of line){
+    const s=grid[r][c].textContent;
+    if(s==='⭐') break;
+    if(!base && s!=='🧲') base=s;
+    if(s===base || s==='🧲') count++;
+    else break;
    }
-   if(base&&count>=3){let w=paytable[base][count]*bet;win+=w;l.forEach(p=>grid[p[0]][p[1]].classList.add('win'));}
+   if(base && count>=3){
+    const sym=SYMBOLS[VOLATILITY].find(x=>x.s===base);
+    win+=sym.p[count]*bet;
+    line.forEach(([r,c])=>grid[r][c].classList.add('win'));
+   }
   }
 
-  grid.flat().forEach(s=>{if(s.textContent==='⭐')scatter++;if(s.textContent==='$')dollar++;});
-  if(scatter>=3){freeSpins+=5;resEl.textContent='⭐ +5 FS';}
-  if(dollar>=3) startBonus();
-  if(win>0){balance+=win;totalWin+=win;missions.wins+=win;resEl.textContent='🎉 Выигрыш: '+win;if(win>=bet*200){document.getElementById('bigwin').style.display='block';setTimeout(()=>document.getElementById('bigwin').style.display='none',1500);} }
-  
-  animateBalance(parseInt(balEl.textContent),balance);
-  balEl.textContent=balance;fsEl.textContent=freeSpins;
+  grid.flat().forEach(s=>{if(s.textContent==='⭐')scatter++;});
+  if(scatter>=3){freeSpins+=5;result.textContent='⭐ +5 Free Spins';}
 
-  document.getElementById('rtp').textContent=((totalWin/(totalBet||1))*100).toFixed(2)+'%';
-  document.getElementById('tb').textContent=totalBet;
-  document.getElementById('tw').textContent=totalWin;
+  if(win>0){balance+=win;totalWin+=win;result.textContent='🎉 Win: '+win;}
+  else result.textContent='';
 
-  document.getElementById('ms').textContent=missions.spins;
-  document.getElementById('mw').textContent=missions.wins;
+  balanceEl.textContent=balance;
+  fsEl.textContent=freeSpins;
+  rtp.textContent=((totalWin/(totalBet||1))*100).toFixed(2)+'%';
 
-  saveGame();
   spinning=false;
   if(freeSpins>0) spin(true);
- },350);
+ },300);
 }
 
-// ===== SAVE / LOAD =====
-function saveGame(){localStorage.setItem('slot_pro',JSON.stringify({balance,freeSpins,totalBet,totalWin,missions}));}
-(function(){let d=JSON.parse(localStorage.getItem('slot_pro'));if(!d)return;
- balance=d.balance;freeSpins=d.freeSpins;totalBet=d.totalBet;totalWin=d.totalWin;missions=d.missions||{spins:0,wins:0};
- balEl.textContent=balance;fsEl.textContent=freeSpins;
- document.getElementById('ms').textContent=missions.spins;
- document.getElementById('mw').textContent=missions.wins;
-})();
-
-// ===== DEV / CHEAT =====
-document.addEventListener('keydown',e=>{
- if(e.key==='d')DEV=!DEV;
- if(DEV&&e.key==='w')balance+=10000;
- if(DEV&&e.key==='f')freeSpins+=10;
- animateBalance(parseInt(balEl.textContent),balance);
- fsEl.textContent=freeSpins;
-});
+// ================== UI ==================
+const balanceEl=document.getElementById('balance');
+const fsEl=document.getElementById('fs');
+const result=document.getElementById('result');
+const rtp=document.getElementById('rtp');
+const betInput=document.getElementById('bet');
 </script>
 </body>
 </html>
+
 
 
 
