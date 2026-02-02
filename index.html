@@ -3,267 +3,132 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 Slot 5x3 Ultimate MAX Jackpot + $ Symbol</title>
+<title>🎰 Real Slot 5x3</title>
 <style>
-body {
-  margin:0;
-  background: radial-gradient(circle,#111,#000);
-  font-family:Arial,sans-serif;
-  color:#fff;
-  text-align:center;
-  overflow-x:hidden;
-}
-.container{max-width:520px;margin:auto;padding:10px;}
-.slots {
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  grid-template-rows:repeat(3,90px);
-  gap:8px;
-  margin:15px 0;
-  position:relative;
-  background: rgba(0,0,0,0.6);
-  padding:10px;
-  border-radius:16px;
-}
-.slot {
-  background: linear-gradient(145deg,#555,#222);
-  border-radius:16px;
-  font-size:36px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow: inset 0 0 10px #000, 0 4px 8px rgba(0,0,0,.3);
-  color:#fff;
-  transition:transform .3s;
-  cursor:default;
-  perspective:400px;
-  overflow:hidden;
-}
-@keyframes fall{
-  0%{transform:translateY(-200%) rotateX(90deg);opacity:0;}
-  50%{transform:translateY(10%) rotateX(-10deg);opacity:1;}
-  70%{transform:translateY(-5%) rotateX(5deg);}
-  100%{transform:translateY(0) rotateX(0deg);}
-}
-.slot.animate{animation:fall .6s cubic-bezier(0.68,-0.55,0.265,1.55);}
-.slot.win{animation:pulse .8s ease-in-out infinite alternate; text-shadow:0 0 10px #fff,0 0 20px gold,0 0 30px #ff8800;}
-@keyframes pulse{0%{transform:scale(1);}100%{transform:scale(1.2);}}
-.line-highlight{position:absolute;height:20px;background:rgba(255,255,0,.4);pointer-events:none;z-index:500;border-radius:8px;transition:all .3s ease;box-shadow:0 0 20px rgba(255,255,0,.6);}
-@keyframes winMega{0%{transform:scale(.5);opacity:0;color:#e74c3c;text-shadow:0 0 10px #fff;}50%{transform:scale(2);opacity:1;}100%{transform:scale(1.5);opacity:1;}}
-.win-anim{position:absolute;left:50%;top:20%;transform:translateX(-50%);font-size:36px;font-weight:bold;pointer-events:none;z-index:999;text-shadow:0 0 10px #fff,0 0 20px #ff0,0 0 30px #ff8800;}
-.confetti{position:absolute;width:10px;height:10px;background:gold;opacity:.9;border-radius:50%;pointer-events:none;animation:confettiFall 1.5s linear forwards;}
-@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(400px) rotate(720deg);opacity:0;}}
-button{padding:12px 22px;border:none;border-radius:14px;font-size:16px;background:linear-gradient(145deg,#e74c3c,#c0392b);color:#fff;margin:5px;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,.3);transition:transform .15s;}
-button:hover{transform:scale(1.05);}
-.counters{margin:5px;font-size:14px;}
-.buy-buttons button{background:linear-gradient(145deg,#3498db,#2980b9);}
-.history{font-size:12px;opacity:.7;margin-top:6px;text-align:left;max-height:80px;overflow:auto;}
+body{margin:0;background:#000;color:#fff;font-family:Arial;text-align:center}
+.container{max-width:520px;margin:auto;padding:10px}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,90px);gap:8px;margin:15px 0}
+.slot{background:#222;border-radius:14px;font-size:36px;display:flex;align-items:center;justify-content:center}
+.slot.win{animation:pulse .8s infinite alternate}
+@keyframes pulse{0%{transform:scale(1)}100%{transform:scale(1.2)}}
+button{padding:10px 20px;border-radius:12px;border:none;background:#e74c3c;color:#fff;font-size:16px}
 </style>
 </head>
 <body>
+
 <div class="container">
-<h2>🎰 Slot 5x3 Ultimate MAX Jackpot + $ Symbol</h2>
+<h2>🎰 REAL SLOT 5x3</h2>
 <div>Баланс: <b id="balance">50000</b></div>
-<div class="counters">Free Spins: <b id="fsCount">0</b> | Бонусы: <b id="bonusCount">0</b></div>
-<div>Ставка: <input type="number" id="betInput" min="1" max="1000" value="10"> Линии: <select id="linesSelect"></select></div>
-<div class="buy-buttons">
-<button onclick="buyBonusFS(1)">Купить 1 Free Spin (100)</button>
-<button onclick="buyBonusFS(5)">Купить 5 Free Spins (450)</button>
-<button onclick="buyBonusChest()">Купить бонус сундука (200)</button>
-</div>
+<div>Free Spins: <b id="fs">0</b></div>
+<div>Ставка: <input id="bet" type="number" value="10" min="1" max="1000"></div>
 <div class="slots" id="slots"></div>
 <button onclick="spin()">SPIN</button>
-<div class="result" id="result"></div>
-<small>Scatter ⭐ = 5 FS | Wild 🧲 | $ = бонус Free Spins</small>
-<div class="history" id="history"></div>
+<div id="result"></div>
 </div>
 
 <script>
-let balance=50000, freeSpins=0, bonusGames=0, totalBets=0, totalWins=0;
-const history=[];
-const symbols=[{s:'🍒',w:80},{s:'🍋',w:70},{s:'🍉',w:60},{s:'7️⃣',w:5},{s:'⭐',w:15,scatter:true},{s:'🧲',w:20,wild:true},{s:'$',w:10}];
-const payouts = {
-  '🍒':[0,0,10,20,50],
-  '🍋':[0,0,8,16,40],
-  '🍉':[0,0,6,12,30],
-  '7️⃣':[0,0,50,100,500],
-};
-const linesArr=[
-  [[0,0],[0,1],[0,2],[0,3],[0,4]],
-  [[1,0],[1,1],[1,2],[1,3],[1,4]],
-  [[2,0],[2,1],[2,2],[2,3],[2,4]],
-  [[0,0],[1,1],[2,2],[1,3],[0,4]],
-  [[2,0],[1,1],[0,2],[1,3],[2,4]]
+let balance=50000, freeSpins=0;
+const betEl=document.getElementById('bet');
+const balEl=document.getElementById('balance');
+const fsEl=document.getElementById('fs');
+const resEl=document.getElementById('result');
+
+const symbols=[
+ {s:'🍒',w:40},
+ {s:'🍋',w:35},
+ {s:'🍉',w:30},
+ {s:'🧲',w:10,wild:true},
+ {s:'7️⃣',w:5},
+ {s:'⭐',w:8,scatter:true},
+ {s:'$',w:6}
 ];
-const linesOptions=[1,2,3,4,5];
+
+const paytable={
+ '🍒':[0,0,5,20,100],
+ '🍋':[0,0,4,15,75],
+ '🍉':[0,0,3,10,50],
+ '🧲':[0,0,10,50,250],
+ '7️⃣':[0,0,25,150,1000]
+};
+
+const lines=[
+ [[0,0],[0,1],[0,2],[0,3],[0,4]],
+ [[1,0],[1,1],[1,2],[1,3],[1,4]],
+ [[2,0],[2,1],[2,2],[2,3],[2,4]],
+ [[0,0],[1,1],[2,2],[1,3],[0,4]],
+ [[2,0],[1,1],[0,2],[1,3],[2,4]]
+];
+
+const grid=[];
 const slotsEl=document.getElementById('slots');
-const balanceEl=document.getElementById('balance');
-const fsEl=document.getElementById('fsCount');
-const bonusElCount=document.getElementById('bonusCount');
-const resultEl=document.getElementById('result');
-const historyEl=document.getElementById('history');
-const betInput=document.getElementById('betInput');
-const linesSelect=document.getElementById('linesSelect');
-let grid=[];
 
 for(let r=0;r<3;r++){
-  grid[r]=[];
-  for(let c=0;c<5;c++){
-    let d=document.createElement('div');
-    d.className='slot';
-    d.textContent='❔';
-    slotsEl.appendChild(d);
-    grid[r][c]=d;
-  }
-}
-
-function updateLinesOptions(){
-  const sel=linesSelect.value;
-  linesSelect.innerHTML='';
-  linesOptions.forEach(l=>{
-    let o=document.createElement('option');
-    o.value=l;
-    o.textContent=l;
-    linesSelect.appendChild(o);
-  });
-  linesSelect.value=linesOptions.includes(Number(sel))?sel:linesOptions[0];
+ grid[r]=[];
+ for(let c=0;c<5;c++){
+  const d=document.createElement('div');
+  d.className='slot';
+  d.textContent='❔';
+  slotsEl.appendChild(d);
+  grid[r][c]=d;
+ }
 }
 
 function randSymbol(){
-  let pool=[];
-  symbols.forEach(o=>{
-    for(let i=0;i<o.w;i++) pool.push(o);
-  });
-  return pool[Math.floor(Math.random()*pool.length)];
-}
-
-function playSound(url){let a=new Audio(url);a.play();}
-function vibrate(ms){if(navigator.vibrate) navigator.vibrate(ms);}
-function showWinAnimation(amount){
-  if(amount>=5000){
-    const div=document.createElement('div');
-    div.className='win-anim';
-    div.textContent=`🚀 JACKPOT ${amount}!`;
-    div.style.animation='winMega 1s forwards';
-    document.body.appendChild(div);
-    spawnConfetti();
-    setTimeout(()=>div.remove(),1500);
-  }
-}
-function spawnConfetti(){
-  for(let i=0;i<30;i++){
-    const c=document.createElement('div');
-    c.className='confetti';
-    c.style.left=Math.random()*slotsEl.offsetWidth+'px';
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),1500);
-  }
-}
-function highlightLine(line){
-  const h=document.createElement('div');
-  h.className='line-highlight';
-  const rowH=grid[0][0].offsetHeight+8;
-  h.style.top=(line[0][0]*rowH+4)+'px';
-  h.style.width=slotsEl.offsetWidth+'px';
-  slotsEl.appendChild(h);
-  setTimeout(()=>h.remove(),1000);
-}
-function updateHistory(win){
-  history.unshift(win);
-  if(history.length>20) history.pop();
-  let rtp=Math.round((totalWins/(totalBets||1))*100);
-  historyEl.innerHTML='История: '+history.join(',')+'<br>RTP: '+rtp+'%';
-}
-
-function checkLine(line, bet){
-  let first=null;
-  for(let i=0;i<line.length;i++){
-    let sym = grid[line[i][0]][line[i][1]].textContent;
-    if(sym!=='🧲' && sym!=='⭐' && sym!=='$'){
-      first=sym;
-      break;
-    }
-  }
-  if(!first) return 0;
-  let count=0;
-  for(let i=0;i<line.length;i++){
-    let sym = grid[line[i][0]][line[i][1]].textContent;
-    if(sym===first || sym==='🧲') count++;
-    else break;
-  }
-  if(count>=3) return (payouts[first][count]*bet);
-  return 0;
+ let pool=[];
+ symbols.forEach(o=>{for(let i=0;i<o.w;i++)pool.push(o)});
+ return pool[Math.floor(Math.random()*pool.length)];
 }
 
 function spin(auto=false){
-  let bet=Math.max(1,Math.min(1000,parseInt(betInput.value)||1));
-  let linesNum=parseInt(linesSelect.value);
-  let cost=bet*linesNum;
-  
-  if(!auto && freeSpins<=0 && bonusGames<=0 && cost>balance){ 
-    resultEl.textContent='❌ Недостаточно средств'; 
-    return; 
+ let bet=parseInt(betEl.value);
+ if(!auto && freeSpins<=0 && balance<bet*5){resEl.textContent='❌ Нет денег';return;}
+
+ if(freeSpins>0) freeSpins--;
+ else if(!auto) balance-=bet*5;
+
+ grid.flat().forEach(s=>{s.classList.remove('win'); s.textContent=randSymbol().s});
+
+ let win=0, scatter=0, dollar=0;
+
+ for(let l of lines){
+  let base=null, count=0;
+  for(let [r,c] of l){
+   let s=grid[r][c].textContent;
+   if(s==='⭐'||s==='$') break;
+   if(!base && s!=='🧲') base=s;
+   if(s===base || s==='🧲') count++;
+   else break;
   }
-  
-  if(freeSpins>0 && !auto){ freeSpins--; fsEl.textContent=freeSpins; } 
-  else if(bonusGames>0){ bonusGames--; bonusElCount.textContent=bonusGames; return; } 
-  else if(!auto){ balance-=cost; totalBets+=cost; }
-
-  grid.flat().forEach(s=>s.classList.remove('animate','win'));
-  playSound('https://freesound.org/data/previews/414/414209_5121236-lq.mp3');
-  vibrate(100);
-
-  for(let c=0;c<5;c++){
-    setTimeout(()=>{
-      for(let r=0;r<3;r++){
-        let sym=randSymbol();
-        grid[r][c].textContent=sym.s;
-        grid[r][c].classList.add('animate');
-        setTimeout(()=>grid[r][c].classList.remove('animate'),600);
-      }
-    }, c*150);
+  if(base && count>=3){
+   let w=paytable[base][count]*bet;
+   win+=w;
+   l.forEach(p=>grid[p[0]][p[1]].classList.add('win'));
   }
+ }
 
-  setTimeout(()=>{
-    let totalLineWin=0;
-    for(let l=0;l<linesNum;l++){
-      let win = checkLine(linesArr[l], bet);
-      if(win>0){
-        totalLineWin+=win;
-        linesArr[l].forEach(pos=>grid[pos[0]][pos[1]].classList.add('win'));
-      }
-    }
-    totalWins+=totalLineWin;
+ grid.flat().forEach(s=>{
+  if(s.textContent==='⭐') scatter++;
+  if(s.textContent==='$') dollar++;
+ });
 
-    let dollarCount=0, scatterCount=0;
-    for(let r=0;r<3;r++) for(let c=0;c<5;c++){
-      let s=grid[r][c].textContent;
-      if(s=='$') dollarCount++;
-      if(s=='⭐') scatterCount++;
-    }
+ if(scatter>=3){freeSpins+=5;resEl.textContent='⭐ +5 FS';}
+ if(dollar>=3){freeSpins+=10;resEl.textContent='💵 +10 FS';}
 
-    if(scatterCount>=3){ freeSpins+=5; fsEl.textContent=freeSpins; resultEl.textContent='⭐ Scatter! +5 FS'; setTimeout(runFreeSpins,800); }
-    if(dollarCount>=3){
-      freeSpins+=10; fsEl.textContent=freeSpins; resultEl.textContent='💵 3 $! +10 FS';
-      function runAllFS(){ if(freeSpins>0){ freeSpins--; fsEl.textContent=freeSpins; spin(true); setTimeout(runAllFS,800); } }
-      runAllFS();
-    }
+ if(win>0){
+  balance+=win;
+  resEl.textContent='🎉 Выигрыш: '+win;
+ }
 
-    if(totalLineWin>0) resultEl.textContent=`🎉 Выигрыш: ${totalLineWin}`;
-    if(totalLineWin==0 && dollarCount<3 && scatterCount<3) resultEl.textContent='😞 Проигрыш';
-    balance+=totalLineWin;
-    balanceEl.textContent=balance;
-    updateHistory(totalLineWin);
-  },1000);
+ balEl.textContent=balance;
+ fsEl.textContent=freeSpins;
+
+ if(freeSpins>0) setTimeout(()=>spin(true),800);
 }
-
-function runFreeSpins(){ if(freeSpins>0){ freeSpins--; fsEl.textContent=freeSpins; spin(true); setTimeout(runFreeSpins,800); } }
-function buyBonusFS(amount){ let price=amount===5?450:100; if(balance<price){alert('Недостаточно средств!');return;} balance-=price; freeSpins+=amount; fsEl.textContent=freeSpins; balanceEl.textContent=balance; resultEl.textContent=`Вы купили ${amount} Free Spins!`; if(freeSpins>0)setTimeout(runFreeSpins,500); }
-function buyBonusChest(){alert('Бонус сундука пока не активирован');}
-updateLinesOptions(); fsEl.textContent=freeSpins; bonusElCount.textContent=bonusGames;
 </script>
 </body>
 </html>
+
+
 
 
 
