@@ -60,12 +60,12 @@ const history = [];
 
 // ===== Символы с повышенным шансом Mini/Big =====
 const symbols = [
-  {s:'🍒', w:40, pay:{3:10,4:20,5:40}},
-  {s:'🍋', w:35, pay:{3:12,4:25,5:50}},
-  {s:'🍉', w:30, pay:{3:15,4:30,5:70}},
-  {s:'7️⃣', w:5,  pay:{3:50,4:150,5:500}},
-  {s:'⭐',  w:8,  scatter:true},
-  {s:'🧲', w:15, pay:{3:20,4:50,5:200}, wild:true}
+  {s:'🍒', w:60, pay:{3:10,4:20,5:40}},
+  {s:'🍋', w:55, pay:{3:12,4:25,5:50}},
+  {s:'🍉', w:50, pay:{3:15,4:30,5:70}},
+  {s:'7️⃣', w:10, pay:{3:50,4:150,5:500}},
+  {s:'⭐',  w:15, scatter:true},
+  {s:'🧲', w:30, pay:{3:20,4:50,5:200}, wild:true}
 ];
 
 const linesArr = [
@@ -149,9 +149,9 @@ function showWinAnimation(amount){
 // ===== Форсирование небольших выигрышей =====
 function maybeForceWin(matrix, linesNum){
   for(let l=0;l<linesNum;l++){
-    if(Math.random()<0.15){
+    if(Math.random()<0.35){ // 35% шанс
       let line = linesArr[l];
-      let sym = symbols[Math.floor(Math.random()*3)]; // 🍒🍋🍉
+      let sym = symbols[Math.floor(Math.random()*4)]; // 🍒🍋🍉🧲
       for(let i=0;i<3;i++){
         matrix[line[i][0]][line[i][1]] = sym;
         grid[line[i][0]][line[i][1]].textContent = sym.s;
@@ -316,6 +316,8 @@ bonusElCount.textContent = bonusGames;
 
 </body>
 </html>
+
+
 
 
 
