@@ -2,365 +2,135 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>🎰 NEON SLOT ULTRA DELUXE</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
+<title>Slot City</title>
 <style>
-/* ===================== RESET ===================== */
-* { margin:0; padding:0; box-sizing:border-box; }
-
-/* ===================== BODY ===================== */
-body {
-    background: radial-gradient(circle at top, #0d0018, #000);
-    font-family: system-ui, sans-serif;
-    color:#fff;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    min-height:100vh;
-    padding:10px;
-    overflow-x:hidden;
-}
-
-/* ===================== HEADER ===================== */
-#header{
-    font-size:32px;
-    font-weight:900;
-    margin:10px 0;
-    text-shadow:0 0 10px #ff00ff,0 0 20px #00ffff,0 0 30px #ff00ff;
-}
-
-/* ===================== PLAYER PANEL ===================== */
-#player{
-    width:100%;
-    max-width:480px;
-    background:linear-gradient(145deg,#1a002b,#050010);
-    border-radius:16px;
-    padding:12px;
-    margin-bottom:12px;
-}
-.stat{
-    display:flex;
-    justify-content:space-between;
-    margin:4px 0;
-    font-size:15px;
-}
-#xpbar{
-    height:12px;
-    background:#000;
-    border-radius:10px;
-    overflow:hidden;
-    margin-top:6px;
-}
-#xpfill{
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg,#ff00ff,#00ffff);
-    transition:width 0.5s ease;
-}
-
-/* ===================== SLOT MACHINE ===================== */
-#slot{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:6px;
-    width:100%;
-    max-width:480px;
-    background:linear-gradient(180deg,#1a001a,#000);
-    padding:10px;
-    border-radius:20px;
-}
-.cell{
-    aspect-ratio:1/1;
-    background:#000;
-    border-radius:12px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:36px;
-    box-shadow: inset 0 0 8px #000, 0 0 8px #ff00ff;
-    transition:0.3s all;
-    position:relative;
-}
-.win{
-    outline:3px solid #ff00ff;
-    box-shadow:0 0 20px #ff00ff,0 0 30px #00ffff;
-}
-
-/* ===================== CONTROLS ===================== */
-#controls{
-    margin-top:12px;
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    justify-content:center;
-}
-button{
-    flex:1 1 45%;
-    padding:12px;
-    font-size:16px;
-    border-radius:24px;
-    border:none;
-    font-weight:700;
-    background:linear-gradient(145deg,#ff00ff,#00ffff);
-    color:#000;
-    cursor:pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-button:hover{
-    transform:scale(1.1);
-    box-shadow:0 0 15px #ff00ff,0 0 25px #00ffff;
-}
-
-/* ===================== MESSAGE ===================== */
-#message{
-    min-height:26px;
-    margin-top:8px;
-    font-weight:bold;
-    text-align:center;
-    text-shadow:0 0 8px #ffff00;
-}
-
-/* ===================== SKINS ===================== */
-#skins{
-    display:flex;
-    gap:6px;
-    margin-top:8px;
-}
-.skinbtn{
-    padding:6px 10px;
-    font-size:12px;
-}
-
-/* ===================== PARTICLES ===================== */
-canvas{
-    position:fixed;
-    top:0;
-    left:0;
-    pointer-events:none;
-}
+  body { font-family: Arial, sans-serif; text-align: center; background: #1e1e1e; color: #fff; }
+  #slot-machine { display: inline-block; margin-top: 50px; }
+  .reels { display: flex; }
+  .reel { border: 2px solid #fff; margin: 0 5px; padding: 10px; background: #333; }
+  .symbol { font-size: 40px; margin: 5px 0; }
+  button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+  #messages { margin-top: 20px; }
 </style>
 </head>
 <body>
 
-<div id="header">🎰 NEON SLOT ULTRA DELUXE</div>
+<h1>Slot City</h1>
+<div id="balance">Баланс: 1000</div>
+<div id="bet">Ставка: 10</div>
 
-<div id="player">
-    <div class="stat">💰 Баланс: <span id="balance">50000</span></div>
-    <div class="stat">🎯 Ставка: <span id="bet">100</span></div>
-    <div class="stat">⭐ Уровень: <span id="level">1</span></div>
-    <div class="stat">✨ XP: <span id="xp">0</span></div>
-    <div id="xpbar"><div id="xpfill"></div></div>
+<div id="slot-machine">
+  <div class="reels" id="reels"></div>
+  <button onclick="spin()">SPIN</button>
+  <div id="messages"></div>
 </div>
-
-<div id="slot"></div>
-
-<div id="controls">
-    <button onclick="spin()">SPIN 🎰</button>
-    <button onclick="bet+=50;updateUI()">BET +</button>
-    <button onclick="bet=Math.max(50,bet-50);updateUI()">BET -</button>
-    <button onclick="auto=!auto;if(auto) spin()">AUTO 🔄</button>
-</div>
-
-<div id="skins">
-    <button class="skinbtn" onclick="setSkin('')">NEON</button>
-    <button class="skinbtn" onclick="setSkin('skin-gold')">GOLD</button>
-    <button class="skinbtn" onclick="setSkin('skin-cyber')">CYBER</button>
-</div>
-
-<div id="message"></div>
-<canvas id="particles"></canvas>
 
 <script>
-/* ===================== SYMBOLS ===================== */
-const symbols=[
-    {icon:"🍒",value:2,color:"#ff0044"},
-    {icon:"🍋",value:3,color:"#ffff00"},
-    {icon:"🍇",value:5,color:"#bb00ff"},
-    {icon:"🔔",value:8,color:"#ffee00"},
-    {icon:"💎",value:15,color:"#00ffff"},
-    {icon:"👑",value:30,color:"#ff00ff"}
+const symbols = ['🍒', '🍋', '🍊', '🍉', '⭐', '💎', '🔔', '🎰'];
+const payouts = {
+  '🍒':[0,0,10,50,200],
+  '🍋':[0,0,5,25,100],
+  '🍊':[0,0,5,20,75],
+  '🍉':[0,0,10,40,150],
+  '⭐':[0,0,15,60,250],
+  '💎':[0,0,20,100,500],
+  '🔔':[0,0,20,80,300],
+  '🎰':[0,0,50,200,1000]
+};
+
+const numReels = 5;
+const symbolsPerReel = 3;
+let balance = 1000;
+let bet = 10;
+
+const paylines = [
+  [0,0,0,0,0],
+  [1,1,1,1,1],
+  [2,2,2,2,2],
+  [0,1,2,1,0],
+  [2,1,0,1,2]
 ];
 
-/* ===================== PAYLINES ===================== */
-const paylines=[
-    [0,1,2,1,0],
-    [1,1,1,1,1],
-    [2,1,0,1,2],
-    [0,0,0,0,0],
-    [2,2,2,2,2]
-];
-
-/* ===================== GAME STATE ===================== */
-let balance=50000;
-let bet=100;
-let auto=false;
-let level=1;
-let xp=0;
-let xpNeed=100;
-let spinning=false;
-
-/* ===================== SLOT GRID ===================== */
-const slot=document.getElementById("slot");
-const messageEl=document.getElementById("message");
-let cells=[];
-
-/* ===================== PARTICLES ===================== */
-const canvas=document.getElementById("particles");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-let particles=[];
-
-/* ===================== INIT GRID ===================== */
-function init(){
-    slot.innerHTML="";
-    cells=[];
-    for(let i=0;i<15;i++){
-        const d=document.createElement("div");
-        d.className="cell";
-        slot.appendChild(d);
-        cells.push(d);
+function spinReels() {
+  let reels = [];
+  for (let i=0; i<numReels; i++) {
+    let reel = [];
+    for (let j=0; j<symbolsPerReel; j++) {
+      reel.push(symbols[Math.floor(Math.random() * symbols.length)]);
     }
-    randomize();
+    reels.push(reel);
+  }
+  return reels;
 }
-init();
 
-/* ===================== RANDOMIZE ===================== */
-function randomize(){
-    cells.forEach(c=>{
-        const s=symbols[Math.floor(Math.random()*symbols.length)];
-        c.textContent=s.icon;
-        c.dataset.val=s.value;
-        c.style.color=s.color;
-        c.classList.remove("win");
+function checkWins(reels) {
+  let totalWin = 0;
+  let wins = [];
+  for (let l=0; l<paylines.length; l++) {
+    let line = paylines[l];
+    let lineSymbols = line.map((row,i)=> reels[i][row]);
+    let first = lineSymbols[0];
+    let count = 1;
+    for (let i=1; i<lineSymbols.length; i++) {
+      if (lineSymbols[i]===first) count++; else break;
+    }
+    if (count>=3) {
+      let winAmount = payouts[first][count];
+      totalWin += winAmount;
+      wins.push({line: l+1, symbol: first, count: count, amount: winAmount});
+    }
+  }
+  return {totalWin, wins};
+}
+
+function displayReels(reels) {
+  const reelsDiv = document.getElementById('reels');
+  reelsDiv.innerHTML = '';
+  for (let i=0; i<numReels; i++) {
+    const reelDiv = document.createElement('div');
+    reelDiv.className = 'reel';
+    reels[i].forEach(symbol => {
+      const symDiv = document.createElement('div');
+      symDiv.className = 'symbol';
+      symDiv.textContent = symbol;
+      reelDiv.appendChild(symDiv);
     });
+    reelsDiv.appendChild(reelDiv);
+  }
 }
 
-/* ===================== UI ELEMENTS ===================== */
-const balanceEl=document.getElementById("balance");
-const betEl=document.getElementById("bet");
-const levelEl=document.getElementById("level");
-const xpEl=document.getElementById("xp");
-const xpfill=document.getElementById("xpfill");
-
-/* ===================== UPDATE UI ===================== */
-function updateUI(){
-    balanceEl.textContent=balance;
-    betEl.textContent=bet;
-    levelEl.textContent=level;
-    xpEl.textContent=xp;
-    xpfill.style.width=(xp/xpNeed*100)+"%";
-}
-
-/* ===================== SET SKIN ===================== */
-function setSkin(cls){
-    document.body.className=cls;
-}
-
-/* ===================== GAIN XP ===================== */
-function gainXP(val){
-    xp+=val;
-    if(xp>=xpNeed){
-        xp-=xpNeed;
-        level++;
-        xpNeed=Math.floor(xpNeed*1.4);
-        messageEl.textContent="⭐ УРОВЕНЬ ПОВЫШЕН!";
-    }
-}
-
-/* ===================== PARTICLES EFFECT ===================== */
-function createParticles(big=false){
-    const count=big?300:150;
-    for(let i=0;i<count;i++){
-        particles.push({
-            x:canvas.width/2,
-            y:canvas.height/2,
-            vx:(Math.random()-0.5)*10,
-            vy:(Math.random()-0.5)*10,
-            life:100,
-            color:`hsl(${Math.random()*360},100%,50%)`
-        });
-    }
-}
-function updateParticles(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    particles.forEach(p=>{
-        p.x+=p.vx;
-        p.y+=p.vy;
-        p.life--;
-        ctx.fillStyle=p.color;
-        ctx.fillRect(p.x,p.y,4,4);
+function spin() {
+  if (balance < bet) {
+    alert("Недостаточно баланса!");
+    return;
+  }
+  balance -= bet;
+  document.getElementById('balance').textContent = `Баланс: ${balance}`;
+  
+  const reels = spinReels();
+  displayReels(reels);
+  
+  const result = checkWins(reels);
+  let messages = '';
+  if (result.totalWin>0) {
+    messages += `Выигрыши:<br>`;
+    result.wins.forEach(w => {
+      messages += `Линия ${w.line}: ${w.count}×${w.symbol} -> ${w.amount}<br>`;
     });
-    particles=particles.filter(p=>p.life>0);
-    requestAnimationFrame(updateParticles);
+    messages += `<b>Итоговый выигрыш: ${result.totalWin}</b>`;
+    balance += result.totalWin;
+    document.getElementById('balance').textContent = `Баланс: ${balance}`;
+  } else {
+    messages = 'Нет выигрыша, попробуйте снова.';
+  }
+  document.getElementById('messages').innerHTML = messages;
 }
-updateParticles();
-
-/* ===================== CHECK WIN ===================== */
-function checkWin(results){
-    let totalWin=0;
-    paylines.forEach(line=>{
-        const icons=line.map((row,col)=>cells[row*5+col]);
-        const first=icons[0].textContent;
-        if(icons.every(c=>c.textContent===first)){
-            icons.forEach(c=>c.classList.add("win"));
-            totalWin+=bet*icons[0].dataset.val;
-            gainXP(20);
-            createParticles();
-        }
-    });
-    if(totalWin>0){
-        balance+=totalWin;
-        messageEl.textContent="🎉 Выигрыш: "+totalWin;
-    }else{
-        messageEl.textContent="😢 Мимо!";
-    }
-    updateUI();
-}
-
-/* ===================== SPIN ===================== */
-function spin(){
-    if(balance<bet || spinning)return;
-    spinning=true;
-    balance-=bet;
-    updateUI();
-    messageEl.textContent="🎰 Крутим...";
-    const results=[];
-    cells.forEach(c=>c.classList.remove("win"));
-    // временная лента
-    for(let col=0;col<5;col++){
-        const finalSymbol=symbols[Math.floor(Math.random()*symbols.length)];
-        results.push(finalSymbol);
-        for(let row=0;row<3;row++){
-            const index=row*5+col;
-            const s=symbols[Math.floor(Math.random()*symbols.length)];
-            cells[index].textContent=s.icon;
-            cells[index].dataset.val=s.value;
-            cells[index].style.color=s.color;
-        }
-    }
-    // анимация спина
-    setTimeout(()=>{
-        for(let col=0;col<5;col++){
-            for(let row=0;row<3;row++){
-                const index=row*5+col;
-                cells[index].textContent=results[col].icon;
-                cells[index].dataset.val=results[col].value;
-                cells[index].style.color=results[col].color;
-            }
-        }
-        checkWin(results);
-        spinning=false;
-        if(auto)setTimeout(spin,400);
-    },500);
-}
-
-updateUI();
 </script>
 
 </body>
 </html>
+
+
 
 
 
