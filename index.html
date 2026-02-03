@@ -1,135 +1,175 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hamster Clicker TG ULTIMATE</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #f5b971, #f08a5d);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      gap: 10px;
-      user-select: none;
-    }
-    .panel { background: rgba(0,0,0,0.25); padding: 12px; border-radius: 14px; width: 92%; max-width: 420px; }
-    .row { display: flex; justify-content: space-between; margin: 6px 0; }
-    .hamster { width: 180px; height: 180px; border-radius: 50%; background: url('https://i.imgur.com/8QfQY4F.png') center/cover no-repeat; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform .1s; }
-    .hamster:active { transform: scale(0.95); }
-    button { width: 100%; padding: 10px; margin-top: 6px; border-radius: 10px; border: none; background:#6a2c70; color:#fff; font-size:14px; }
-    button:disabled { opacity:0.5 }
-    small { opacity:0.8 }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamster Clicker Ultimate</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+body{margin:0;font-family:Arial;background:linear-gradient(180deg,#f5b971,#f08a5d);color:#fff;display:flex;flex-direction:column;align-items:center;gap:10px;height:100vh;user-select:none}
+.panel{background:rgba(0,0,0,.25);padding:12px;border-radius:14px;width:94%;max-width:420px}
+.row{display:flex;justify-content:space-between;margin:6px 0}
+.hamster{width:180px;height:180px;border-radius:50%;background:url('https://i.imgur.com/8QfQY4F.png') center/cover no-repeat;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:.1s}
+.hamster:active{transform:scale(.94)}
+button{width:100%;padding:10px;margin-top:6px;border-radius:10px;border:none;background:#6a2c70;color:#fff;font-size:14px}
+button:disabled{opacity:.5}
+small{opacity:.8}
+</style>
 </head>
 <body>
 
 <div class="panel">
-  <div class="row">💰 Очки: <span id="score">0</span></div>
-  <div class="row">🔋 Энергия: <span id="energy">0</span>/<span id="maxEnergy">0</span></div>
-  <div class="row">⏱ Доход/сек: <span id="income">0</span></div>
+<div class="row">💰 Очки: <span id="score">0</span></div>
+<div class="row">🔋 Энергия: <span id="energy">0</span>/<span id="maxEnergy">0</span></div>
+<div class="row">⏱ Доход/сек: <span id="income">0</span></div>
+<div class="row">🌟 Престиж: <span id="prestige">0</span></div>
 </div>
 
 <div class="hamster" id="hamster"></div>
 
 <div class="panel">
-  <strong>🏗 Апгрейды</strong>
-  <button onclick="upgradeClick()">👆 Клик +1 (100)</button>
-  <button onclick="upgradeIncome()">⏱ Доход +1 (150)</button>
-  <button onclick="upgradeEnergy()">🔋 Макс энергия +5 (120)</button>
+<strong>🏗 Апгрейды</strong>
+<button onclick="up('click')">👆 Сила клика</button>
+<button onclick="up('income')">⏱ Доход</button>
+<button onclick="up('energy')">🔋 Энергия</button>
+<button onclick="up('regen')">♻️ Реген</button>
+<button onclick="up('crit')">💥 Крит</button>
+<button onclick="up('offline')">🕒 Оффлайн</button>
 </div>
 
 <div class="panel">
-  <strong>🏆 Топ</strong>
-  <div id="leaderboard"></div>
-  <small>локально (без сервера)</small>
+<strong>🎯 Миссии</strong>
+<div id="missions"></div>
+</div>
+
+<div class="panel">
+<strong>🏆 Топ</strong>
+<div id="leaderboard"></div>
+<small>локальный</small>
+</div>
+
+<div class="panel">
+<button onclick="prestigeReset()">🌟 Престиж (сброс + бонус)</button>
+</div>
+
+<div class="panel">
+<strong>🌍 Глобальный ивент</strong>
+<div id="eventInfo">Нет активных ивентов</div>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp; tg.expand();
+const tg=window.Telegram.WebApp; tg.expand();
 
-// ===== STATE =====
-let state = JSON.parse(localStorage.getItem('hamsterUltimate')) || {
-  score: 0,
-  clickPower: 1,
-  income: 0,
-  energy: 10,
-  maxEnergy: 10,
-  lastOnline: Date.now()
+let state=JSON.parse(localStorage.getItem('hamsterMax'))||{
+score:0,click:1,income:0,energy:10,maxEnergy:10,regen:.5,crit:0,offline:1,prestige:0,last:Date.now(),missions:{clicks:0}
 };
+let s=state;
 
-let { score, clickPower, income, energy, maxEnergy, lastOnline } = state;
+// OFFLINE INCOME
+let now=Date.now();
+let off=Math.floor((now-s.last)/1000);
+if(off>0)s.score+=off*s.income*s.offline;
+s.last=now;
 
-// ===== OFFLINE INCOME =====
-let now = Date.now();
-let offlineSeconds = Math.floor((now - lastOnline) / 1000);
-if (offlineSeconds > 0 && income > 0) {
-  score += offlineSeconds * income;
-}
-lastOnline = now;
+const scoreEl=document.getElementById('score');
+const energyEl=document.getElementById('energy');
+const maxEnergyEl=document.getElementById('maxEnergy');
+const incomeEl=document.getElementById('income');
+const prestigeEl=document.getElementById('prestige');
+const hamster=document.getElementById('hamster');
+const missionsDiv=document.getElementById('missions');
+const leaderboard=document.getElementById('leaderboard');
+const eventInfo=document.getElementById('eventInfo');
 
-// ===== UI =====
-const scoreEl = document.getElementById('score');
-const energyEl = document.getElementById('energy');
-const maxEnergyEl = document.getElementById('maxEnergy');
-const incomeEl = document.getElementById('income');
-const hamster = document.getElementById('hamster');
-const leaderboardEl = document.getElementById('leaderboard');
+const prices={click:100,income:150,energy:120,regen:200,crit:250,offline:300};
+const EVENTS={doubleIncome:{name:'💰 Двойной доход',desc:'Весь доход x2',incomeMultiplier:2},freeEnergy:{name:'🔋 Бесплатные клики',desc:'Клики не тратят энергию',freeEnergy:true},critFest:{name:'💥 Крит-фест',desc:'+50% к криту',critBonus:.5}};
+let activeEvent=JSON.parse(localStorage.getItem('activeEvent'))||null;
 
-function updateUI(){
-  scoreEl.textContent = Math.floor(score);
-  energyEl.textContent = Math.floor(energy);
-  maxEnergyEl.textContent = maxEnergy;
-  incomeEl.textContent = income;
-  updateLeaderboard();
-}
+function save(){localStorage.setItem('hamsterMax',JSON.stringify(s));}
 
-function save(){
-  localStorage.setItem('hamsterUltimate', JSON.stringify({score, clickPower, income, energy, maxEnergy, lastOnline}));
-  updateUI();
-}
-
-// ===== CLICK =====
-hamster.onclick = () => {
-  if (energy < 1) return;
-  score += clickPower;
-  energy -= 1;
-  tg.HapticFeedback.impactOccurred('light');
-  save();
+function ui(){
+scoreEl.textContent=Math.floor(s.score);
+energyEl.textContent=Math.floor(s.energy);
+maxEnergyEl.textContent=s.maxEnergy;
+incomeEl.textContent=s.income;
+prestigeEl.textContent=s.prestige;
+missionsUI();
+topUI();
+renderEvent(); save();
 }
 
-// ===== UPGRADES =====
-function upgradeClick(){ if(score>=100){ score-=100; clickPower++; save(); }}
-function upgradeIncome(){ if(score>=150){ score-=150; income++; save(); }}
-function upgradeEnergy(){ if(score>=120){ score-=120; maxEnergy+=5; energy+=5; save(); }}
-
-// ===== PASSIVE =====
-setInterval(()=>{ score+=income; save(); },1000);
-
-// ===== ENERGY REGEN =====
-setInterval(()=>{ if(energy<maxEnergy){ energy+=0.5; save(); } },1000);
-
-// ===== LEADERBOARD =====
-function updateLeaderboard(){
-  let top = JSON.parse(localStorage.getItem('hamsterTop')) || [];
-  if(!top.includes(Math.floor(score))){
-    top.push(Math.floor(score));
-    top = top.sort((a,b)=>b-a).slice(0,5);
-    localStorage.setItem('hamsterTop', JSON.stringify(top));
-  }
-  leaderboardEl.innerHTML = top.map((s,i)=>`#${i+1} — ${s}`).join('<br>');
+hamster.onclick=()=>{
+if(!isFreeEnergy()&&s.energy<1)return;
+let gain=s.click*(1+s.prestige*.1);
+if(Math.random()<s.crit+getCritBonus())gain*=2;
+s.score+=gain;
+if(!isFreeEnergy())s.energy--;
+s.missions.clicks++;
+tg.HapticFeedback.impactOccurred('light');
+ui();
 }
 
-updateUI(); save();
+function up(t){
+if(s.score<prices[t])return;s.score-=prices[t];
+if(t==='click')s.click++;
+if(t==='income')s.income++;
+if(t==='energy'){s.maxEnergy+=5;s.energy+=5;}
+if(t==='regen')s.regen+=.2;
+if(t==='crit'&&s.crit<.5)s.crit+=.05;
+if(t==='offline')s.offline*=1.5;
+ui();
+}
+
+function missionsUI(){
+missionsDiv.innerHTML=`Сделай 100 кликов: ${s.missions.clicks}/100 ${s.missions.clicks>=100?'✅ +500':''}`;
+if(s.missions.clicks===100){s.score+=500;}
+}
+
+function prestigeReset(){
+if(s.score<10000)return;
+s.prestige++;
+Object.assign(s,{score:0,click:1,income:0,energy:10,maxEnergy:10,regen:.5,crit:0,offline:1,missions:{clicks:0}});
+ui();
+}
+
+function topUI(){
+let t=JSON.parse(localStorage.getItem('hamTop'))||[];
+if(!t.includes(Math.floor(s.score)))t.push(Math.floor(s.score));
+t=t.sort((a,b)=>b-a).slice(0,5);
+localStorage.setItem('hamTop',JSON.stringify(t));
+leaderboard.innerHTML=t.map((v,i)=>`#${i+1} — ${v}`).join('<br>');
+}
+
+// EVENTS
+function startEvent(key,duration=600){activeEvent={key,ends:Date.now()+duration*1000};localStorage.setItem('activeEvent',JSON.stringify(activeEvent)); renderEvent();}
+function stopEvent(){activeEvent=null; localStorage.removeItem('activeEvent'); renderEvent();}
+function renderEvent(){
+if(!activeEvent){eventInfo.textContent='Нет активных ивентов'; return;}
+const ev=EVENTS[activeEvent.key];
+const left=Math.max(0,Math.floor((activeEvent.ends-Date.now())/1000));
+eventInfo.innerHTML=`${ev.name}<br>${ev.desc}<br>⏳ ${left} сек.`;
+if(left<=0)stopEvent();
+}
+function getIncomeMultiplier(){return activeEvent?.key==='doubleIncome'?2:1;}
+function isFreeEnergy(){return activeEvent?.key==='freeEnergy';}
+function getCritBonus(){return activeEvent?.key==='critFest'?0.5:0;}
+
+setInterval(()=>{s.score+=s.income*getIncomeMultiplier()*(1+s.prestige*.1); ui();},1000);
+setInterval(()=>{if(s.energy<s.maxEnergy){s.energy+=s.regen; ui();}},1000);
+setInterval(renderEvent,1000);
+if(!activeEvent)startEvent('doubleIncome',300);
+
+ui();
+
+// REFERRAL SYSTEM
+// пример frontend
+// fetch('/referral/join',{method:'POST',body: JSON.stringify({tg_id, referrer_id})})
 </script>
+
 </body>
 </html>
+
+
 
 
 
