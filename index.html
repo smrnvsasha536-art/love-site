@@ -116,7 +116,7 @@ upgradeMineBtn.addEventListener("click", () => {
     if(balance >= cost){
         balance -= cost;
         upgrades.mine.level++;
-        mineMultiplier += 0.1;
+        mineMultiplier = 1 + upgrades.mine.level * 0.1; // пересчёт
         updateUI();
     }
 });
@@ -254,6 +254,10 @@ function loadGame() {
 
     if(localStorage.getItem("achievements")) achievements = JSON.parse(localStorage.getItem("achievements"));
 
+    // Пересчёт множителя по уровню
+    mineMultiplier = 1 + upgrades.mine.level * 0.1;
+    bonusMultiplier = upgrades.bonus.active ? 2 : 1;
+
     updateUI();
 }
 
@@ -263,6 +267,7 @@ loadGame();
 
 </body>
 </html>
+
 
 
 
