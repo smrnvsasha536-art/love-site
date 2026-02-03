@@ -1,316 +1,79 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Личный кабинет — Ростелеком</title>
-
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: "Roboto", "Segoe UI", Arial, sans-serif;
-  background: #f5f7fa;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Header */
-header {
-  background: #fff;
-  padding: 15px 40px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-.logo {
-  font-weight: 700;
-  font-size: 22px;
-  color: #ff4f12;
-}
-
-/* Main layout */
-.main {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 20px;
-}
-
-.left {
-  max-width: 400px;
-  margin-right: 50px;
-}
-
-.left h1 {
-  font-size: 36px;
-  color: #1a1a1a;
-  margin-bottom: 10px;
-}
-
-.left p {
-  font-size: 16px;
-  color: #555;
-}
-
-/* Card */
-.card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 30px;
-  width: 380px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-}
-
-.card h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
-  color: #1a1a1a;
-}
-
-.card p {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-input {
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  font-size: 15px;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: 0.3s;
-  border: none;
-}
-
-.primary {
-  background: #ff4f12;
-  color: #fff;
-  font-weight: 600;
-}
-
-.primary:hover {
-  background: #e64510;
-}
-
-.secondary {
-  margin-top: 10px;
-  border: 2px solid #ff4f12;
-  color: #ff4f12;
-  background: #fff;
-  font-weight: 600;
-}
-
-.secondary:hover {
-  background: #fff4ef;
-}
-
-/* Social buttons */
-.social {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.social div {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #f2f2f2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: #666;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.social div:hover {
-  background: #ff4f12;
-  color: #fff;
-}
-
-/* Help link */
-.help {
-  margin-top: 15px;
-  text-align: center;
-  color: #ff4f12;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-/* Footer */
-footer {
-  padding: 15px 40px;
-  font-size: 13px;
-  color: #777;
-  display: flex;
-  justify-content: space-between;
-  background: #fff;
-  box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .main {
-    flex-direction: column;
-    align-items: center;
-  }
-  .left {
-    margin-right: 0;
-    margin-bottom: 30px;
-    text-align: center;
-  }
-}
-
-/* Snowflake */
-.snowflake {
-  position: fixed;
-  top: -10px;
-  background: white;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 1000;
-  opacity: 0.8;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Отправка SMS</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    form { max-width: 400px; margin: auto; display: flex; flex-direction: column; gap: 10px; }
+    input, select, button { padding: 10px; font-size: 16px; }
+    #result { text-align: center; font-weight: bold; margin-top: 15px; }
+  </style>
 </head>
-
 <body>
 
-<header>
-  <div class="logo">Ростелеком</div>
-</header>
+<h2>Отправка SMS через Email-to-SMS</h2>
 
-<div class="main">
-  <div class="left">
-    <h1>Личный кабинет</h1>
-    <p>Ваш персональный помощник в цифровом мире Ростелекома</p>
-  </div>
+<form id="smsForm">
+  <input type="text" id="phone" placeholder="Номер телефона (например, 9261234567)" required>
+  <select id="operator" required>
+    <option value="">Выберите оператора</option>
+    <option value="mts">MTS</option>
+    <option value="beeline">Beeline</option>
+    <option value="megafon">Megafon</option>
+    <option value="tele2">Tele2</option>
+  </select>
+  <input type="text" id="text" placeholder="Текст сообщения" required>
+  <button type="submit">Отправить SMS</button>
+</form>
 
-  <div class="card">
-    <h2>Вход по SMS-уведомлению</h2>
-    <p>Введите номер телефона, чтобы получить уведомление</p>
-    <input type="text" id="phoneInput" placeholder="+7 (___) ___-__-__">
-    <button class="primary" id="sendNoticeBtn">Отправить SMS</button>
-    <div id="statusMessage" style="margin-top:10px; font-size:14px; color:#555;"></div>
-
-    <button class="secondary">Войти с паролем</button>
-
-    <div class="social">
-      <div>T</div>
-      <div>Я</div>
-      <div>VK</div>
-      <div>@</div>
-      <div>OK</div>
-    </div>
-
-    <div class="help">Помощь</div>
-  </div>
-</div>
-
-<footer>
-  <div>© 2026 ПАО «Ростелеком». 18+</div>
-  <div>8 800 100 0 800</div>
-</footer>
+<p id="result"></p>
 
 <script>
-// Реалистичный снег
-function createSnowflake() {
-  if (document.querySelectorAll('.snowflake').length > 50) return;
+const form = document.getElementById('smsForm');
+const result = document.getElementById('result');
 
-  const snowflake = document.createElement('div');
-  snowflake.classList.add('snowflake');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-  const size = Math.random() * 8 + 4;
-  snowflake.style.width = size + 'px';
-  snowflake.style.height = size + 'px';
-  let posX = Math.random() * window.innerWidth;
-  snowflake.style.left = posX + 'px';
-  snowflake.style.top = '-10px';
-  snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+  const phone = document.getElementById('phone').value.trim();
+  const operator = document.getElementById('operator').value;
+  const text = document.getElementById('text').value.trim();
 
-  const speedY = 1 + Math.random() * 2;
-  const amplitude = Math.random() * 25 + 10;
-  const speedX = Math.random() * 0.02 + 0.01;
-  const rotationSpeed = Math.random() * 0.05 + 0.01;
-  let angle = 0;
-  let rotation = 0;
-
-  function fall() {
-    angle += speedX;
-    rotation += rotationSpeed;
-    const x = posX + Math.sin(angle) * amplitude;
-    const y = parseFloat(snowflake.style.top) + speedY;
-
-    snowflake.style.top = y + 'px';
-    snowflake.style.left = x + 'px';
-    snowflake.style.transform = `rotate(${rotation * 360}deg)`;
-
-    if (y > window.innerHeight) {
-      snowflake.remove();
-      return;
-    }
-    requestAnimationFrame(fall);
-  }
-
-  document.body.appendChild(snowflake);
-  requestAnimationFrame(fall);
-}
-
-setInterval(createSnowflake, 150);
-
-// Отправка SMS (через сервер)
-document.getElementById('sendNoticeBtn').addEventListener('click', async () => {
-  const phone = document.getElementById('phoneInput').value.trim();
-  const status = document.getElementById('statusMessage');
-
-  if (!phone) {
-    status.textContent = "Пожалуйста, укажите номер телефона.";
-    status.style.color = "red";
+  if(!phone || !operator || !text){
+    result.textContent = 'Заполните все поля!';
+    result.style.color = 'red';
     return;
   }
 
-  status.style.color = "#555";
-  status.textContent = `Отправляем сообщение на ${phone}...`;
-
   try {
-    const response = await fetch('http://localhost:3000/send-notice', {
+    const response = await fetch('http://localhost:3000/send-sms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
+      body: JSON.stringify({ phone, operator, text })
     });
 
     const data = await response.json();
 
-    if (data.success) {
-      status.style.color = "green";
-      status.textContent = data.message;
+    if(data.success){
+      result.textContent = data.message;
+      result.style.color = 'green';
+      form.reset();
     } else {
-      status.style.color = "red";
-      status.textContent = "Ошибка: " + data.message;
+      result.textContent = 'Ошибка: ' + data.message;
+      result.style.color = 'red';
     }
   } catch (err) {
-    status.style.color = "red";
-    status.textContent = "Ошибка соединения с сервером";
+    result.textContent = 'Ошибка сети: ' + err.message;
+    result.style.color = 'red';
   }
 });
 </script>
 
 </body>
 </html>
+
+
 
 
 
