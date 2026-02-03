@@ -199,21 +199,27 @@ function showEventMessage(msg){
 // --- График ---
 function drawChart() {
     ctx.clearRect(0,0,chart.width, chart.height);
+    if(chartData.length === 0) return;
+
+    const maxBTC = Math.max(...chartData.map(c=>c.btc), 0.0001);
+    const maxMined = Math.max(...chartData.map(c=>c.mined), 0.0001);
+
     // BTC
     ctx.strokeStyle = "gold";
     ctx.beginPath();
     chartData.forEach((d,i) => {
         let x = i * (chart.width / chartData.length);
-        let y = chart.height - (d.btc / (Math.max(...chartData.map(c=>c.btc),0.0001) * 1.1) * chart.height);
+        let y = chart.height - (d.btc / (maxBTC * 1.1) * chart.height);
         if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
     });
     ctx.stroke();
+
     // Всего добыто
     ctx.strokeStyle = "lime";
     ctx.beginPath();
     chartData.forEach((d,i) => {
         let x = i * (chart.width / chartData.length);
-        let y = chart.height - (d.mined / (Math.max(...chartData.map(c=>c.mined),0.0001) * 1.1) * chart.height);
+        let y = chart.height - (d.mined / (maxMined * 1.1) * chart.height);
         if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
     });
     ctx.stroke();
@@ -230,8 +236,24 @@ function saveGame() {
 function loadGame() {
     if(localStorage.getItem("balance")) balance = parseFloat(localStorage.getItem("balance"));
     if(localStorage.getItem("totalMined")) totalMined = parseFloat(localStorage.getItem("totalMined"));
-    if(localStorage.getItem("upgrades")) upgrades = JSON.parse(localStorage.getItem("upgrades"));
+
+    if(localStorage.getItem("upgrades")) {
+        upgrades = JSON.parse(localStorage.getItem("upgrades"));
+
+        // Явное приведение типов
+        upgrades.mine.level = Number(upgrades.mine.level);
+        upgrades.mine.baseCost = Number(upgrades.mine.baseCost);
+        upgrades.automine.level = Number(upgrades.automine.level);
+        upgrades.automine.baseCost = Number(upgrades.automine.baseCost);
+        upgrades.automine.value = Number(upgrades.automine.value);
+        upgrades.bonus.active = Boolean(upgrades.bonus.active);
+        upgrades.bonus.timer = Number(upgrades.bonus.timer);
+        upgrades.bonus.cost = Number(upgrades.bonus.cost);
+        upgrades.bonus.duration = Number(upgrades.bonus.duration);
+    }
+
     if(localStorage.getItem("achievements")) achievements = JSON.parse(localStorage.getItem("achievements"));
+
     updateUI();
 }
 
@@ -241,6 +263,7 @@ loadGame();
 
 </body>
 </html>
+
 
 
 
