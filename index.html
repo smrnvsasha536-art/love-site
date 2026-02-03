@@ -1,109 +1,193 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Личный кабинет Ростелеком</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f4f8;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #0073e6;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    .container {
-      max-width: 900px;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    .section {
-      margin-bottom: 20px;
-    }
-    h2 {
-      color: #0073e6;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      text-align: left;
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    }
-    button {
-      background-color: #0073e6;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #005bb5;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Личный кабинет</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: radial-gradient(circle at 30% 50%, #bfe6ff, #f5f7fa 60%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 20px 40px;
+}
+
+.logo {
+  font-weight: 600;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8%;
+}
+
+.left {
+  max-width: 420px;
+}
+
+.left h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.left p {
+  color: #555;
+  font-size: 16px;
+}
+
+.card {
+  width: 380px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.12);
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 14px;
+  color: #666;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 15px 0;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.primary {
+  background: #ff4f12;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+}
+
+.secondary {
+  margin-top: 10px;
+  background: #fff;
+  border: 2px solid #ff4f12;
+  color: #ff4f12;
+  font-weight: 600;
+}
+
+.primary:hover { background: #e64510; }
+.secondary:hover { background: #fff4ef; }
+
+.social {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.social div {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #f2f2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #666;
+}
+
+.help {
+  margin-top: 15px;
+  text-align: center;
+  color: #ff4f12;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+footer {
+  padding: 15px 40px;
+  font-size: 13px;
+  color: #777;
+  display: flex;
+  justify-content: space-between;
+}
+</style>
 </head>
+
 <body>
 
 <header>
-  <h1>Личный кабинет Ростелеком</h1>
+  <div class="logo">◆ Ростелеком</div>
 </header>
 
-<div class="container">
-  <div class="section">
-    <h2>Баланс</h2>
-    <p id="balance">Загрузка...</p>
-    <button onclick="refreshBalance()">Обновить баланс</button>
+<div class="main">
+  <div class="left">
+    <h1>Личный кабинет</h1>
+    <p>Персональный помощник в цифровом мире</p>
   </div>
 
-  <div class="section">
-    <h2>Тариф</h2>
-    <p>Название тарифа: <span id="tariff">Стартовый</span></p>
-    <p>Стоимость: <span id="price">500 ₽/мес</span></p>
-  </div>
+  <div class="card">
+    <h2>Вход по временному коду</h2>
+    <p>Укажите почту или номер телефона для получения кода</p>
 
-  <div class="section">
-    <h2>История платежей</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Дата</th>
-          <th>Сумма</th>
-          <th>Статус</th>
-        </tr>
-      </thead>
-      <tbody id="paymentHistory">
-        <tr><td>01.02.2026</td><td>500 ₽</td><td>Оплачено</td></tr>
-        <tr><td>01.01.2026</td><td>500 ₽</td><td>Оплачено</td></tr>
-      </tbody>
-    </table>
+    <input type="text" placeholder="E-mail или мобильный телефон">
+
+    <button class="primary" onclick="alert('Демо: код отправлен')">
+      Получить код
+    </button>
+
+    <button class="secondary">
+      Войти со своим паролем
+    </button>
+
+    <div class="social">
+      <div>T</div>
+      <div>Я</div>
+      <div>VK</div>
+      <div>@</div>
+      <div>OK</div>
+    </div>
+
+    <div class="help">Помощь</div>
   </div>
 </div>
 
-<script>
-  function refreshBalance() {
-    // Симуляция запроса к серверу
-    const randomBalance = (Math.random() * 1000).toFixed(2);
-    document.getElementById('balance').textContent = randomBalance + ' ₽';
-  }
-
-  // Инициализация баланса при загрузке
-  window.onload = refreshBalance;
-</script>
+<footer>
+  <div>© 2026 ПАО «Ростелеком». 18+</div>
+  <div>8 800 100 0 800</div>
+</footer>
 
 </body>
 </html>
+
 
 
 
