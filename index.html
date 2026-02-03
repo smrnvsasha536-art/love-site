@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Биткоин/Рубль Кликер</title>
+<title>Биткоин Кликер</title>
 <style>
 body { font-family: Arial, sans-serif; background: #111; color: #eee; text-align: center; padding: 20px; }
 h1 { color: gold; }
@@ -47,7 +47,7 @@ canvas { background: #222; border: 1px solid #555; margin-top: 20px; }
 // --- Основные переменные ---
 let balance = 0;
 let totalMined = 0;
-let baseMine = 0.0001; // за клик
+let baseMine = 0.0001;
 let mineMultiplier = 1;
 let bonusMultiplier = 1;
 
@@ -86,8 +86,8 @@ function updateUI() {
     multiplierEl.textContent = `Множитель: ×${(mineMultiplier * bonusMultiplier).toFixed(1)}`;
     upgradeMineLvl.textContent = `Уровень: ${upgrades.mine.level}`;
     autoMineLvl.textContent = `Уровень: ${upgrades.automine.level}`;
-    upgradeMineBtn.textContent = `Улучшить майнинг (${upgrades.mine.baseCost * Math.pow(1.15, upgrades.mine.level).toFixed(4)} BTC)`;
-    autoMineBtn.textContent = `Купить автопул (${upgrades.automine.baseCost * Math.pow(1.15, upgrades.automine.level).toFixed(4)} BTC)`;
+    upgradeMineBtn.textContent = `Улучшить майнинг (${(upgrades.mine.baseCost * Math.pow(1.15, upgrades.mine.level)).toFixed(4)} BTC)`;
+    autoMineBtn.textContent = `Купить автопул (${(upgrades.automine.baseCost * Math.pow(1.15, upgrades.automine.level)).toFixed(4)} BTC)`;
     bonusBtn.textContent = upgrades.bonus.active ? `×2 активен!` : `×2 дохода (${upgrades.bonus.cost} BTC)`;
     bonusTimerEl.textContent = `Время: ${upgrades.bonus.timer}`;
 }
@@ -241,6 +241,8 @@ loadGame();
 
 </body>
 </html>
+
+
 
 
 
