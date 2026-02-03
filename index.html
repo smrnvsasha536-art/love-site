@@ -3,22 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Личный кабинет</title>
+<title>Личный кабинет — Ростелеком</title>
 
 <style>
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  background: radial-gradient(circle at 30% 50%, #bfe6ff, #f5f7fa 60%);
+  font-family: "Roboto", "Segoe UI", Arial, sans-serif;
+  background: #f5f7fa;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  position: relative;
 }
 
-/* Снежинки */
+/* Header */
+header {
+  background: #fff;
+  padding: 15px 40px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 22px;
+  color: #ff4f12;
+}
+
+/* Main layout */
+.main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.left {
+  max-width: 400px;
+  margin-right: 50px;
+}
+
+.left h1 {
+  font-size: 36px;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.left p {
+  font-size: 16px;
+  color: #555;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  width: 380px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.card h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+
+.card p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+  border: none;
+}
+
+.primary {
+  background: #ff4f12;
+  color: #fff;
+  font-weight: 600;
+}
+
+.primary:hover {
+  background: #e64510;
+}
+
+.secondary {
+  margin-top: 10px;
+  border: 2px solid #ff4f12;
+  color: #ff4f12;
+  background: #fff;
+  font-weight: 600;
+}
+
+.secondary:hover {
+  background: #fff4ef;
+}
+
+/* Social buttons */
+.social {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.social div {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #f2f2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #666;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.social div:hover {
+  background: #ff4f12;
+  color: #fff;
+}
+
+/* Help link */
+.help {
+  margin-top: 15px;
+  text-align: center;
+  color: #ff4f12;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Footer */
+footer {
+  padding: 15px 40px;
+  font-size: 13px;
+  color: #777;
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .main {
+    flex-direction: column;
+    align-items: center;
+  }
+  .left {
+    margin-right: 0;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+}
+
+/* Snow effect */
 .snowflake {
   position: fixed;
   top: -10px;
@@ -34,121 +191,27 @@ body {
   0% { transform: translateY(-10px) rotate(0deg); }
   100% { transform: translateY(110vh) rotate(360deg); }
 }
-
-header { padding: 20px 40px; }
-
-.logo {
-  font-weight: 600;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 8%;
-}
-
-.left { max-width: 420px; }
-.left h1 { font-size: 36px; margin-bottom: 10px; }
-.left p { color: #555; font-size: 16px; }
-
-.card {
-  width: 380px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 20px 50px rgba(0,0,0,.12);
-}
-
-.card h2 { margin-top: 0; margin-bottom: 10px; }
-.card p { font-size: 14px; color: #666; }
-
-input {
-  width: 100%;
-  padding: 14px;
-  margin: 15px 0;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  font-size: 15px;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.primary {
-  background: #ff4f12;
-  border: none;
-  color: #fff;
-  font-weight: 600;
-}
-.secondary {
-  margin-top: 10px;
-  background: #fff;
-  border: 2px solid #ff4f12;
-  color: #ff4f12;
-  font-weight: 600;
-}
-.primary:hover { background: #e64510; }
-.secondary:hover { background: #fff4ef; }
-
-.social {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-.social div {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #f2f2f2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: #666;
-}
-
-.help { margin-top: 15px; text-align: center; color: #ff4f12; font-weight: 500; cursor: pointer; }
-
-footer {
-  padding: 15px 40px;
-  font-size: 13px;
-  color: #777;
-  display: flex;
-  justify-content: space-between;
-}
 </style>
 </head>
 
 <body>
 
 <header>
-  <div class="logo">◆ Ростелеком</div>
+  <div class="logo">Ростелеком</div>
 </header>
 
 <div class="main">
   <div class="left">
     <h1>Личный кабинет</h1>
-    <p>Персональный помощник в цифровом мире</p>
+    <p>Ваш персональный помощник в цифровом мире Ростелекома</p>
   </div>
 
   <div class="card">
     <h2>Вход по временному коду</h2>
-    <p>Укажите почту или номер телефона для получения кода</p>
-
-    <input type="text" placeholder="E-mail или мобильный телефон">
+    <p>Укажите e-mail или номер телефона для получения кода</p>
+    <input type="text" placeholder="E-mail или телефон">
     <button class="primary" onclick="alert('Демо: код отправлен')">Получить код</button>
-    <button class="secondary">Войти со своим паролем</button>
+    <button class="secondary">Войти с паролем</button>
 
     <div class="social">
       <div>T</div>
@@ -168,28 +231,33 @@ footer {
 </footer>
 
 <script>
-// Генерация снежинок
+// Snow effect
 function createSnowflake() {
+  if (document.querySelectorAll('.snowflake').length > 50) return; // ограничение
   const snowflake = document.createElement('div');
   snowflake.classList.add('snowflake');
-  const size = Math.random() * 8 + 4; // размер 4-12px
+  const size = Math.random() * 8 + 4; 
   snowflake.style.width = size + 'px';
   snowflake.style.height = size + 'px';
   snowflake.style.left = Math.random() * window.innerWidth + 'px';
   snowflake.style.animationDuration = (5 + Math.random() * 10) + 's';
-  snowflake.style.opacity = Math.random();
-  document.body.appendChild(snowflake);
+  snowflake.style.opacity = Math.random() * 0.8 + 0.2;
 
-  // удаляем снежинку после падения
+  // Добавим легкое колебание по горизонтали
+  snowflake.style.animationName = 'fall';
+  snowflake.style.transform = `translateX(0px)`;
+
+  document.body.appendChild(snowflake);
   setTimeout(() => snowflake.remove(), 15000);
 }
 
-// создаем по 2 снежинки каждые 200ms
 setInterval(createSnowflake, 200);
 </script>
 
 </body>
 </html>
+
+
 
 
 
