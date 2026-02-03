@@ -2,157 +2,421 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<title>🌈 NEON SLOT DELUXE 🌈</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idle City Clicker</title>
+
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #ffecd2, #fcb69f);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        overflow: hidden;
-    }
-    .game-container {
-        background: rgba(255,255,255,0.95);
-        padding: 25px;
-        border-radius: 25px;
-        width: 360px;
-        text-align: center;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.25);
-        animation: fadeIn 0.6s ease;
-        margin-bottom: 80px;
-    }
-    @keyframes fadeIn { from{opacity:0; transform:scale(0.95)} to{opacity:1; transform:scale(1)} }
+/* ======================================================
+   GLOBAL RESET
+====================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    #click-button{
-        background: radial-gradient(circle, #ff6f61, #ff3d2e);
-        color:#fff;
-        font-size:26px;
-        border:none;
-        border-radius:50%;
-        width:160px;
-        height:160px;
-        cursor:pointer;
-        box-shadow:0 10px 25px rgba(0,0,0,0.3);
-        animation:pulse 2s infinite;
-    }
-    #click-button:active{ transform:scale(0.9) }
-    @keyframes pulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+/* ======================================================
+   BODY
+====================================================== */
+body {
+    background: radial-gradient(circle at top, #1b0033, #000000);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    overflow: hidden;
+}
 
-    .stats{margin-top:15px; font-size:18px}
-    button{width:100%; padding:10px; margin:5px 0; border:none; border-radius:12px; cursor:pointer}
+/* ======================================================
+   MAIN CONTAINER
+====================================================== */
+#game {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
-    .screen{display:none}
-    .screen.active{display:block}
+/* ======================================================
+   HEADER
+====================================================== */
+#header {
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-shadow:
+        0 0 5px #ff00ff,
+        0 0 15px #ff00ff,
+        0 0 25px #00ffff;
+    margin-bottom: 10px;
+}
 
-    .city{display:flex; overflow-x:auto; gap:15px; padding:10px}
-    .building{
-        min-width:140px;
-        background:#ffd369;
-        border-radius:18px;
-        padding:12px;
-        box-shadow:0 5px 15px rgba(0,0,0,0.2);
-        animation:pop 0.4s ease;
-    }
-    @keyframes pop{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+/* ======================================================
+   INFO PANEL
+====================================================== */
+#info {
+    display: flex;
+    gap: 40px;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
 
-    .bottom-menu{
-        position:fixed; bottom:0; left:0; width:100%;
-        display:flex; justify-content:space-around;
-        background:#fff; padding:10px 0;
-        box-shadow:0 -5px 15px rgba(0,0,0,0.25)
-    }
-    .bottom-menu button{
-        background:#ff6f61; color:#fff; border-radius:12px; padding:10px 14px
-    }
+.info-box {
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #200040, #0a0015);
+    box-shadow: 0 0 10px rgba(255,0,255,0.3);
+}
+
+/* ======================================================
+   SLOT MACHINE
+====================================================== */
+#slot-machine {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #12002b, #000);
+    box-shadow:
+        0 0 20px #ff00ff,
+        inset 0 0 10px #00ffff;
+}
+
+/* ======================================================
+   REEL
+====================================================== */
+.reel {
+    width: 120px;
+    height: 360px;
+    overflow: hidden;
+    border-radius: 15px;
+    background: linear-gradient(180deg, #000, #1a0033);
+    box-shadow: inset 0 0 10px #000;
+    position: relative;
+}
+
+/* ======================================================
+   SYMBOL
+====================================================== */
+.symbol {
+    width: 100%;
+    height: 120px;
+    font-size: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow:
+        0 0 5px #fff,
+        0 0 10px currentColor;
+}
+
+/* ======================================================
+   CONTROLS
+====================================================== */
+#controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+button {
+    padding: 12px 28px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(145deg, #ff00ff, #00ffff);
+    color: #000;
+    box-shadow:
+        0 0 10px #ff00ff,
+        0 0 20px #00ffff;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+    transform: scale(1.1);
+    box-shadow:
+        0 0 20px #ff00ff,
+        0 0 40px #00ffff;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ======================================================
+   MESSAGE
+====================================================== */
+#message {
+    margin-top: 15px;
+    font-size: 22px;
+    min-height: 30px;
+    text-shadow: 0 0 10px #ffff00;
+}
+
+/* ======================================================
+   PARTICLES
+====================================================== */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
 </style>
 </head>
 <body>
 
-<div class="game-container">
+<div id="game">
+    <div id="header">🌈 NEON SLOT DELUXE 🌈</div>
 
-<div id="main" class="screen active">
-    <h2>💰 Idle City Clicker</h2>
-    <button id="click-button">+</button>
-    <div class="stats">Очки: <span id="score">0</span></div>
+    <div id="info">
+        <div class="info-box">💰 Баланс: <span id="balance">1000</span></div>
+        <div class="info-box">🎯 Ставка: <span id="bet">50</span></div>
+        <div class="info-box">🏆 Джекпот: <span id="jackpot">5000</span></div>
+    </div>
+
+    <div id="slot-machine">
+        <div class="reel" id="reel0"></div>
+        <div class="reel" id="reel1"></div>
+        <div class="reel" id="reel2"></div>
+        <div class="reel" id="reel3"></div>
+        <div class="reel" id="reel4"></div>
+    </div>
+
+    <div id="controls">
+        <button id="spinBtn">SPIN 🎰</button>
+        <button id="autoBtn">AUTO 🔄</button>
+        <button id="betPlus">➕ BET</button>
+        <button id="betMinus">➖ BET</button>
+    </div>
+
+    <div id="message"></div>
 </div>
 
-<div id="city" class="screen">
-    <h2>🏙️ Город</h2>
-    <div class="city" id="cityList"></div>
-</div>
-
-</div>
-
-<div class="bottom-menu">
-    <button onclick="showScreen('main')">🏠</button>
-    <button onclick="showScreen('city')">🏙️</button>
-    <button onclick="alert('Скоро')">⭐</button>
-    <button onclick="alert('Скоро')">⚙️</button>
-</div>
+<canvas id="particles"></canvas>
 
 <script>
-let score = 0;
-let perClick = 1;
-
-const buildings = [
-    {name:'🏠 Дом', level:0, baseCost:100, income:1},
-    {name:'🏪 Магазин', level:0, baseCost:300, income:3},
-    {name:'🏭 Завод', level:0, baseCost:800, income:8},
-    {name:'🏦 Банк', level:0, baseCost:1500, income:15}
+/* ======================================================
+   GAME DATA
+====================================================== */
+const symbols = [
+    { icon: "🍒", value: 2, color: "#ff0044" },
+    { icon: "🍋", value: 3, color: "#ffff00" },
+    { icon: "🍊", value: 4, color: "#ff8800" },
+    { icon: "🍇", value: 5, color: "#bb00ff" },
+    { icon: "🔔", value: 8, color: "#ffee00" },
+    { icon: "💎", value: 15, color: "#00ffff" },
+    { icon: "👑", value: 30, color: "#ff00ff" }
 ];
 
-const scoreEl = document.getElementById('score');
-const cityList = document.getElementById('cityList');
+/* ======================================================
+   GAME STATE
+====================================================== */
+let balance = 1000;
+let bet = 50;
+let jackpot = 5000;
+let spinning = false;
+let autoSpin = false;
 
-function updateUI(){ scoreEl.textContent = Math.floor(score); renderCity(); }
+/* ======================================================
+   ELEMENTS
+====================================================== */
+const balanceEl = document.getElementById("balance");
+const betEl = document.getElementById("bet");
+const jackpotEl = document.getElementById("jackpot");
+const messageEl = document.getElementById("message");
+const spinBtn = document.getElementById("spinBtn");
+const autoBtn = document.getElementById("autoBtn");
 
-function showScreen(id){
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+/* ======================================================
+   REELS
+====================================================== */
+const reels = [];
+for (let i = 0; i < 5; i++) {
+    reels.push(document.getElementById("reel" + i));
 }
 
-function renderCity(){
-    cityList.innerHTML='';
-    buildings.forEach((b,i)=>{
-        const cost = Math.floor(b.baseCost * Math.pow(1.6, b.level));
-        const div = document.createElement('div');
-        div.className='building';
-        div.innerHTML = `${b.name}<br>Уровень: ${b.level}<br>Доход: ${b.level*b.income}/сек<br>Цена: ${cost}<br>`+
-        `<button onclick="upgradeBuilding(${i})">Улучшить</button>`;
-        cityList.appendChild(div);
+/* ======================================================
+   INIT REELS
+====================================================== */
+function initReels() {
+    reels.forEach(reel => {
+        reel.innerHTML = "";
+        for (let i = 0; i < 20; i++) {
+            const s = symbols[Math.floor(Math.random() * symbols.length)];
+            const div = document.createElement("div");
+            div.className = "symbol";
+            div.textContent = s.icon;
+            div.style.color = s.color;
+            reel.appendChild(div);
+        }
     });
 }
 
-function upgradeBuilding(i){
-    const b = buildings[i];
-    const cost = Math.floor(b.baseCost * Math.pow(1.6, b.level));
-    if(score>=cost){ score-=cost; b.level++; updateUI(); }
+/* ======================================================
+   SPIN LOGIC
+====================================================== */
+async function spin() {
+    if (spinning || balance < bet) return;
+
+    spinning = true;
+    balance -= bet;
+    jackpot += Math.floor(bet * 0.1);
+    updateUI();
+    messageEl.textContent = "🎰 Крутим...";
+
+    const results = [];
+
+    for (let i = 0; i < reels.length; i++) {
+        const reel = reels[i];
+        const offset = Math.floor(Math.random() * 10) + 10;
+        reel.style.transition = "none";
+        reel.style.transform = "translateY(0px)";
+
+        setTimeout(() => {
+            reel.style.transition = "transform 1s cubic-bezier(.17,.67,.83,.67)";
+            reel.style.transform = `translateY(-${offset * 120}px)`;
+        }, i * 150);
+
+        const resultSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+        results.push(resultSymbol);
+    }
+
+    await new Promise(r => setTimeout(r, 2000));
+
+    checkWin(results);
+    spinning = false;
+
+    if (autoSpin) {
+        setTimeout(spin, 500);
+    }
 }
 
-// Клик
-const clickButton = document.getElementById('click-button');
-clickButton.onclick = ()=>{
-    score += perClick;
-    clickButton.animate([{transform:'scale(1)'},{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:200});
+/* ======================================================
+   WIN CHECK
+====================================================== */
+function checkWin(results) {
+    let win = 0;
+
+    const first = results[0].icon;
+    const same = results.every(r => r.icon === first);
+
+    if (same) {
+        win = bet * results[0].value * 10;
+        messageEl.textContent = "🔥 ДЖЕКПОТ КОМБО!!! 🔥";
+        createParticles();
+    } else {
+        const counts = {};
+        results.forEach(r => {
+            counts[r.icon] = (counts[r.icon] || 0) + 1;
+        });
+
+        for (let k in counts) {
+            if (counts[k] >= 3) {
+                const sym = symbols.find(s => s.icon === k);
+                win += bet * sym.value;
+            }
+        }
+
+        if (win > 0) {
+            messageEl.textContent = "✨ Вы выиграли " + win + "!";
+        } else {
+            messageEl.textContent = "😢 Попробуй ещё!";
+        }
+    }
+
+    if (win >= jackpot) {
+        win += jackpot;
+        jackpot = 1000;
+        messageEl.textContent = "🏆 СУПЕР ДЖЕКПОТ!!! 🏆";
+        createParticles(true);
+    }
+
+    balance += win;
+    updateUI();
+}
+
+/* ======================================================
+   UI UPDATE
+====================================================== */
+function updateUI() {
+    balanceEl.textContent = balance;
+    betEl.textContent = bet;
+    jackpotEl.textContent = jackpot;
+}
+
+/* ======================================================
+   BUTTONS
+====================================================== */
+spinBtn.onclick = spin;
+
+autoBtn.onclick = () => {
+    autoSpin = !autoSpin;
+    autoBtn.textContent = autoSpin ? "STOP ⛔" : "AUTO 🔄";
+    if (autoSpin) spin();
+};
+
+document.getElementById("betPlus").onclick = () => {
+    if (bet + 10 <= balance) bet += 10;
     updateUI();
 };
 
-// Пассивный доход
-setInterval(()=>{
-    let income = 0;
-    buildings.forEach(b=> income += b.level * b.income);
-    score += income;
+document.getElementById("betMinus").onclick = () => {
+    if (bet > 10) bet -= 10;
     updateUI();
-},1000);
+};
 
-updateUI();
+/* ======================================================
+   PARTICLES EFFECT
+====================================================== */
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function createParticles(big = false) {
+    const count = big ? 300 : 150;
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10,
+            life: 100,
+            color: `hsl(${Math.random()*360},100%,50%)`
+        });
+    }
+}
+
+function updateParticles() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, 4, 4);
+    });
+    particles = particles.filter(p => p.life > 0);
+    requestAnimationFrame(updateParticles);
+}
+
+/* ======================================================
+   START
+====================================================== */
+initReels();
+updateParticles();
 </script>
+
 </body>
 </html>
+
+
 
 
 
