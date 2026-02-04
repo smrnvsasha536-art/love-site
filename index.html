@@ -46,7 +46,7 @@
 <body>
 
 <div class="container">
-  <h1 id="question">Хочешь сыграть в пранк?</h1>
+  <h1 id="question">Хочешь сыграть в интересный пранк?</h1>
   <button id="yesButton">Да</button>
 </div>
 
@@ -71,7 +71,7 @@ function moveNoButton(noBtn) {
 
 yesButton.addEventListener('click', () => {
     if (step === 1) {
-        questionEl.textContent = "Ты точно хочешь сыграть?";
+        questionEl.textContent = "Ты уверен что хочешь сыграть?";
         step++;
     } else if (step === 2) {
         questionEl.textContent = "Сосал?";
@@ -95,6 +95,7 @@ yesButton.addEventListener('click', () => {
 
 </body>
 </html>
+
 
 
 
