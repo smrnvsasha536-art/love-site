@@ -2,126 +2,184 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Подтверждение</title>
+<title>Кто хочет стать миллионером</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{
   margin:0;
-  background:#000;
+  font-family:Arial, sans-serif;
+  background:radial-gradient(circle at top,#001a4d,#000);
   color:#fff;
-  font-family: Arial, sans-serif;
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
-  overflow:hidden;
 }
-#main{
-  text-align:center;
+#game{
+  width:95%;
+  max-width:900px;
+  background:#020d2b;
+  border-radius:20px;
+  padding:30px;
+  box-shadow:0 0 50px rgba(0,100,255,.5);
 }
-#title{
-  font-size:56px;
-  color:red;
-  margin-bottom:30px;
-  animation: glitch .2s infinite;
-}
-.buttons{
-  display:flex;
-  gap:20px;
-  justify-content:center;
+h1{text-align:center;margin-top:0;color:#ffd700}
+#question{font-size:22px;margin-bottom:20px;text-align:center}
+.answers{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
 }
 button{
-  padding:14px 28px;
-  font-size:18px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
-#yes{
-  background:#00ff88;
-  color:#000;
-}
-#no{
-  background:#ff3333;
+  padding:14px;
+  font-size:16px;
+  border-radius:12px;
+  border:2px solid #2a6cff;
+  background:#031b5c;
   color:#fff;
-  position:absolute;
+  cursor:pointer;
+  transition:.2s;
 }
-
-/* окно */
-#modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:10;
+button:hover:not(:disabled){
+  background:#2a6cff;
+  transform:scale(1.05);
 }
-#modalBox{
-  background:#111;
-  border:2px solid red;
-  border-radius:14px;
-  padding:30px;
-  max-width:400px;
+button.correct{background:#1faa00;border-color:#1faa00}
+button.wrong{background:#b00000;border-color:#b00000}
+button:disabled{opacity:.6;cursor:not-allowed}
+#money{
+  margin-top:20px;
   text-align:center;
-  box-shadow:0 0 40px red;
-  animation: pop .25s ease-out;
+  font-size:18px;
+  color:#ffd700;
 }
-
-@keyframes pop{
-  from{transform:scale(.7);opacity:0}
-  to{transform:scale(1);opacity:1}
+#helps{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  margin-bottom:20px;
 }
-
-@keyframes glitch{
-  0%{transform:translate(0)}
-  25%{transform:translate(-2px,2px)}
-  50%{transform:translate(2px,-2px)}
-  75%{transform:translate(-2px,-2px)}
+.help{
+  padding:10px 16px;
+  background:#222;
+  border:1px solid #ffd700;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:14px;
 }
+.help.used{opacity:.3;cursor:not-allowed}
+#end{text-align:center;font-size:24px}
 </style>
 </head>
 <body>
 
-<div id="main">
-  <div id="title">СОСАЛ 😈</div>
-  <div class="buttons">
-    <button id="yes">ДА</button>
-    <button id="no">НЕТ</button>
-  </div>
-</div>
+<div id="game">
+  <h1>Кто хочет стать миллионером</h1>
 
-<div id="modal">
-  <div id="modalBox">
-    <div style="font-size:22px;">
-      Ебать ты гонишь,<br>
-      я думал ты нормальный.
-    </div>
+  <div id="helps">
+    <div class="help" id="fifty">50/50</div>
+    <div class="help" id="call">📞 Звонок другу</div>
+    <div class="help" id="hall">👥 Помощь зала</div>
   </div>
+
+  <div id="question"></div>
+  <div class="answers" id="answers"></div>
+  <div id="money"></div>
 </div>
 
 <script>
-const no = document.getElementById("no");
+const questions = [
+ {q:"Столица Франции?",a:["Берлин","Париж","Рим","Мадрид"],c:1},
+ {q:"Сколько планет в Солнечной системе?",a:["7","8","9","10"],c:1},
+ {q:"HTML — это?",a:["Язык программирования","Язык разметки","База данных","ОС"],c:1},
+ {q:"Самая большая планета?",a:["Марс","Земля","Юпитер","Сатурн"],c:2},
+ {q:"Кто написал «Война и мир»?",a:["Толстой","Пушкин","Достоевский","Гоголь"],c:0},
+ {q:"Какой цвет получается из красного и синего?",a:["Зелёный","Фиолетовый","Жёлтый","Белый"],c:1},
+ {q:"Сколько байт в килобайте?",a:["100","512","1000","1024"],c:3},
+ {q:"CSS нужен для?",a:["Логики","Стилей","Серверов","Баз данных"],c:1},
+ {q:"Самый быстрый зверь?",a:["Лев","Гепард","Тигр","Волк"],c:1},
+ {q:"Сколько градусов у прямого угла?",a:["45","90","180","360"],c:1}
+];
 
-function moveNo(){
-  const x = Math.random() * (window.innerWidth - 120);
-  const y = Math.random() * (window.innerHeight - 60);
-  no.style.left = x + "px";
-  no.style.top = y + "px";
+const money=[
+"0 ₽","100 ₽","500 ₽","1 000 ₽","5 000 ₽","10 000 ₽",
+"25 000 ₽","50 000 ₽","100 000 ₽","500 000 ₽","1 000 000 ₽"
+];
+
+let current=0;
+let locked=false;
+
+const qEl=document.getElementById("question");
+const aEl=document.getElementById("answers");
+const moneyEl=document.getElementById("money");
+
+function render(){
+ if(current>=questions.length){endGame("🎉 Вы стали миллионером!");return;}
+ const q=questions[current];
+ qEl.textContent=q.q;
+ aEl.innerHTML="";
+ locked=false;
+ q.a.forEach((t,i)=>{
+  const b=document.createElement("button");
+  b.textContent=t;
+  b.onclick=()=>select(i,b);
+  aEl.appendChild(b);
+ });
+ moneyEl.textContent="Выигрыш: "+money[current];
 }
 
-// убегает
-no.addEventListener("mouseover", moveNo);
-no.addEventListener("touchstart", moveNo);
+function select(i,btn){
+ if(locked)return; locked=true;
+ const q=questions[current];
+ const buttons=[...aEl.children];
+ if(i===q.c){
+  btn.classList.add("correct");
+  setTimeout(()=>{current++;render();},1000);
+ }else{
+  btn.classList.add("wrong");
+  buttons[q.c].classList.add("correct");
+  setTimeout(()=>endGame("❌ Вы проиграли. Ваш выигрыш: "+money[current]),1500);
+ }
+}
 
-// да — открывает окно
-document.getElementById("yes").onclick = () => {
-  document.getElementById("modal").style.display = "flex";
+function endGame(text){
+ document.getElementById("game").innerHTML=`
+  <div id='end'>${text}</div><br>
+  <button onclick='location.reload()'>Играть снова</button>`;
+}
+
+// подсказки
+
+document.getElementById("fifty").onclick=function(){
+ if(this.classList.contains("used"))return;
+ this.classList.add("used");
+ const q=questions[current];
+ let removed=0;
+ [...aEl.children].forEach((b,i)=>{
+  if(i!==q.c && removed<2){b.disabled=true;removed++;}
+ });
 };
+
+document.getElementById("call").onclick=function(){
+ if(this.classList.contains("used"))return;
+ this.classList.add("used");
+ alert("📞 Друг думает, что правильный ответ: "+
+ questions[current].a[questions[current].c]);
+};
+
+document.getElementById("hall").onclick=function(){
+ if(this.classList.contains("used"))return;
+ this.classList.add("used");
+ alert("👥 Зал поддерживает вариант: "+
+ questions[current].a[questions[current].c]);
+};
+
+render();
 </script>
 
 </body>
 </html>
+
 
 
 
