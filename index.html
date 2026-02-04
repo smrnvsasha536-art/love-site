@@ -19,6 +19,7 @@
     border-radius: 15px;
     text-align: center;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    position: relative;
   }
   button {
     background: #ff4d4d;
@@ -28,8 +29,9 @@
     font-size: 18px;
     border-radius: 10px;
     cursor: pointer;
-    margin-top: 20px;
+    margin: 10px;
     transition: transform 0.2s, background 0.2s;
+    position: relative;
   }
   button:hover {
     transform: scale(1.1);
@@ -49,9 +51,24 @@
 <script>
 const questionEl = document.getElementById('question');
 const yesButton = document.getElementById('yesButton');
+const container = document.querySelector('.container');
 
-// Счётчик шагов
 let step = 1;
+
+// Функция для случайного положения кнопки "Нет"
+function moveNoButton(noBtn) {
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+    const maxX = containerRect.width - btnRect.width;
+    const maxY = containerRect.height - btnRect.height;
+
+    const randomX = Math.floor(Math.random() * maxX);
+    const randomY = Math.floor(Math.random() * maxY);
+
+    noBtn.style.position = "absolute";
+    noBtn.style.left = randomX + "px";
+    noBtn.style.top = randomY + "px";
+}
 
 yesButton.addEventListener('click', () => {
     if (step === 1) {
@@ -61,6 +78,17 @@ yesButton.addEventListener('click', () => {
         questionEl.textContent = "Сосал?";
         yesButton.textContent = "Да 😎";
         yesButton.style.background = "#4d79ff";
+
+        // Создаём кнопку "Нет"
+        const noButton = document.createElement('button');
+        noButton.textContent = "Нет";
+        container.appendChild(noButton);
+
+        // При наведении кнопка "Нет" убегает
+        noButton.addEventListener('mouseenter', () => {
+            moveNoButton(noButton);
+        });
+
         step++;
     }
 });
@@ -68,6 +96,8 @@ yesButton.addEventListener('click', () => {
 
 </body>
 </html>
+
+
 
 
 
