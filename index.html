@@ -1,175 +1,179 @@
+<?php
+session_start();
+
+// ==================== Настройки базы данных ====================
+$DB_HOST = 'localhost';
+$DB_USER = 'root';
+$DB_PASS = '';
+$DB_NAME = 'social';
+
+$mysqli = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+if($mysqli->connect_error) die('Ошибка подключения к БД: '.$mysqli->connect_error);
+
+// ==================== Создание таблиц (если не существуют) ====================
+$mysqli->query("
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
+
+$mysqli->query("
+CREATE TABLE IF NOT EXISTS friends (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    friend_id INT NOT NULL,
+    status ENUM('pending','accepted') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id,friend_id)
+)");
+
+$mysqli->query("
+CREATE TABLE IF NOT EXISTS messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
+
+// ==================== Действия ====================
+
+// Выход
+if(isset($_GET['action']) && $_GET['action']=='logout'){
+    session_destroy();
+    header('Location: social.php');
+    exit;
+}
+
+// Регистрация
+if(isset($_POST['register'])){
+    $username = trim($_POST['username']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $stmt = $mysqli->prepare("INSERT INTO users (username,password) VALUES (?,?)");
+    $stmt->bind_param("ss",$username,$password);
+    if($stmt->execute()){
+        $msg = "✅ Регистрация успешна! Теперь войдите.";
+    } else {
+        $msg = "❌ Ошибка: пользователь существует.";
+    }
+}
+
+// Вход
+if(isset($_POST['login'])){
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
+    $stmt = $mysqli->prepare("SELECT id,password FROM users WHERE username=?");
+    $stmt->bind_param("s",$username);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $user = $res->fetch_assoc();
+    if($user && password_verify($password,$user['password'])){
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $username;
+    } else {
+        $msg = "❌ Неправильный логин или пароль";
+    }
+}
+
+// Добавление в друзья
+if(isset($_GET['add']) && isset($_SESSION['user_id'])){
+    $friend_id = (int)$_GET['add'];
+    $stmt = $mysqli->prepare("INSERT IGNORE INTO friends (user_id,friend_id,status) VALUES (?,?,?)");
+    $status = 'accepted'; // сразу принимаем для простоты
+    $stmt->bind_param("iis",$_SESSION['user_id'],$friend_id,$status);
+    $stmt->execute();
+}
+
+// Отправка сообщения
+if(isset($_POST['message']) && isset($_GET['friend']) && isset($_SESSION['user_id'])){
+    $friend_id = (int)$_GET['friend'];
+    $message = trim($_POST['message']);
+    $stmt = $mysqli->prepare("INSERT INTO messages (sender_id,receiver_id,message) VALUES (?,?,?)");
+    $stmt->bind_param("iis",$_SESSION['user_id'],$friend_id,$message);
+    $stmt->execute();
+}
+
+// ==================== HTML ====================
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Неон Слот Ультра Делюкс</title>
+<title>Мини-социальная сеть</title>
 <style>
-  body {
-    margin: 0;
-    background: #0a0a20;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    font-family: 'Arial', sans-serif;
-    overflow: hidden;
-  }
-  h1 {
-    color: #ff00ff;
-    text-shadow: 0 0 5px #ff00ff, 0 0 10px #00ffff;
-    margin-bottom: 20px;
-  }
-  .slot-machine {
-    display: grid;
-    grid-template-columns: repeat(5, 80px);
-    grid-template-rows: repeat(3, 80px);
-    gap: 10px;
-  }
-  .reel {
-    width: 80px;
-    height: 80px;
-    background: #111;
-    border: 2px solid #ff00ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 50px;
-    color: #fff;
-    text-shadow: 0 0 5px #ff00ff, 0 0 10px #00ffff;
-    transition: all 0.2s ease;
-  }
-  .button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 18px;
-    color: #0a0a20;
-    background: #ff00ff;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
-    transition: 0.2s;
-    margin-right: 10px;
-  }
-  .button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
-  }
-  .win {
-    animation: neonFlash 0.5s infinite alternate;
-  }
-  @keyframes neonFlash {
-    0% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff; }
-    100% { text-shadow: 0 0 20px #00ffff, 0 0 40px #ff00ff; }
-  }
-  .info {
-    color: #fff;
-    margin-bottom: 10px;
-  }
-  .lines, .bet {
-    margin-bottom: 10px;
-  }
+body{font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;}
+input,textarea{width:300px;padding:5px;margin-bottom:5px;}
+button{padding:5px 10px;margin-top:5px;}
+a{margin-right:10px;}
 </style>
 </head>
 <body>
-<h1>Неон Слот Ультра Делюкс</h1>
-<div class="info">Баланс: <span id="balance">50000</span></div>
-<div class="lines">
-  Линии: <input type="number" id="lines-input" min="1" max="9" value="9">
-</div>
-<div class="bet">
-  Ставка на линию: <input type="number" id="bet-input" min="1" value="100">
-</div>
-<div class="slot-machine" id="slot-machine"></div>
-<button class="button" id="spin-button">SPIN</button>
-<script>
-const symbols = ['🍒','🍋','🔔','⭐','7️⃣'];
-const rows = 3;
-const cols = 5;
-const slotMachine = document.getElementById('slot-machine');
-let balance = 50000;
 
-const winLines = [
-  [[0,0],[0,1],[0,2],[0,3],[0,4]],
-  [[1,0],[1,1],[1,2],[1,3],[1,4]],
-  [[2,0],[2,1],[2,2],[2,3],[2,4]],
-  [[0,0],[1,1],[2,2],[1,3],[0,4]],
-  [[2,0],[1,1],[0,2],[1,3],[2,4]],
-  [[0,0],[0,1],[1,2],[0,3],[0,4]],
-  [[2,0],[2,1],[1,2],[2,3],[2,4]],
-  [[1,0],[0,1],[1,2],[2,3],[1,4]],
-  [[1,0],[2,1],[1,2],[0,3],[1,4]]
-];
+<?php if(isset($msg)) echo "<p>$msg</p>"; ?>
 
-let reels = [];
-for(let r = 0; r < rows; r++) {
-  reels[r] = [];
-  for(let c = 0; c < cols; c++) {
-    const cell = document.createElement('div');
-    cell.classList.add('reel');
-    cell.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-    slotMachine.appendChild(cell);
-    reels[r][c] = cell;
-  }
-}
+<?php if(!isset($_SESSION['user_id'])): ?>
+<h2>Регистрация</h2>
+<form method="post">
+<input name="username" placeholder="Логин" required><br>
+<input type="password" name="password" placeholder="Пароль" required><br>
+<button name="register">Зарегистрироваться</button>
+</form>
 
-function spin() {
-  let selectedLines = parseInt(document.getElementById('lines-input').value);
-  let bet = parseInt(document.getElementById('bet-input').value);
-  if(bet < 1) bet = 1;
-  if(bet > balance) bet = balance;
-  document.getElementById('bet-input').value = bet;
-  if(selectedLines < 1) selectedLines = 1;
-  if(selectedLines > 9) selectedLines = 9;
+<h2>Вход</h2>
+<form method="post">
+<input name="username" placeholder="Логин" required><br>
+<input type="password" name="password" placeholder="Пароль" required><br>
+<button name="login">Войти</button>
+</form>
 
-  const totalBet = bet * selectedLines;
-  if(balance < totalBet) return alert('Недостаточно средств!');
-  balance -= totalBet;
-  document.getElementById('balance').textContent = balance;
+<?php else: ?>
+<h2>Привет, <?= htmlspecialchars($_SESSION['username']) ?>! <a href="?action=logout">Выйти</a></h2>
 
-  let spinsLeft = 20;
-  const spinInterval = setInterval(() => {
-    for(let r = 0; r < rows; r++) {
-      for(let c = 0; c < cols; c++) {
-        reels[r][c].textContent = symbols[Math.floor(Math.random() * symbols.length)];
-        if(Math.random() < 0.1) {
-          reels[r][c].classList.add('win');
-          setTimeout(() => reels[r][c].classList.remove('win'), 500);
-        }
-      }
+<?php
+$user_id = $_SESSION['user_id'];
+
+// Если выбран друг для сообщений
+if(isset($_GET['friend'])){
+    $friend_id = (int)$_GET['friend'];
+    $res = $mysqli->query("SELECT * FROM messages WHERE (sender_id=$user_id AND receiver_id=$friend_id) OR (sender_id=$friend_id AND receiver_id=$user_id) ORDER BY created_at ASC");
+    echo "<h3>Чат</h3><div style='border:1px solid #ccc;padding:10px;max-height:300px;overflow:auto'>";
+    while($row = $res->fetch_assoc()){
+        $who = $row['sender_id']==$user_id ? "Вы" : "Друг";
+        echo "<b>$who:</b> ".htmlspecialchars($row['message'])."<br>";
     }
-    spinsLeft--;
-    if(spinsLeft <= 0) {
-      clearInterval(spinInterval);
-      checkWin(selectedLines, bet);
+    echo "</div>";
+    ?>
+    <form method="post">
+    <textarea name="message" placeholder="Сообщение" required></textarea><br>
+    <button>Отправить</button>
+    </form>
+    <p><a href="social.php">Назад к друзьям</a></p>
+<?php
+} else {
+    // Список всех пользователей
+    $res = $mysqli->query("SELECT id,username FROM users WHERE id != $user_id");
+    echo "<h3>Пользователи</h3>";
+    while($row = $res->fetch_assoc()){
+        echo $row['username']." <a href='?add={$row['id']}'>Добавить в друзья</a><br>";
     }
-  }, 100);
-}
 
-function checkWin(lines, bet) {
-  let winAmount = 0;
-  for(let i = 0; i < lines; i++) {
-    const line = winLines[i];
-    // Реальный шанс: случайный шанс на совпадение символов
-    if(Math.random() < 0.3) { // 30% шанс выиграть по линии
-      const symbol = symbols[Math.floor(Math.random() * symbols.length)];
-      line.forEach(pos => {
-        reels[pos[0]][pos[1]].textContent = symbol;
-        reels[pos[0]][pos[1]].classList.add('win');
-      });
-      setTimeout(() => line.forEach(pos => reels[pos[0]][pos[1]].classList.remove('win')), 1000);
-      winAmount += bet * 2; // выигрыш в 2 раза больше ставки
+    // Список друзей
+    $res2 = $mysqli->query("SELECT u.id,u.username FROM friends f JOIN users u ON u.id=f.friend_id WHERE f.user_id=$user_id AND f.status='accepted'");
+    echo "<h3>Друзья</h3>";
+    while($row2 = $res2->fetch_assoc()){
+        echo $row2['username']." <a href='?friend={$row2['id']}'>Сообщения</a><br>";
     }
-  }
-  balance += winAmount;
-  document.getElementById('balance').textContent = balance;
 }
+?>
+<?php endif; ?>
 
-document.getElementById('spin-button').addEventListener('click', spin);
-</script>
 </body>
 </html>
+
+
+
 
 
 
