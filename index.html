@@ -41,12 +41,25 @@
   h1 {
     margin-bottom: 20px;
   }
+  .message {
+    position: fixed;
+    background: #fff;
+    border: 2px solid #ff4d4d;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff4d4d;
+    opacity: 1;
+    pointer-events: none;
+    transition: opacity 0.5s, transform 1s;
+  }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1 id="question">Хочешь сыграть в интересный пранк?</h1>
+  <h1 id="question">Хочешь сыграть в пранк?</h1>
   <button id="yesButton">Да</button>
 </div>
 
@@ -55,8 +68,17 @@ const questionEl = document.getElementById('question');
 const yesButton = document.getElementById('yesButton');
 
 let step = 1;
+let noSpeed = 100; // начальная скорость "убегания" кнопки Нет
 
-// Функция для случайного положения кнопки "Нет" по всему экрану
+const prankMessages = [
+    "Я знаю что ты сосал",
+    "Да ну ты точно сосал",
+    "Ну признайся уже"
+];
+
+let messageIndex = 0;
+
+// Случайное положение кнопки "Нет"
 function moveNoButton(noBtn) {
     const screenWidth = window.innerWidth - noBtn.offsetWidth;
     const screenHeight = window.innerHeight - noBtn.offsetHeight;
@@ -69,23 +91,71 @@ function moveNoButton(noBtn) {
     noBtn.style.top = randomY + "px";
 }
 
+// Создание всплывающего сообщения
+function spawnMessage() {
+    const msg = document.createElement('div');
+    msg.className = "message";
+    msg.textContent = prankMessages[messageIndex];
+    messageIndex = (messageIndex + 1) % prankMessages.length;
+
+    // Случайная позиция на экране
+    msg.style.left = Math.random() * (window.innerWidth - 200) + "px";
+    msg.style.top = Math.random() * (window.innerHeight - 50) + "px";
+
+    document.body.appendChild(msg);
+
+    // Анимация всплытия и исчезновения
+    setTimeout(() => {
+        msg.style.opacity = 0;
+        msg.style.transform = "translateY(-50px)";
+    }, 500); // через 0.5 секунды начинаем исчезать
+
+    setTimeout(() => {
+        msg.remove();
+    }, 1500); // удаляем через 1.5 секунды
+}
+
 yesButton.addEventListener('click', () => {
     if (step === 1) {
-        questionEl.textContent = "Ты уверен что хочешь сыграть?";
+        questionEl.textContent = "Ты точно хочешь сыграть?";
         step++;
     } else if (step === 2) {
         questionEl.textContent = "Сосал?";
         yesButton.textContent = "Да 😎";
         yesButton.style.background = "#4d79ff";
 
-        // Создаём кнопку "Нет"
+        // Кнопка "Нет"
         const noButton = document.createElement('button');
         noButton.textContent = "Нет";
         document.body.appendChild(noButton);
 
-        // При наведении кнопка "Нет" убегает по экрану
+        // Кнопка "Нет" убегает с ускорением + всплывающие сообщения
         noButton.addEventListener('mouseenter', () => {
             moveNoButton(noButton);
+            noSpeed = Math.max(50, noSpeed - 5); // ускорение
+            spawnMessage();
+        });
+
+        // Кнопка "Да" вызывает фейерверк смайлов
+        yesButton.addEventListener('click', () => {
+            for(let i=0;i<10;i++){
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = ["😂","😎","🔥","🤣","🤪","🥳"][Math.floor(Math.random()*6)];
+                    emoji.style.position = "fixed";
+                    emoji.style.left = Math.random() * window.innerWidth + "px";
+                    emoji.style.top = Math.random() * window.innerHeight + "px";
+                    emoji.style.fontSize = "30px";
+                    emoji.style.pointerEvents = "none";
+                    emoji.style.transition = "transform 1s, opacity 1s";
+                    document.body.appendChild(emoji);
+                    setTimeout(() => {
+                        emoji.style.transform = "translateY(-100px)";
+                        emoji.style.opacity = 0;
+                    }, 50);
+                    setTimeout(() => emoji.remove(), 1050);
+                }, i*100);
+            }
         });
 
         step++;
@@ -95,6 +165,8 @@ yesButton.addEventListener('click', () => {
 
 </body>
 </html>
+
+
 
 
 
