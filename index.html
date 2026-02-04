@@ -1,3 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Хата — текстовый квест</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  background: radial-gradient(#1a1a1a, #000);
+  color: #e6e6e6;
+  font-family: "Segoe UI", Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#game {
+  width: 92%;
+  max-width: 800px;
+  background: #0f0f0f;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 0 40px rgba(255,0,0,0.25);
+  animation: fadeIn 0.8s ease;
+}
+
+h1 { text-align: center; letter-spacing: 2px; }
+
+#text {
+  font-size: 18px;
+  line-height: 1.55;
+  min-height: 140px;
+  animation: slideIn 0.4s ease;
+}
+
+.buttons {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+button {
+  padding: 14px;
+  background: #1f1f1f;
+  color: #fff;
+  border: 2px solid #444;
+  border-radius: 12px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+button:hover {
+  background: #2a2a2a;
+  transform: scale(1.03);
+}
+
+#status {
+  margin-top: 18px;
+  font-size: 14px;
+  text-align: center;
+  opacity: 0.85;
+}
+
+/* АНИМАЦИИ */
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes slideIn { from{transform:translateY(18px);opacity:0} to{transform:none;opacity:1} }
+.glitch { animation: glitch 0.25s infinite; }
+@keyframes glitch {
+  0%{transform:translate(0)}
+  25%{transform:translate(-2px,2px)}
+  50%{transform:translate(2px,-2px)}
+  75%{transform:translate(-2px,-2px)}
+  100%{transform:translate(0)}
+}
+.flash { animation: flash 0.3s }
+@keyframes flash { from{box-shadow:none} to{box-shadow:0 0 40px rgba(255,0,0,0.6)} }
+</style>
+</head>
+
+<body>
+
+<div id="game">
+  <h1>ХАТА</h1>
+  <div id="text"></div>
+  <div class="buttons" id="buttons"></div>
+  <div id="status"></div>
+</div>
+
+<script>
+let step = 0;
+let respect = 5; // старт — просто порядочный
+let risk = 0;
+let role = "Порядочный";
+
+const stages = [
+  {
+    text: "Ты заходишь в хату. Старший смотрит и спрашивает: «Кто по жизни?»",
+    options: [
+      ["Коротко и спокойно отвечаю", +2, 0],
+      ["Шучу", 0, +1],
+      ["Объясняю лишнее", -1, +2],
+      ["Молчу", -1, +1]
+    ]
+  },
+  {
+    text: "Тебе показывают место. На столе чужие вещи.",
+    options: [
+      ["Сажусь аккуратно", +2, 0],
+      ["Двигаю вещи", -2, +2],
+      ["Спрашиваю разрешение", +1, 0],
+      ["Сажусь резко", -1, +1]
+    ]
+  },
+  {
+    text: "Загадка: «Что тяжелее — слово или камень?»",
+    options: [
+      ["Слово", +2, 0],
+      ["Камень", -1, +1],
+      ["Смотря чьё", +1, 0],
+      ["Не отвечаю", -1, +1]
+    ]
+  },
+  {
+    text: "Первый шмон. Атмосфера давит.",
+    options: [
+      ["Спокоен", +2, 0],
+      ["Нервничаю", -1, +2],
+      ["Слежу за другими", +1, 0],
+      ["Лезу с советами", -2, +2]
+    ]
+  },
+  {
+    text: "Тебе предлагают «вписаться».",
+    options: [
+      ["Вежливо отказываюсь", +2, 0],
+      ["Соглашаюсь не понимая", -2, +2],
+      ["Прошу время", +1, 0],
+      ["Отказываюсь грубо", -1, +1]
+    ]
+  },
+  {
+    text: "Загадка: «Что нельзя взять, но можно потерять?»",
+    options: [
+      ["Доверие", +2, 0],
+      ["Имя", +1, 0],
+      ["Свободу", 0, +1],
+      ["Не знаю", -1, +1]
+    ]
+  },
+  {
+    text: "Конфликт в хате.",
+    options: [
+      ["Не лезу", +2, 0],
+      ["Выбираю сторону", -2, +2],
+      ["Пытаюсь мирить", +1, 0],
+      ["Подливаю масла", -2, +2]
+    ]
+  },
+  {
+    text: "Про тебя уже говорят.",
+    options: [
+      ["Остаюсь ровным", +2, 0],
+      ["Подстраиваюсь", -1, +1],
+      ["Играю роль", -2, +2],
+      ["Давлю", -1, +1]
+    ]
+  },
+  {
+    text: "Последняя проверка.",
+    options: [
+      ["Говорю прямо", +2, 0],
+      ["Уклоняюсь", -1, +1],
+      ["Молчу", 0, +1],
+      ["Грубо отвечаю", -2, +2]
+    ]
+  },
+  {
+    text: "Тишина. Решение принято.",
+    options: [
+      ["Принять", 0, 0],
+      ["Нервничать", 0, +1],
+      ["Давить", -1, +1],
+      ["Молчать", 0, 0]
+    ]
+  }
+];
+
+function updateRole() {
+  if (risk >= 11) role = "💀 Петух";
+  else if (risk >= 9) role = "⚫ Чёрт";
+  else if (risk >= 7) role = "🔴 Козёл";
+  else if (respect <= 3 && risk >= 5) role = "🟠 Не порядочный";
+  else if (respect >= 12 && risk <= 2) role = "🟣 Вор";
+  else if (respect >= 10 && risk <= 3) role = "🟢 Мужик";
+  else if (respect >= 7 && risk <= 4) role = "🔵 Стремяга";
+  else if (respect >= 4) role = "🟡 Бродяга";
+  else role = "Порядочный";
+}
+
+function render() {
+  const stage = stages[step];
+  const textEl = document.getElementById("text");
+  const buttonsEl = document.getElementById("buttons");
+  const statusEl = document.getElementById("status");
+
+  textEl.textContent = stage.text;
+  buttonsEl.innerHTML = "";
+
+  stage.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt[0];
+    btn.onclick = () => {
+      respect += opt[1];
+      risk += opt[2];
+      step++;
+      updateRole();
+
+      document.getElementById("game").classList.add("flash");
+      setTimeout(() => document.getElementById("game").classList.remove("flash"), 250);
+
+      if (step >= stages.length) endGame();
+      else render();
+    };
+    buttonsEl.appendChild(btn);
+  });
+
+  statusEl.textContent =
+    `Статус: ${role} | Уважение: ${respect} | Риск: ${risk}`;
+}
+
+function endGame() {
+  const textEl = document.getElementById("text");
+  const buttonsEl = document.getElementById("buttons");
+  buttonsEl.innerHTML = "";
+
+  if (risk >= 11) {
+    textEl.textContent = "Финал: ты сломался под давлением. Статус закреплён.";
+    textEl.classList.add("glitch");
+  } else {
+    textEl.textContent = "Финал: ты прошёл путь и сохранил себя.";
+  }
+}
+
+updateRole();
+render();
+</script>
+
+</body>
+</html>
+
 
 
 
