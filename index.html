@@ -29,7 +29,7 @@
     border-radius: 10px;
     cursor: pointer;
     margin-top: 20px;
-    transition: transform 0.2s;
+    transition: transform 0.2s, background 0.2s;
   }
   button:hover {
     transform: scale(1.1);
@@ -50,17 +50,26 @@
 const questionEl = document.getElementById('question');
 const yesButton = document.getElementById('yesButton');
 
+// Счётчик шагов
+let step = 1;
+
 yesButton.addEventListener('click', () => {
-    // Меняем вопрос на шутливый
-    questionEl.textContent = "Сосал?";
-    yesButton.textContent = "Да 😎";
-    // Можно добавить небольшую анимацию
-    yesButton.style.background = "#4d79ff";
+    if (step === 1) {
+        questionEl.textContent = "Ты точно хочешь сыграть?";
+        step++;
+    } else if (step === 2) {
+        questionEl.textContent = "Сосал?";
+        yesButton.textContent = "Да 😎";
+        yesButton.style.background = "#4d79ff";
+        step++;
+    }
 });
 </script>
 
 </body>
 </html>
+
+
 
 
 
