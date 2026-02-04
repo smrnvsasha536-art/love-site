@@ -1,176 +1,67 @@
-<?php
-session_start();
-
-// ==================== Настройки базы данных ====================
-$DB_HOST = 'localhost';
-$DB_USER = 'root';
-$DB_PASS = '';
-$DB_NAME = 'social';
-
-$mysqli = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
-if($mysqli->connect_error) die('Ошибка подключения к БД: '.$mysqli->connect_error);
-
-// ==================== Создание таблиц (если не существуют) ====================
-$mysqli->query("
-CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)");
-
-$mysqli->query("
-CREATE TABLE IF NOT EXISTS friends (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    friend_id INT NOT NULL,
-    status ENUM('pending','accepted') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(user_id,friend_id)
-)");
-
-$mysqli->query("
-CREATE TABLE IF NOT EXISTS messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    sender_id INT NOT NULL,
-    receiver_id INT NOT NULL,
-    message TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)");
-
-// ==================== Действия ====================
-
-// Выход
-if(isset($_GET['action']) && $_GET['action']=='logout'){
-    session_destroy();
-    header('Location: social.php');
-    exit;
-}
-
-// Регистрация
-if(isset($_POST['register'])){
-    $username = trim($_POST['username']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $stmt = $mysqli->prepare("INSERT INTO users (username,password) VALUES (?,?)");
-    $stmt->bind_param("ss",$username,$password);
-    if($stmt->execute()){
-        $msg = "✅ Регистрация успешна! Теперь войдите.";
-    } else {
-        $msg = "❌ Ошибка: пользователь существует.";
-    }
-}
-
-// Вход
-if(isset($_POST['login'])){
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
-    $stmt = $mysqli->prepare("SELECT id,password FROM users WHERE username=?");
-    $stmt->bind_param("s",$username);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $user = $res->fetch_assoc();
-    if($user && password_verify($password,$user['password'])){
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $username;
-    } else {
-        $msg = "❌ Неправильный логин или пароль";
-    }
-}
-
-// Добавление в друзья
-if(isset($_GET['add']) && isset($_SESSION['user_id'])){
-    $friend_id = (int)$_GET['add'];
-    $stmt = $mysqli->prepare("INSERT IGNORE INTO friends (user_id,friend_id,status) VALUES (?,?,?)");
-    $status = 'accepted'; // сразу принимаем для простоты
-    $stmt->bind_param("iis",$_SESSION['user_id'],$friend_id,$status);
-    $stmt->execute();
-}
-
-// Отправка сообщения
-if(isset($_POST['message']) && isset($_GET['friend']) && isset($_SESSION['user_id'])){
-    $friend_id = (int)$_GET['friend'];
-    $message = trim($_POST['message']);
-    $stmt = $mysqli->prepare("INSERT INTO messages (sender_id,receiver_id,message) VALUES (?,?,?)");
-    $stmt->bind_param("iis",$_SESSION['user_id'],$friend_id,$message);
-    $stmt->execute();
-}
-
-// ==================== HTML ====================
-?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Мини-социальная сеть</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пранк-сайт</title>
 <style>
-body{font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;}
-input,textarea{width:300px;padding:5px;margin-bottom:5px;}
-button{padding:5px 10px;margin-top:5px;}
-a{margin-right:10px;}
+  body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .container {
+    background: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+  button {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: transform 0.2s;
+  }
+  button:hover {
+    transform: scale(1.1);
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
 </style>
 </head>
 <body>
 
-<?php if(isset($msg)) echo "<p>$msg</p>"; ?>
+<div class="container">
+  <h1 id="question">Хочешь сыграть в пранк?</h1>
+  <button id="yesButton">Да</button>
+</div>
 
-<?php if(!isset($_SESSION['user_id'])): ?>
-<h2>Регистрация</h2>
-<form method="post">
-<input name="username" placeholder="Логин" required><br>
-<input type="password" name="password" placeholder="Пароль" required><br>
-<button name="register">Зарегистрироваться</button>
-</form>
+<script>
+const questionEl = document.getElementById('question');
+const yesButton = document.getElementById('yesButton');
 
-<h2>Вход</h2>
-<form method="post">
-<input name="username" placeholder="Логин" required><br>
-<input type="password" name="password" placeholder="Пароль" required><br>
-<button name="login">Войти</button>
-</form>
-
-<?php else: ?>
-<h2>Привет, <?= htmlspecialchars($_SESSION['username']) ?>! <a href="?action=logout">Выйти</a></h2>
-
-<?php
-$user_id = $_SESSION['user_id'];
-
-// Если выбран друг для сообщений
-if(isset($_GET['friend'])){
-    $friend_id = (int)$_GET['friend'];
-    $res = $mysqli->query("SELECT * FROM messages WHERE (sender_id=$user_id AND receiver_id=$friend_id) OR (sender_id=$friend_id AND receiver_id=$user_id) ORDER BY created_at ASC");
-    echo "<h3>Чат</h3><div style='border:1px solid #ccc;padding:10px;max-height:300px;overflow:auto'>";
-    while($row = $res->fetch_assoc()){
-        $who = $row['sender_id']==$user_id ? "Вы" : "Друг";
-        echo "<b>$who:</b> ".htmlspecialchars($row['message'])."<br>";
-    }
-    echo "</div>";
-    ?>
-    <form method="post">
-    <textarea name="message" placeholder="Сообщение" required></textarea><br>
-    <button>Отправить</button>
-    </form>
-    <p><a href="social.php">Назад к друзьям</a></p>
-<?php
-} else {
-    // Список всех пользователей
-    $res = $mysqli->query("SELECT id,username FROM users WHERE id != $user_id");
-    echo "<h3>Пользователи</h3>";
-    while($row = $res->fetch_assoc()){
-        echo $row['username']." <a href='?add={$row['id']}'>Добавить в друзья</a><br>";
-    }
-
-    // Список друзей
-    $res2 = $mysqli->query("SELECT u.id,u.username FROM friends f JOIN users u ON u.id=f.friend_id WHERE f.user_id=$user_id AND f.status='accepted'");
-    echo "<h3>Друзья</h3>";
-    while($row2 = $res2->fetch_assoc()){
-        echo $row2['username']." <a href='?friend={$row2['id']}'>Сообщения</a><br>";
-    }
-}
-?>
-<?php endif; ?>
+yesButton.addEventListener('click', () => {
+    // Меняем вопрос на шутливый
+    questionEl.textContent = "Сосал?";
+    yesButton.textContent = "Да 😎";
+    // Можно добавить небольшую анимацию
+    yesButton.style.background = "#4d79ff";
+});
+</script>
 
 </body>
 </html>
+
 
 
 
