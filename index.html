@@ -12,6 +12,8 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
+    overflow: hidden;
+    position: relative;
   }
   .container {
     background: #fff;
@@ -51,21 +53,18 @@
 <script>
 const questionEl = document.getElementById('question');
 const yesButton = document.getElementById('yesButton');
-const container = document.querySelector('.container');
 
 let step = 1;
 
-// Функция для случайного положения кнопки "Нет"
+// Функция для случайного положения кнопки "Нет" по всему экрану
 function moveNoButton(noBtn) {
-    const containerRect = container.getBoundingClientRect();
-    const btnRect = noBtn.getBoundingClientRect();
-    const maxX = containerRect.width - btnRect.width;
-    const maxY = containerRect.height - btnRect.height;
+    const screenWidth = window.innerWidth - noBtn.offsetWidth;
+    const screenHeight = window.innerHeight - noBtn.offsetHeight;
 
-    const randomX = Math.floor(Math.random() * maxX);
-    const randomY = Math.floor(Math.random() * maxY);
+    const randomX = Math.floor(Math.random() * screenWidth);
+    const randomY = Math.floor(Math.random() * screenHeight);
 
-    noBtn.style.position = "absolute";
+    noBtn.style.position = "fixed";
     noBtn.style.left = randomX + "px";
     noBtn.style.top = randomY + "px";
 }
@@ -82,9 +81,9 @@ yesButton.addEventListener('click', () => {
         // Создаём кнопку "Нет"
         const noButton = document.createElement('button');
         noButton.textContent = "Нет";
-        container.appendChild(noButton);
+        document.body.appendChild(noButton);
 
-        // При наведении кнопка "Нет" убегает
+        // При наведении кнопка "Нет" убегает по экрану
         noButton.addEventListener('mouseenter', () => {
             moveNoButton(noButton);
         });
@@ -96,6 +95,8 @@ yesButton.addEventListener('click', () => {
 
 </body>
 </html>
+
+
 
 
 
