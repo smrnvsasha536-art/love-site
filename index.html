@@ -68,7 +68,7 @@ const questionEl = document.getElementById('question');
 const yesButton = document.getElementById('yesButton');
 
 let step = 1;
-let noSpeed = 100; // начальная скорость "убегания" кнопки Нет
+let noSpeed = 100; // начальная скорость кнопки "Нет"
 
 const prankMessages = [
     "Я знаю что ты сосал",
@@ -98,21 +98,17 @@ function spawnMessage() {
     msg.textContent = prankMessages[messageIndex];
     messageIndex = (messageIndex + 1) % prankMessages.length;
 
-    // Случайная позиция на экране
     msg.style.left = Math.random() * (window.innerWidth - 200) + "px";
     msg.style.top = Math.random() * (window.innerHeight - 50) + "px";
 
     document.body.appendChild(msg);
 
-    // Анимация всплытия и исчезновения
     setTimeout(() => {
         msg.style.opacity = 0;
         msg.style.transform = "translateY(-50px)";
-    }, 500); // через 0.5 секунды начинаем исчезать
+    }, 500);
 
-    setTimeout(() => {
-        msg.remove();
-    }, 1500); // удаляем через 1.5 секунды
+    setTimeout(() => msg.remove(), 1500);
 }
 
 yesButton.addEventListener('click', () => {
@@ -129,14 +125,19 @@ yesButton.addEventListener('click', () => {
         noButton.textContent = "Нет";
         document.body.appendChild(noButton);
 
-        // Кнопка "Нет" убегает с ускорением + всплывающие сообщения
+        // Убегание кнопки "Нет" с ускорением + всплывающие сообщения
         noButton.addEventListener('mouseenter', () => {
             moveNoButton(noButton);
-            noSpeed = Math.max(50, noSpeed - 5); // ускорение
+            noSpeed = Math.max(50, noSpeed - 5);
             spawnMessage();
         });
 
-        // Кнопка "Да" вызывает фейерверк смайлов
+        // Если вдруг кто-то кликнул на кнопку "Нет"
+        noButton.addEventListener('click', () => {
+            alert("Ебать ты пиздун.");
+        });
+
+        // Кнопка "Да" запускает смайлы
         yesButton.addEventListener('click', () => {
             for(let i=0;i<10;i++){
                 setTimeout(() => {
@@ -165,6 +166,8 @@ yesButton.addEventListener('click', () => {
 
 </body>
 </html>
+
+
 
 
 
