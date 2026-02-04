@@ -2,243 +2,90 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>ХАТА — Жёсткий режим (Красивый)</title>
+<title>Подтверждение</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #0b0b0b, #1a1a1a);
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  overflow: hidden;
+body{
+  margin:0;
+  background:#000;
+  color:#0f0;
+  font-family: monospace;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  overflow:hidden;
 }
-/* Фоновая анимация */
-body::before {
-  content: '';
-  position: absolute;
-  top:0; left:0; right:0; bottom:0;
-  background: radial-gradient(circle, rgba(255,0,0,0.2), transparent 70%);
-  pointer-events: none;
-  animation: pulse 5s infinite alternate;
+#box{
+  text-align:center;
 }
-@keyframes pulse { 0%{opacity:0.2;}100%{opacity:0.5;} }
-
-#game {
-  position: relative;
-  z-index: 1;
-  width: 95%;
-  max-width: 900px;
-  background: rgba(15,15,15,0.95);
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 0 50px rgba(255,0,0,0.4);
-  text-align: center;
-  transition: transform 0.2s;
+button{
+  padding:12px 20px;
+  font-size:16px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
-#game.flash { transform: scale(1.02); }
-
-h1 {
-  letter-spacing: 3px;
-  margin-bottom: 10px;
-  color: #ff4b4b;
-  text-shadow: 0 0 8px rgba(255,0,0,0.7);
+#yes{
+  background:#0f0;
+  color:#000;
 }
-#hud {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  margin-bottom: 10px;
+#no{
+  position:absolute;
+  background:#f00;
+  color:#fff;
 }
-#text {
-  margin-top: 10px;
-  font-size: 18px;
-  line-height: 1.6;
-  min-height: 160px;
-  background: rgba(0,0,0,0.5);
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: inset 0 0 15px rgba(255,0,0,0.2);
-  transition: background 0.3s;
+.hidden{display:none}
+.big{
+  font-size:48px;
+  color:red;
+  animation: glitch .2s infinite;
 }
-#image {
-  margin-top: 12px;
-  max-width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(255,0,0,0.5);
-  transition: transform 0.3s, opacity 0.3s;
-}
-#image.show { opacity: 1; transform: scale(1); }
-.buttons {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-button {
-  padding: 14px;
-  background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
-  color: #fff;
-  border: 2px solid #ff4b4b;
-  border-radius: 12px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 0 10px rgba(255,0,0,0.3);
-}
-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #ff4b4b, #1a1a1a);
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(255,0,0,0.6);
-}
-button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-#status {
-  margin-top: 12px;
-  font-size: 14px;
-}
-.flash { animation: flash .25s; }
-.glitch { animation: glitch .25s infinite; color: #ff0000; }
-@keyframes flash { from { box-shadow:none; } to { box-shadow:0 0 40px rgba(255,0,0,.6); } }
-@keyframes glitch { 0%{transform:translate(0)}25%{transform:translate(-2px,2px)}50%{transform:translate(2px,-2px)}75%{transform:translate(-2px,-2px)}100%{transform:translate(0)} }
-@media (max-width: 500px) {
-  #text { font-size: 16px; }
-  button { font-size: 14px; padding: 12px; }
+@keyframes glitch{
+  0%{transform:translate(0)}
+  25%{transform:translate(-2px,2px)}
+  50%{transform:translate(2px,-2px)}
+  75%{transform:translate(-2px,-2px)}
 }
 </style>
 </head>
 <body>
-<div id="game">
-  <h1>ХАТА</h1>
-  <div id="hud">
-    <div id="roleInfo"></div>
-    <div id="stepInfo"></div>
-  </div>
-  <img id="image" src="https://picsum.photos/600/300?random=1" alt="Сцена" class="show">
-  <div id="text"></div>
-  <div class="buttons" id="buttons"></div>
-  <div id="status"></div>
+
+<div id="box">
+  <div id="question">Ты точно хочешь продолжить?</div>
+  <br>
+  <button id="yes">ДА</button>
+  <button id="no">НЕТ</button>
 </div>
+
 <script>
-let step = 0;
-let respect = 5;
-let risk = 0;
-let role = "Порядочный";
-const MAX_STEPS = 20;
+const no = document.getElementById("no");
 
-function updateRole(){
-  if(risk >= 12) role = "💀 Петух";
-  else if(risk >= 10) role = "⚫ Чёрт";
-  else if(risk >= 8) role = "🔴 Козёл";
-  else if(respect <= 3 && risk >= 6) role = "🟠 Не порядочный";
-  else if(respect >= 14 && risk <= 2) role = "🟣 Вор";
-  else if(respect >= 11 && risk <= 3) role = "🟢 Мужик";
-  else if(respect >= 8 && risk <= 4) role = "🔵 Стремяга";
-  else if(respect >= 5) role = "🟡 Бродяга";
-  else role = "Порядочный";
+function moveNo(){
+  const x = Math.random() * (window.innerWidth - 100);
+  const y = Math.random() * (window.innerHeight - 50);
+  no.style.left = x + "px";
+  no.style.top = y + "px";
 }
 
-const scenes = [
-  { text:"Ты заходишь в хату. Смотрят молча.", img: "https://picsum.photos/600/300?random=11", opts:[["Представиться",2,0],["Шуткануть",0,1],["Молчать",-1,1]] },
-  { text:"Мини-игра: Угадай число!", miniGame: "guessNumber", img: "https://picsum.photos/600/300?random=12" },
-  { text:"Спрашивают: «По жизни кто?»", img: "https://picsum.photos/600/300?random=13", opts:[["За правду",2,0],["Уклониться",-1,1],["Пафосно",-2,2]] },
-  { text:"Мини-игра: Подбрось монетку!", miniGame: "coinFlip", img: "https://picsum.photos/600/300?random=14" },
-  { text:"Загадка: «Что ломается, если о нём говорить?»", img: "https://picsum.photos/600/300?random=15", opts:[["Тишина",2,0],["Человек",0,1],["Не отвечать",-1,1]] },
-  { text:"Мини-игра: Быстрый ответ!", miniGame: "fastAnswer", img: "https://picsum.photos/600/300?random=16" },
-  ...Array.from({length:10},(_,i)=>({ text:`Давление усиливается. Этап ${i+7}.`, img: "https://picsum.photos/600/300?random=17", opts:[["Держусь",2,0],["Сомневаюсь",-1,1],["Плыву",-2,2]] }))
-];
+no.addEventListener("mouseover", moveNo);
+no.addEventListener("touchstart", moveNo);
 
-function render(){
-  if(step >= MAX_STEPS){ endGame(); return; }
-  const sc = scenes[step];
-  document.getElementById("text").textContent = sc.text;
-  const imgEl = document.getElementById("image");
-  imgEl.src = sc.img || "https://picsum.photos/600/300?random=1";
-  imgEl.classList.remove('show');
-  setTimeout(()=> imgEl.classList.add('show'), 50);
-
-  const btns = document.getElementById("buttons");
-  btns.innerHTML = "";
-
-  if(sc.miniGame){ playMiniGame(sc.miniGame); return; }
-
-  sc.opts.forEach(o=>{
-    const b = document.createElement("button");
-    b.textContent = o[0];
-    b.disabled = role === "💀 Петух";
-    b.onclick = () => {
-      respect += o[1]; risk += o[2]; step++; updateRole();
-      document.getElementById("game").classList.add("flash");
-      document.getElementById("game").addEventListener('animationend',()=>document.getElementById("game").classList.remove("flash"),{once:true});
-      render();
-    };
-    btns.appendChild(b);
-  });
-
-  document.getElementById("roleInfo").textContent = "Статус: " + role;
-  document.getElementById("stepInfo").textContent = `Этап ${step+1}/${MAX_STEPS}`;
-  document.getElementById("status").textContent = `Уважение: ${respect} | Риск: ${risk}`;
-}
-
-function playMiniGame(type){
-  const btns = document.getElementById("buttons");
-  btns.innerHTML = "";
-  if(type === "guessNumber"){
-    const number = Math.floor(Math.random()*5)+1;
-    for(let i=1;i<=5;i++){
-      const b=document.createElement("button");
-      b.textContent=i;
-      b.onclick=()=>{
-        if(i===number) respect+=2; else risk+=1;
-        step++; updateRole(); render();
-      };
-      btns.appendChild(b);
-    }
-  } else if(type === "coinFlip"){
-    ["Орёл","Решка"].forEach(side=>{
-      const b=document.createElement("button");
-      b.textContent=side;
-      b.onclick=()=>{
-        if(Math.random()<0.5) respect+=2; else risk+=2;
-        step++; updateRole(); render();
-      };
-      btns.appendChild(b);
-    });
-  } else if(type === "fastAnswer"){
-    const question = { text: "Что нельзя вернуть?", opts: [["Доверие",2,0],["Время",1,0],["Слово",-1,1]] };
-    document.getElementById("text").textContent = question.text;
-    question.opts.forEach(o=>{
-      const b=document.createElement("button");
-      b.textContent=o[0];
-      b.onclick=()=>{ respect+=o[1]; risk+=o[2]; step++; updateRole(); render(); };
-      btns.appendChild(b);
-    });
-  }
-}
-
-function endGame(){
-  document.getElementById("buttons").innerHTML="";
-  const t=document.getElementById("text");
-  const img=document.getElementById("image");
-  if(role === "💀 Петух"){
-    t.textContent="Финал: статус закреплён. Обратной дороги нет.";
-    t.classList.add("glitch");
-  } else {
-    t.textContent="Финал. Ты дошёл до конца. Итог: "+role+".";
-  }
-  img.src="https://picsum.photos/600/300?random=18";
-}
-
-updateRole();
-render();
+// финал
+document.getElementById("yes").onclick = () => {
+  document.body.style.background = "#100";
+  document.getElementById("box").innerHTML = `
+    <div class="big">СОСАЛ 😈</div>
+    <div style="margin-top:15px;font-size:14px;color:#aaa">
+      проверка пройдена
+    </div>
+  `;
+};
 </script>
+
 </body>
 </html>
+
 
 
 
