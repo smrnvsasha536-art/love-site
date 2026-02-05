@@ -2,126 +2,180 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Online Chess</title>
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css"/>
-
+<title>Ultimate Fun IQ Test</title>
 <style>
 body {
-    background:#111;
-    color:white;
-    font-family:Arial;
-    display:flex;
-    gap:20px;
-    padding:20px;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
-#board { width:400px; }
-#panel { width:300px; }
-#chat { height:150px; overflow:auto; background:#222; padding:5px; }
-input, button { width:100%; margin:5px 0; }
+
+#app {
+    background: rgba(0,0,0,.5);
+    padding: 25px;
+    border-radius: 15px;
+    width: 500px;
+}
+
+h1,h2,h3 { text-align: center; }
+
+.option {
+    background:#222;
+    padding:10px;
+    margin:8px 0;
+    border-radius:8px;
+    cursor:pointer;
+}
+.option:hover { background:#333; }
+.selected { background:#4caf50; }
+
+button, select, input { width:100%; padding:10px; margin-top:10px; }
+img { width:100%; border-radius:10px; margin:10px 0; }
 </style>
 </head>
-
 <body>
-
-<div id="board"></div>
-
-<div id="panel">
-    <div id="status"></div>
-
-    <input id="room" placeholder="Код комнаты">
-    <button onclick="join()">🌐 Войти</button>
-
-    <h3>💬 Чат</h3>
-    <div id="chat"></div>
-    <input id="msg" placeholder="Сообщение">
-    <button onclick="send()">Отправить</button>
-
-    <h3>🎥 Повтор</h3>
-    <button onclick="replay()">▶️</button>
-
-    <h3>📊 Анализ</h3>
-    <button onclick="analyze()">Stockfish</button>
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stockfish/stockfish.js"></script>
+<div id="app"></div>
 
 <script>
-const socket = io();
-const game = new Chess();
-let board;
-let roomId = "";
-let replayData = [];
+const app = document.getElementById("app");
 
-board = Chessboard('board',{
-    draggable:true,
-    position:'start',
-    onDrop:(s,t)=>{
-        let m = game.move({from:s,to:t,promotion:'q'});
-        if(!m) return 'snapback';
-        replayData.push(game.fen());
-        socket.emit("move",{room:roomId,fen:game.fen()});
-        update();
-    }
-});
+// ===== ПРОФИЛЬ =====
+let profile = JSON.parse(localStorage.getItem("iqProfile")) || {
+    name: "",
+    tests: [],
+    bestIQ: 0,
+    funScore: 0
+};
 
-socket.on("move", data=>{
-    game.load(data.fen);
-    board.position(data.fen);
-    replayData.push(data.fen);
-    update();
-});
-
-socket.on("chat", d=>{
-    chat.innerHTML += `<div>${d}</div>`;
-});
-
-function join(){
-    roomId = room.value;
-    socket.emit("join", roomId);
-}
-
-function send(){
-    socket.emit("chat",{room:roomId,text:msg.value});
-    msg.value="";
-}
-
-function update(){
-    status.textContent = game.in_checkmate() ? "♚ МАТ" :
-        game.in_draw() ? "🤝 НИЧЬЯ" :
-        (game.turn()==='w'?"Белые":"Чёрные")+" ходят";
-}
-
-function replay(){
-    let i=0;
-    const t=setInterval(()=>{
-        if(i>=replayData.length) return clearInterval(t);
-        board.position(replayData[i++]);
-    },700);
-}
-
-// 📊 ANALYSIS
-const engine = Stockfish();
-engine.postMessage("uci");
-
-function analyze(){
-    engine.postMessage("position fen "+game.fen());
-    engine.postMessage("go depth 12");
-    engine.onmessage=e=>{
-        if(e.data.includes("score")){
-            alert(e.data);
+// ===== ВОПРОСЫ =====
+const questionBank = {
+    logic: [
+        { q:"Все A — B. Все B — C. Значит:", o:["Все A — C","Все C — A","Некоторые A — C","Нельзя определить"], a:0 },
+        { q:"Если 5 машин делают 5 деталей за 5 минут, сколько нужно машин для 100 деталей за 100 минут?", o:["5","10","20","100"], a:0 }
+    ],
+    numbers: [
+        { q:"2, 6, 12, 20, ?", o:["24","28","30","32"], a:1 },
+        { q:"1, 1, 2, 3, 5, ?", o:["6","7","8","10"], a:2 }
+    ],
+    words: [
+        { q:"Какое слово лишнее?", o:["Бег","Ходьба","Прыжок","Мысль"], a:3 }
+    ],
+    raven: [
+        {
+            img:"https://upload.wikimedia.org/wikipedia/commons/5/55/Raven_matrix_example.png",
+            q:"Выберите правильный элемент",
+            o:["A","B","C","D"], a:2
         }
-    }
-}
-</script>
+    ],
+    fun: [
+        { q:"Кто такой Шляпоголов Пук Тухлодырович?", o:["Король Галактики","Просто человек","Вымышленный персонаж","Невидимый супергерой"], a:2 },
+        { q:"Если утка летит на юг, а слон поёт гимн, сколько килограммов счастья в холодильнике?", o:["42","Ни одного","Слишком много","Это зависит от погоды"], a:0 },
+        { q:"Что будет, если положить тост в микроволновку вместе с космическим котом?", o:["Тост станет разумным","Кот научится программировать","Ничего","Всё взорвётся"], a:2 },
+        { q:"Почему носки всегда теряются?", o:["Они бегут в другой мир","Просто магия","Кошки крадут","Это заговор стиральных машин"], a:1 }
+    ]
+};
 
+// ===== ПЕРЕМЕННЫЕ =====
+let current, index = 0, score = 0, funScore = 0;
+let level = "easy";
+
+// ===== ЭКРАН СТАРТА =====
+function startScreen() {
+    app.innerHTML = `
+        <h1>🧠 Ultimate Fun IQ Test</h1>
+        <input placeholder="Ваше имя" id="name" value="${profile.name}">
+        <select id="level">
+            <option value="easy">Лёгкий</option>
+            <option value="medium">Средний</option>
+            <option value="hard">Сложный</option>
+        </select>
+        <button onclick="start()">Начать тест</button>
+
+        <h3>📊 Статистика</h3>
+        <p>Лучший IQ: ${profile.bestIQ || "-"}</p>
+        <p>Пройдено тестов: ${profile.tests.length}</p>
+        <p>Весёлых ответов: ${profile.funScore}</p>
+    `;
+}
+
+// ===== ВЫБОР ВОПРОСА =====
+function getQuestion() {
+    const types = Object.keys(questionBank);
+    const type = types[Math.floor(Math.random()*types.length)];
+    const qList = questionBank[type];
+    const q = qList[Math.floor(Math.random()*qList.length)];
+    q.type = type;
+    return q;
+}
+
+// ===== ЗАГРУЗКА ВОПРОСА =====
+function loadQuestion() {
+    chosen = null;
+    current = getQuestion();
+    app.innerHTML = `
+        <h2>Вопрос ${index+1}</h2>
+        ${current.img ? `<img src="${current.img}">` : ""}
+        <p>${current.q}</p>
+        <div id="opts"></div>
+        <button onclick="next()">Далее</button>
+    `;
+    const opts = document.getElementById("opts");
+    current.o.forEach((text,i)=>{
+        const d = document.createElement("div");
+        d.className = "option";
+        d.textContent = text;
+        d.onclick = ()=>{
+            document.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));
+            d.classList.add("selected");
+            chosen = i;
+        };
+        opts.appendChild(d);
+    });
+}
+
+// ===== НАЖАТИЕ ДАЛЕЕ =====
+function next() {
+    if(chosen===null) return alert("Выберите ответ");
+
+    if(chosen === current.a) score++;
+    if(current.type === "fun") funScore++;
+
+    index++;
+    if(index>=10) finish(); else loadQuestion();
+}
+
+// ===== ФИНИШ =====
+function finish() {
+    const base = level==="easy"?90:level==="medium"?100:115;
+    const iq = base + score*8 + funScore*2;
+    profile.name = name.value;
+    profile.tests.push(iq);
+    profile.bestIQ = Math.max(profile.bestIQ, iq);
+    profile.funScore += funScore;
+    localStorage.setItem("iqProfile", JSON.stringify(profile));
+
+    app.innerHTML = `
+        <h1>✅ Тест завершён</h1>
+        <p>Имя: ${profile.name}</p>
+        <p>Правильных ответов: ${score} / 10</p>
+        <p>Весёлых ответов: ${funScore}</p>
+        <h2>🧠 IQ: ${iq}</h2>
+        <p>${iq<90?"Ниже среднего":iq<110?"Средний уровень":iq<130?"Выше среднего":"Очень высокий интеллект 🔥"}</p>
+        <button onclick="index=score=funScore=0; startScreen()">🏠 В меню</button>
+    `;
+}
+
+// ===== СТАРТ =====
+startScreen();
+</script>
 </body>
 </html>
+
+
 
 
 
