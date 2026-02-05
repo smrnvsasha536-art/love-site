@@ -2,34 +2,31 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Информация о стационарном номере</title>
+<title>Информация по номеру телефона (Россия)</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-    background: #f2f2f2;
-    padding: 40px;
+    background: #eef2f3;
+    padding: 30px;
   }
-  .box {
-    max-width: 500px;
+  .container {
+    max-width: 600px;
     margin: auto;
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
   }
-  input {
+  input, button {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     font-size: 16px;
-    margin-bottom: 15px;
+    margin: 8px 0;
   }
   button {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
     background: #3498db;
     color: white;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
   }
   button:hover {
@@ -43,58 +40,75 @@
 </head>
 <body>
 
-<div class="box">
-  <h2>Проверка домашнего телефона</h2>
-  <input id="phone" placeholder="Например: 74951234567">
-  <button onclick="checkNumber()">Проверить</button>
-  <div class="result" id="result"></div>
+<div class="container">
+  <h2>Проверка российского номера</h2>
+  <input type="text" id="phone" placeholder="Введите номер, например +74951234567">
+  <button onclick="checkPhone()">Проверить</button>
+  <div id="result" class="result"></div>
 </div>
 
 <script>
-const phoneData = {
-  "495": {
-    region: "Москва",
-    operator: "МГТС",
-    type: "Стационарный",
-    period: "2000–2015"
-  },
-  "812": {
-    region: "Санкт-Петербург",
-    operator: "Ростелеком",
-    type: "Стационарный",
-    period: "1998–2014"
-  },
-  "343": {
-    region: "Екатеринбург",
-    operator: "Ростелеком",
-    type: "Стационарный",
-    period: "2003–2016"
-  }
+// Расширенная база кодов (частичная, основные города)
+const codes = {
+  "495": { city: "Москва", operator: "МГТС / Ростелеком", region: "Москва" },
+  "499": { city: "Москва", operator: "МГТС / Ростелеком", region: "Москва" },
+  "812": { city: "Санкт-Петербург", operator: "Ростелеком", region: "Санкт‑Петербург" },
+  "383": { city: "Новосибирск", operator: "Ростелеком", region: "Новосибирская обл." },
+  "343": { city: "Екатеринбург", operator: "Ростелеком", region: "Свердловская обл." },
+  "351": { city: "Челябинск", operator: "Ростелеком", region: "Челябинская обл." },
+  "472": { city: "Белгород", operator: "Ростелеком", region: "Белгородская обл." },
+  "483": { city: "Брянск", operator: "Ростелеком", region: "Брянская обл." },
+  "4722": { city: "Белгород", operator: "Ростелеком", region: "Белгородская обл." },
+  "3952": { city: "Иркутск", operator: "Ростелеком", region: "Иркутская обл." },
+  "8412": { city: "Пенза", operator: "Ростелеком", region: "Пензенская обл." },
+  "831": { city: "Нижний Новгород", operator: "Ростелеком", region: "Нижегородская обл." },
+  "8452": { city: "Саратов", operator: "Ростелеком", region: "Саратовская обл." },
+  "8462": { city: "Самара", operator: "Ростелеком", region: "Самарская обл." },
+  "491": { city: "Рязань", operator: "Ростелеком", region: "Рязанская обл." },
+  "484": { city: "Калуга", operator: "Ростелеком", region: "Калужская обл." },
+  "8442": { city: "Волгоград", operator: "Ростелеком", region: "Волгоградская обл." }
 };
 
-function checkNumber() {
+function checkPhone() {
   const input = document.getElementById("phone").value.replace(/\D/g, "");
-  const code = input.slice(1, 4);
-  const result = document.getElementById("result");
 
-  if (!phoneData[code]) {
-    result.innerHTML = "❌ Информация не найдена";
+  // Ожидаем формат +7xxxxxxxxxx
+  if (!input || input.length < 10 || !input.startsWith("7")) {
+    document.getElementById("result").innerHTML = "❌ Неверный формат номера";
     return;
   }
 
-  const data = phoneData[code];
-  result.innerHTML = `
-    📍 <b>Регион:</b> ${data.region}<br>
-    🏢 <b>Оператор:</b> ${data.operator}<br>
-    📞 <b>Тип номера:</b> ${data.type}<br>
-    📅 <b>Подключён:</b> ${data.period}<br><br>
-    <small>ℹ️ Информация получена из анализа нумерации и открытых источников</small>
+  // Извлекаем код региона (3–4 цифры)
+  let found = null;
+  for (let len = 4; len >= 3; len--) {
+    const prefix = input.substr(1, len);
+    if (codes[prefix]) {
+      found = { code: prefix, ...codes[prefix] };
+      break;
+    }
+  }
+
+  const resultBlock = document.getElementById("result");
+  if (!found) {
+    resultBlock.innerHTML = "❌ Информация не найдена для этого кода";
+    return;
+  }
+
+  // Вывод результата
+  resultBlock.innerHTML = `
+    📍 <b>Город / Регион:</b> ${found.city}, ${found.region}<br>
+    🏢 <b>Оператор:</b> ${found.operator}<br>
+    📞 <b>Тип номера:</b> Стационарный (географический) <br>
+    📅 <b>Примерный период:</b> Подключён давно (1990–2015+)<br><br>
+    <small>ℹ️ Данные основаны на справочных кодах регионов РФ</small>
   `;
 }
 </script>
 
 </body>
 </html>
+
+
 
 
 
