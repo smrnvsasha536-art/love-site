@@ -292,26 +292,209 @@ submitAnswer.onclick = () => {
     let matchPercent = (matchedWords.length / q.keywords.length);
 
     if(matchPercent === 1){
-        // Полностью правильный ответ
+        // Полностью правильны<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Симулятор звонка Ростелеком</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+h1, h2 {
+    margin-bottom: 20px;
+}
+button {
+    background-color: #ff9800;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    margin: 8px;
+    font-size: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+button:hover {
+    background-color: #e68a00;
+}
+.question-box {
+    margin-top: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 20px;
+    border-radius: 15px;
+}
+input[type="text"] {
+    width: 80%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    margin-top: 10px;
+    font-size: 16px;
+}
+.hint-screen {
+    color: yellow;
+    font-size: 20px;
+    margin-top: 20px;
+}
+.explanation {
+    color: #00ff00;
+    font-size: 18px;
+    margin-top: 15px;
+}
+.score-screen {
+    font-size: 40px;
+    margin-top: 50px;
+}
+.bg-buttons button {
+    width: 150px;
+}
+.timer {
+    font-size: 18px;
+    margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Симулятор звонка Ростелеком</h1>
+<p>Тест: "Как правильно отвечать на возражения клиента"</p>
+
+<div class="bg-buttons">
+    <p>Выбери фон:</p>
+    <button type="button" onclick="changeBackground('linear-gradient(to right, #00c6ff, #0072ff)')">Голубой</button>
+    <button type="button" onclick="changeBackground('linear-gradient(to right, #ff416c, #ff4b2b)')">Красный</button>
+    <button type="button" onclick="changeBackground('linear-gradient(to right, #43cea2, #185a9d)')">Зелёный</button>
+    <button type="button" onclick="changeBackground('linear-gradient(to right, #f7971e, #ffd200)')">Оранжевый</button>
+</div>
+
+<button type="button" id="startBtn">Начать тест</button>
+
+<div id="questionContainer" class="question-box" style="display:none;">
+    <h2 id="questionText"></h2>
+    <input type="text" id="answerInput" placeholder="Напишите свой ответ здесь">
+    <br>
+    <button type="button" id="submitAnswer">Ответить</button>
+    <div class="timer" id="timerDisplay"></div>
+    <div id="hint" class="hint-screen"></div>
+    <div id="explanation" class="explanation"></div>
+</div>
+
+<div id="scoreScreen" class="score-screen" style="display:none;">
+    Ваш результат: <span id="scoreValue">0</span> баллов
+</div>
+
+</div>
+
+<script>
+// Сценарий звонка с ветвлениями
+const questions = [
+    { text: "Приветствие. Как начать разговор?", keywords:["здравствуйте","ростелеком","вася"], points:5, type:"normal", explanation:"Нужно поприветствовать и назвать компанию и имя." },
+    { text: "Сообщение причины звонка.", keywords:["важное оповещение","договор","городского телефона","отказаться"], points:5, type:"normal", explanation:"Сообщаем клиенту причину звонка и спрашиваем о намерениях." },
+    { text: "Клиент говорит: 'Я не хочу ничего переоформлять'. Как правильно ответить?", keywords:["если не решим проблему","повторное подключение","оплатить","восстановление линии"], points:10, type:"objection", explanation:"Объясните последствия и необходимость решения сейчас." },
+    { text: "Клиент: 'Как я могу убедиться, что вы оператор?'", keywords:["sms","номер заявки","никому не озвучивать"], points:10, type:"objection", explanation:"Покажите способ подтверждения через SMS." },
+    { text: "Клиент: 'Мне дети потом помогут / Перезвоните позже'", keywords:["нельзя переносить","блокировка","сейчас","важно"], points:10, type:"objection", explanation:"Объясните, почему нельзя откладывать и возможные последствия." },
+    { text: "Клиент: 'Я не буду озвучивать свои документы'", keywords:["только публичная часть","удостоверить личность","паспорт"], points:10, type:"objection", explanation:"Объясните зачем нужен документ и что запрашивается только публичная часть." },
+    { text: "Наводящие вопросы про проблемы с телефоном", keywords:["перебои","помехи","разговор"], points:5, type:"normal", explanation:"Уточняем проблемы для улучшения качества связи." },
+    { text: "Запрос номера мобильного для SMS", keywords:["мобильный","sms","номер договора"], points:5, type:"normal", explanation:"Запрашиваем номер телефона для отправки договора." },
+    { text: "Запрос паспорта для сверки данных", keywords:["серия","номер паспорта","подготовьте документ"], points:5, type:"normal", explanation:"Проверяем личность клиента перед оформлением." },
+    { text: "Как завершить разговор?", keywords:["понятно","повторить","оцените мою работу"], points:5, type:"normal", explanation:"Уточняем, все ли понятно и просим оценить работу." }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let timer;
+
+const startBtn = document.getElementById('startBtn');
+const questionContainer = document.getElementById('questionContainer');
+const questionText = document.getElementById('questionText');
+const answerInput = document.getElementById('answerInput');
+const submitAnswer = document.getElementById('submitAnswer');
+const hint = document.getElementById('hint');
+const explanation = document.getElementById('explanation');
+const scoreScreen = document.getElementById('scoreScreen');
+const scoreValue = document.getElementById('scoreValue');
+const timerDisplay = document.getElementById('timerDisplay');
+
+startBtn.onclick = () => {
+    startBtn.style.display = 'none';
+    showQuestion();
+};
+
+function changeBackground(gradient) {
+    document.body.style.background = gradient;
+}
+
+function startTimer(duration) {
+    let time = duration;
+    timerDisplay.innerText = `Время: ${time} сек`;
+    timer = setInterval(() => {
+        time--;
+        timerDisplay.innerText = `Время: ${time} сек`;
+        if(time <= 0){
+            clearInterval(timer);
+            hint.innerText = "Время вышло! Попробуйте следующий вопрос.";
+            currentQuestion++;
+            setTimeout(showQuestion, 2000);
+        }
+    }, 1000);
+}
+
+function showQuestion() {
+    if(currentQuestion >= questions.length) {
+        questionContainer.style.display = 'none';
+        scoreScreen.style.display = 'block';
+        scoreValue.innerText = score;
+        return;
+    }
+    const q = questions[currentQuestion];
+    questionText.innerText = q.text;
+    answerInput.value = '';
+    hint.innerText = '';
+    explanation.innerText = '';
+    questionContainer.style.display = 'block';
+    clearInterval(timer);
+    startTimer(60); // Таймер 60 секунд на каждый вопрос
+}
+
+submitAnswer.onclick = () => {
+    const userAnswer = answerInput.value.toLowerCase();
+    const q = questions[currentQuestion];
+
+    let matchedWords = q.keywords.filter(word => userAnswer.includes(word));
+    let matchPercent = (matchedWords.length / q.keywords.length);
+
+    if(matchPercent === 1){
         score += q.points;
         explanation.innerText = "✅ " + q.explanation;
+        clearInterval(timer);
         setTimeout(() => {
             currentQuestion++;
             showQuestion();
         }, 2000);
     } else if(matchPercent >= 0.5){
-        // Частично правильный ответ
         let partialPoints = Math.round(q.points * matchPercent);
         score += partialPoints;
-        explanation.innerText = "⚠️ Частично верно. Баллы: " + partialPoints + ". " + q.explanation;
+        explanation.innerText = `⚠️ Частично верно. Баллы: ${partialPoints}. ${q.explanation}`;
+        clearInterval(timer);
         setTimeout(() => {
             currentQuestion++;
             showQuestion();
         }, 2500);
     } else {
-        // Неправильный ответ
         let missing = q.keywords.filter(word => !userAnswer.includes(word));
-        hint.innerText = "Подумайте еще раз. В ответе не хватает ключевых моментов: " + missing.join(", ");
+        hint.innerText = "Подумайте еще раз. Недостающие слова: " + missing.join(", ");
         answerInput.value = '';
         answerInput.focus();
     }
@@ -319,6 +502,8 @@ submitAnswer.onclick = () => {
 </script>
 </body>
 </html>
+
+
 
 
 
