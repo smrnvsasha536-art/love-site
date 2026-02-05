@@ -34,7 +34,7 @@ button:hover { background: #ffc107; }
 </div>
 
 <script>
-// === Сценарий тренажера (с ключевыми словами во всех падежах) ===
+// === Сценарий тренажера ===
 const steps = [
   { text: "Клиент: Алло?", keywords: ["ростелеком","оператор"], points:5, rule:"Корректное приветствие и представление", example:"Здравствуйте! Вас приветствует оператор компании Ростелеком, меня зовут Иван." },
   { text: "Клиент: А кто вы вообще?", keywords:["ростелеком"], points:5, rule:"Представиться и назвать компанию", example:"Меня зовут Иван, я оператор компании Ростелеком, отдел клиентской поддержки." },
@@ -80,24 +80,20 @@ if('webkitSpeechRecognition' in window){
   recognition.interimResults=false;
   recognition.maxAlternatives=1;
 
-  voiceBtn.onclick=()=>{
-    recognition.start();
-  }
+  voiceBtn.onclick=()=> recognition.start();
 
   recognition.onresult=(event)=>{
     const transcript=event.results[0][0].transcript;
     input.value=transcript;
   }
 
-  recognition.onerror=(event)=>{
-    alert('Ошибка распознавания: ' + event.error);
-  }
+  recognition.onerror=(event)=> alert('Ошибка распознавания: ' + event.error);
 }else{
   voiceBtn.disabled=true;
   voiceBtn.textContent='🎤 Не поддерживается';
 }
 
-// === Разбор диалога ===
+// === Разбор диалога по сути ===
 function analyzeDialog(){
   dialog.style.display="none";
   input.style.display="none";
@@ -107,10 +103,13 @@ function analyzeDialog(){
   let html=`<h2>Итоговый диалог и подробный разбор</h2><hr>`;
 
   history.forEach(h=>{
-    const answerLower=h.answer.toLowerCase();
-    const matched=h.stepData.keywords.filter(k=>answerLower.includes(k));
-    const missing=h.stepData.keywords.filter(k=>!answerLower.includes(k));
-    const success=matched.length>=Math.ceil(h.stepData.keywords.length*0.6);
+    const answerWords=h.answer.toLowerCase().match(/\w+/g)||[];
+    const exampleWords=h.stepData.example.toLowerCase().match(/\w+/g)||[];
+
+    // Проверка по сути: сколько слов из примера встречается в ответе
+    let matchedCount=exampleWords.filter(w=>answerWords.includes(w)).length;
+    const success=matchedCount>=Math.ceil(exampleWords.length*0.6);
+
     if(success) score+=h.stepData.points;
 
     html+=`
@@ -118,9 +117,8 @@ function analyzeDialog(){
       <p class="${success?'good':'bad'}">
       ${h.answer}<br>
       <i>${success
-        ? '✔ Верно. Структура этапа соблюдена.'
+        ? '✔ Верно. Суть донесена.'
         : `✖ Ошибка: ${h.stepData.rule}<br>
-           <b>Чего не хватило:</b> ${missing.join(", ")}<br>
            <b>Пример правильного ответа:</b> <span class="example">${h.stepData.example}</span>`}
       </i>
       </p><hr>`;
@@ -133,6 +131,8 @@ function analyzeDialog(){
 </script>
 </body>
 </html>
+
+
 
 
 
