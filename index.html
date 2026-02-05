@@ -128,6 +128,125 @@ const questions = [
     { text: "Согласовать доставку договора", keywords:["доставщик","почта","адрес","подойдет"], points:5 },
 ];
 
+let currentQuestion = 0;<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Симулятор звонка Ростелеком</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+h1, h2 {
+    margin-bottom: 20px;
+}
+button {
+    background-color: #ff9800;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    margin: 8px;
+    font-size: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+button:hover {
+    background-color: #e68a00;
+}
+.question-box {
+    margin-top: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 20px;
+    border-radius: 15px;
+}
+input[type="text"] {
+    width: 80%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    margin-top: 10px;
+    font-size: 16px;
+}
+.hint-screen {
+    color: yellow;
+    font-size: 20px;
+    margin-top: 20px;
+}
+.explanation {
+    color: #00ff00;
+    font-size: 18px;
+    margin-top: 15px;
+}
+.score-screen {
+    font-size: 40px;
+    margin-top: 50px;
+}
+.bg-buttons button {
+    width: 150px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Симулятор звонка Ростелеком</h1>
+<p>Тест: "Как правильно отвечать на возражения клиента"</p>
+<div class="bg-buttons">
+    <p>Выбери фон:</p>
+    <button onclick="changeBackground('linear-gradient(to right, #00c6ff, #0072ff)')">Голубой</button>
+    <button onclick="changeBackground('linear-gradient(to right, #ff416c, #ff4b2b)')">Красный</button>
+    <button onclick="changeBackground('linear-gradient(to right, #43cea2, #185a9d)')">Зелёный</button>
+    <button onclick="changeBackground('linear-gradient(to right, #f7971e, #ffd200)')">Оранжевый</button>
+</div>
+<button id="startBtn">Начать тест</button>
+
+<div id="questionContainer" class="question-box" style="display:none;">
+    <h2 id="questionText"></h2>
+    <input type="text" id="answerInput" placeholder="Напишите свой ответ здесь">
+    <br>
+    <button id="submitAnswer">Ответить</button>
+    <div id="hint" class="hint-screen"></div>
+    <div id="explanation" class="explanation"></div>
+</div>
+
+<div id="scoreScreen" class="score-screen" style="display:none;">
+    Ваш результат: <span id="scoreValue">0</span> баллов
+</div>
+
+</div>
+
+<script>
+// Сценарий звонка с возражениями
+const questions = [
+    { text: "Приветствие. Как начать разговор?", keywords:["здравствуйте","ростелеком","вася"], points:5, type:"normal", explanation:"Нужно поприветствовать и назвать компанию и имя." },
+    { text: "Сообщение причины звонка.", keywords:["важное оповещение","договор","городского телефона","отказаться"], points:5, type:"normal", explanation:"Сообщаем клиенту причину звонка и спрашиваем о намерениях." },
+    { text: "Как уточнить срок продления (1-5 лет)?", keywords:["выбрать срок","продлить обслуживание","1","5"], points:5, type:"normal", explanation:"Предлагаем выбрать срок продления." },
+    { text: "Как спросить о способе получения договора?", keywords:["договор","доставщик","почтой","удобнее"], points:5, type:"normal", explanation:"Спрашиваем, как клиент хочет получить договор." },
+    { text: "Если клиент пенсионер или имеет льготы, что сказать?", keywords:["льготный тариф","пенсионер","скидка","подходит"], points:5, type:"normal", explanation:"Сообщаем о льготном тарифе для пенсионеров и других категорий." },
+    { text: "Как получить голосовое подтверждение?", keywords:["подтверждаю перевод","льготный тариф"], points:5, type:"normal", explanation:"Попросите клиента повторить фразу для подтверждения." },
+    { text: "Клиент говорит: 'Я не хочу ничего переоформлять'. Как правильно ответить?", keywords:["если не решим проблему","повторное подключение","оплатить","восстановление линии"], points:10, type:"objection", explanation:"Объясните последствия и необходимость решения сейчас." },
+    { text: "Клиент: 'Как я могу убедиться, что вы оператор?'", keywords:["sms","номер заявки","никому не озвучивать"], points:10, type:"objection", explanation:"Покажите способ подтверждения через SMS." },
+    { text: "Клиент: 'Мне дети потом помогут / Перезвоните позже'", keywords:["нельзя переносить","блокировка","сейчас","важно"], points:10, type:"objection", explanation:"Объясните, почему нельзя откладывать и возможные последствия." },
+    { text: "Клиент: 'Я не буду озвучивать свои документы'", keywords:["только публичная часть","удостоверить личность","паспорт"], points:10, type:"objection", explanation:"Объясните зачем нужен документ и что запрашивается только публичная часть." },
+    { text: "Наводящие вопросы про проблемы с телефоном", keywords:["перебои","помехи","разговор"], points:5, type:"normal", explanation:"Уточняем проблемы для улучшения качества связи." },
+    { text: "Запрос номера мобильного для SMS", keywords:["мобильный","sms","номер договора"], points:5, type:"normal", explanation:"Запрашиваем номер телефона для отправки договора." },
+    { text: "Запрос паспорта для сверки данных", keywords:["серия","номер паспорта","подготовьте документ"], points:5, type:"normal", explanation:"Проверяем личность клиента перед оформлением." },
+    { text: "Как завершить разговор?", keywords:["понятно","повторить","оцените мою работу"], points:5, type:"normal", explanation:"Уточняем, все ли понятно и просим оценить работу." },
+    { text: "Дополнительно уточнить пользователей телефона", keywords:["кто","живет","пользуется","дополнительно"], points:5, type:"normal", explanation:"Уточняем, кто пользуется телефоном, чтобы корректно оформить договор." },
+    { text: "Согласовать доставку договора", keywords:["доставщик","почта","адрес","подойдет"], points:5, type:"normal", explanation:"Согласуем удобный способ доставки и адрес." }
+];
+
 let currentQuestion = 0;
 let score = 0;
 
@@ -137,6 +256,7 @@ const questionText = document.getElementById('questionText');
 const answerInput = document.getElementById('answerInput');
 const submitAnswer = document.getElementById('submitAnswer');
 const hint = document.getElementById('hint');
+const explanation = document.getElementById('explanation');
 const scoreScreen = document.getElementById('scoreScreen');
 const scoreValue = document.getElementById('scoreValue');
 
@@ -160,6 +280,7 @@ function showQuestion() {
     questionText.innerText = q.text;
     answerInput.value = '';
     hint.innerText = '';
+    explanation.innerText = '';
     questionContainer.style.display = 'block';
 }
 
@@ -167,15 +288,30 @@ submitAnswer.onclick = () => {
     const userAnswer = answerInput.value.toLowerCase();
     const q = questions[currentQuestion];
 
-    const isCorrect = q.keywords.every(word => userAnswer.includes(word));
+    let matchedWords = q.keywords.filter(word => userAnswer.includes(word));
+    let matchPercent = (matchedWords.length / q.keywords.length);
 
-    if(isCorrect) {
+    if(matchPercent === 1){
+        // Полностью правильный ответ
         score += q.points;
-        currentQuestion++;
-        showQuestion();
+        explanation.innerText = "✅ " + q.explanation;
+        setTimeout(() => {
+            currentQuestion++;
+            showQuestion();
+        }, 2000);
+    } else if(matchPercent >= 0.5){
+        // Частично правильный ответ
+        let partialPoints = Math.round(q.points * matchPercent);
+        score += partialPoints;
+        explanation.innerText = "⚠️ Частично верно. Баллы: " + partialPoints + ". " + q.explanation;
+        setTimeout(() => {
+            currentQuestion++;
+            showQuestion();
+        }, 2500);
     } else {
-        // выводим подсказку вместо скипа
-        hint.innerText = "Подумайте еще раз. Ваш ответ должен включать ключевые моменты: " + q.keywords.join(", ");
+        // Неправильный ответ
+        let missing = q.keywords.filter(word => !userAnswer.includes(word));
+        hint.innerText = "Подумайте еще раз. В ответе не хватает ключевых моментов: " + missing.join(", ");
         answerInput.value = '';
         answerInput.focus();
     }
@@ -183,6 +319,8 @@ submitAnswer.onclick = () => {
 </script>
 </body>
 </html>
+
+
 
 
 
