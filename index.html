@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Симуляция звонка Ростелеком</title>
+<title>Симулятор звонка Ростелеком</title>
 <style>
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -67,6 +67,11 @@ input[type="text"] {
     display: none;
     flex-direction: column;
 }
+.hint-screen {
+    color: yellow;
+    font-size: 24px;
+    margin-top: 20px;
+}
 .score-screen {
     font-size: 40px;
     margin-top: 50px;
@@ -94,69 +99,33 @@ input[type="text"] {
     <input type="text" id="answerInput" placeholder="Напишите свой ответ здесь">
     <br>
     <button id="submitAnswer">Ответить</button>
+    <div id="hint" class="hint-screen"></div>
 </div>
 
 <div id="scoreScreen" class="score-screen" style="display:none;">
     Ваш результат: <span id="scoreValue">0</span> баллов
 </div>
-</div>
 
-<div id="skipScreen" class="skip-screen">
-Вас скипнули
 </div>
 
 <script>
 const questions = [
-    {
-        text: "Приветствие. Как правильно начать разговор?",
-        keywords: ["здравствуйте", "ростелеком", "вася"],
-        points: 5
-    },
-    {
-        text: "Сообщение причины звонка.",
-        keywords: ["важное оповещение", "договор", "городского телефона", "отказаться"],
-        points: 5
-    },
-    {
-        text: "Как уточнить срок продления (1-5 лет)?",
-        keywords: ["выбрать срок", "продлить обслуживание", "1", "5"],
-        points: 5
-    },
-    {
-        text: "Как спросить о способе получения договора?",
-        keywords: ["договор", "доставщик", "почтой", "удобнее"],
-        points: 5
-    },
-    {
-        text: "Если клиент пенсионер или имеет льготы, что сказать?",
-        keywords: ["льготный тариф", "пенсионер", "скидка", "подходит"],
-        points: 5
-    },
-    {
-        text: "Как получить голосовое подтверждение?",
-        keywords: ["подтверждаю перевод", "льготный тариф"],
-        points: 5
-    },
-    {
-        text: "Как спросить клиента о проблемах с телефоном?",
-        keywords: ["перебои", "помехи", "разговор"],
-        points: 5
-    },
-    {
-        text: "Как запросить номер мобильного для SMS с номером договора?",
-        keywords: ["мобильный", "sms", "номер договора"],
-        points: 5
-    },
-    {
-        text: "Как запросить паспорт для сверки данных?",
-        keywords: ["серия", "номер паспорта", "подготовьте документ"],
-        points: 5
-    },
-    {
-        text: "Как завершить разговор?",
-        keywords: ["понятно", "повторить", "оцените мою работу"],
-        points: 5
-    }
+    { text: "Приветствие. Как начать разговор?", keywords:["здравствуйте","ростелеком","вася"], points:5 },
+    { text: "Сообщение причины звонка.", keywords:["важное оповещение","договор","городского телефона","отказаться"], points:5 },
+    { text: "Как уточнить срок продления (1-5 лет)?", keywords:["выбрать срок","продлить обслуживание","1","5"], points:5 },
+    { text: "Как спросить о способе получения договора?", keywords:["договор","доставщик","почтой","удобнее"], points:5 },
+    { text: "Если клиент пенсионер или имеет льготы, что сказать?", keywords:["льготный тариф","пенсионер","скидка","подходит"], points:5 },
+    { text: "Как получить голосовое подтверждение?", keywords:["подтверждаю перевод","льготный тариф"], points:5 },
+    { text: "Клиент говорит: 'Я не хочу ничего переоформлять'. Как правильно ответить?", keywords:["если не решим проблему","повторное подключение","оплатить","восстановление линии"], points:10 },
+    { text: "Клиент: 'Как я могу убедиться, что вы оператор?'", keywords:["sms","номер заявки","никому не озвучивать"], points:10 },
+    { text: "Клиент: 'Мне дети потом помогут / Перезвоните позже'", keywords:["нельзя переносить","блокировка","сейчас","важно"], points:10 },
+    { text: "Клиент: 'Я не буду озвучивать свои документы'", keywords:["только публичная часть","удостоверить личность","паспорт"], points:10 },
+    { text: "Наводящие вопросы про проблемы с телефоном", keywords:["перебои","помехи","разговор"], points:5 },
+    { text: "Запрос номера мобильного для SMS", keywords:["мобильный","sms","номер договора"], points:5 },
+    { text: "Запрос паспорта для сверки данных", keywords:["серия","номер паспорта","подготовьте документ"], points:5 },
+    { text: "Как завершить разговор?", keywords:["понятно","повторить","оцените мою работу"], points:5 },
+    { text: "Дополнительно уточнить пользователей телефона", keywords:["кто","живет","пользуется","дополнительно"], points:5 },
+    { text: "Согласовать доставку договора", keywords:["доставщик","почта","адрес","подойдет"], points:5 },
 ];
 
 let currentQuestion = 0;
@@ -167,7 +136,7 @@ const questionContainer = document.getElementById('questionContainer');
 const questionText = document.getElementById('questionText');
 const answerInput = document.getElementById('answerInput');
 const submitAnswer = document.getElementById('submitAnswer');
-const skipScreen = document.getElementById('skipScreen');
+const hint = document.getElementById('hint');
 const scoreScreen = document.getElementById('scoreScreen');
 const scoreValue = document.getElementById('scoreValue');
 
@@ -190,6 +159,7 @@ function showQuestion() {
     const q = questions[currentQuestion];
     questionText.innerText = q.text;
     answerInput.value = '';
+    hint.innerText = '';
     questionContainer.style.display = 'block';
 }
 
@@ -204,15 +174,17 @@ submitAnswer.onclick = () => {
         currentQuestion++;
         showQuestion();
     } else {
-        skipScreen.style.display = 'flex';
-        setTimeout(() => {
-            location.reload();
-        }, 3000);
+        // выводим подсказку вместо скипа
+        hint.innerText = "Подумайте еще раз. Ваш ответ должен включать ключевые моменты: " + q.keywords.join(", ");
+        answerInput.value = '';
+        answerInput.focus();
     }
 };
 </script>
 </body>
 </html>
+
+
 
 
 
