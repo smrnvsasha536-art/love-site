@@ -66,10 +66,6 @@ input[type="text"] {
 .bg-buttons button {
     width: 150px;
 }
-.timer {
-    font-size: 18px;
-    margin-top: 10px;
-}
 </style>
 </head>
 <body>
@@ -92,7 +88,6 @@ input[type="text"] {
     <input type="text" id="answerInput" placeholder="Напишите свой ответ здесь">
     <br>
     <button type="button" id="submitAnswer">Ответить</button>
-    <div class="timer" id="timerDisplay"></div>
     <div id="hint" class="hint-screen"></div>
     <div id="explanation" class="explanation"></div>
 </div>
@@ -101,13 +96,16 @@ input[type="text"] {
     Ваш результат: <span id="scoreValue">0</span> баллов
 </div>
 
+</div>
+
 <script>
-// Проверенные кнопки
+// Кнопки фонов
 document.getElementById('bgBlue').onclick = () => { document.body.style.background = 'linear-gradient(to right, #00c6ff, #0072ff)'; };
 document.getElementById('bgRed').onclick = () => { document.body.style.background = 'linear-gradient(to right, #ff416c, #ff4b2b)'; };
 document.getElementById('bgGreen').onclick = () => { document.body.style.background = 'linear-gradient(to right, #43cea2, #185a9d)'; };
 document.getElementById('bgOrange').onclick = () => { document.body.style.background = 'linear-gradient(to right, #f7971e, #ffd200)'; };
 
+// Сценарий вопросов
 const questions = [
     { text: "Приветствие. Как начать разговор?", keywords:["здравствуйте","ростелеком","вася"], points:5, type:"normal", explanation:"Нужно поприветствовать и назвать компанию и имя." },
     { text: "Сообщение причины звонка.", keywords:["важное оповещение","договор","городского телефона","отказаться"], points:5, type:"normal", explanation:"Сообщаем клиенту причину звонка и спрашиваем о намерениях." },
@@ -119,7 +117,6 @@ const questions = [
 
 let currentQuestion = 0;
 let score = 0;
-let timer;
 
 const startBtn = document.getElementById('startBtn');
 const questionContainer = document.getElementById('questionContainer');
@@ -130,7 +127,6 @@ const hint = document.getElementById('hint');
 const explanation = document.getElementById('explanation');
 const scoreScreen = document.getElementById('scoreScreen');
 const scoreValue = document.getElementById('scoreValue');
-const timerDisplay = document.getElementById('timerDisplay');
 
 // Старт теста
 startBtn.onclick = () => {
@@ -138,22 +134,7 @@ startBtn.onclick = () => {
     showQuestion();
 };
 
-// Таймер
-function startTimer(duration) {
-    let time = duration;
-    timerDisplay.innerText = `Время: ${time} сек`;
-    timer = setInterval(() => {
-        time--;
-        timerDisplay.innerText = `Время: ${time} сек`;
-        if(time <= 0){
-            clearInterval(timer);
-            hint.innerText = "Время вышло! Переходим к следующему вопросу.";
-            currentQuestion++;
-            setTimeout(showQuestion, 2000);
-        }
-    }, 1000);
-}
-
+// Отображение вопроса
 function showQuestion() {
     if(currentQuestion >= questions.length) {
         questionContainer.style.display = 'none';
@@ -167,8 +148,7 @@ function showQuestion() {
     hint.innerText = '';
     explanation.innerText = '';
     questionContainer.style.display = 'block';
-    clearInterval(timer);
-    startTimer(60); // 60 секунд на каждый вопрос
+    answerInput.focus();
 }
 
 // Проверка ответа
@@ -182,20 +162,18 @@ submitAnswer.onclick = () => {
     if(matchPercent === 1){
         score += q.points;
         explanation.innerText = "✅ " + q.explanation;
-        clearInterval(timer);
         setTimeout(() => {
             currentQuestion++;
             showQuestion();
-        }, 2000);
+        }, 1500);
     } else if(matchPercent >= 0.5){
         let partialPoints = Math.round(q.points * matchPercent);
         score += partialPoints;
         explanation.innerText = `⚠️ Частично верно. Баллы: ${partialPoints}. ${q.explanation}`;
-        clearInterval(timer);
         setTimeout(() => {
             currentQuestion++;
             showQuestion();
-        }, 2500);
+        }, 2000);
     } else {
         let missing = q.keywords.filter(word => !userAnswer.includes(word));
         hint.innerText = "Подумайте еще раз. Недостающие слова: " + missing.join(", ");
@@ -206,6 +184,7 @@ submitAnswer.onclick = () => {
 </script>
 </body>
 </html>
+
 
 
 
