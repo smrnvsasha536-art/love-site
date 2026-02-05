@@ -2,116 +2,109 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Информация по номеру телефона</title>
+<title>Информация по номеру телефона (Россия)</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f0f2f5;
-    padding: 40px;
-  }
-  .container {
-    max-width: 600px;
-    margin: auto;
-    background: #fff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-  }
-  input, button {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    margin: 10px 0;
-  }
-  button {
-    background: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  button:hover {
-    background: #2980b9;
-  }
-  .result {
-    margin-top: 20px;
-    line-height: 1.6;
-  }
+  body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 30px; }
+  .container { max-width: 700px; margin: auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+  input, button { width: 100%; padding: 12px; font-size: 16px; margin: 10px 0; }
+  button { background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  button:hover { background: #2980b9; }
+  .result { margin-top: 20px; line-height: 1.6; }
 </style>
 </head>
 <body>
 
 <div class="container">
   <h2>Информация по российскому номеру</h2>
-  <input id="phone" placeholder="Введите номер, например 73842282305">
+  <input id="phone" placeholder="Введите номер, например 73845367721">
   <button onclick="checkPhone()">Проверить</button>
   <div id="result" class="result"></div>
 </div>
 
 <script>
-// База основных кодов городов России
+// Расширенная база кодов городов/регионов России
 const codes = {
-  "3842": { city: "Кемерово", region: "Кемеровская область", operator: "ПАО \"Ростелеком\"", utc: 7 },
-  "495": { city: "Москва", region: "Москва", operator: "МГТС / Ростелеком", utc: 3 },
+  "495": { city: "Москва", region: "Москва", operator: "Ростелеком / МГТС", utc: 3 },
+  "499": { city: "Москва", region: "Москва", operator: "Ростелеком / МГТС", utc: 3 },
   "812": { city: "Санкт-Петербург", region: "Санкт-Петербург", operator: "Ростелеком", utc: 3 },
-  "343": { city: "Екатеринбург", region: "Свердловская область", operator: "Ростелеком", utc: 5 },
-  "383": { city: "Новосибирск", region: "Новосибирская область", operator: "Ростелеком", utc: 7 },
-  "351": { city: "Челябинск", region: "Челябинская область", operator: "Ростелеком", utc: 5 },
-  "472": { city: "Белгород", region: "Белгородская область", operator: "Ростелеком", utc: 3 },
-  "831": { city: "Нижний Новгород", region: "Нижегородская область", operator: "Ростелеком", utc: 3 },
+  "3832": { city: "Новосибирск", region: "Новосибирская область", operator: "Ростелеком", utc: 7 },
+  "3432": { city: "Екатеринбург", region: "Свердловская область", operator: "Ростелеком", utc: 5 },
+  "8312": { city: "Нижний Новгород", region: "Нижегородская область", operator: "Ростелеком", utc: 3 },
   "8462": { city: "Самара", region: "Самарская область", operator: "Ростелеком", utc: 4 },
-  "8442": { city: "Волгоград", region: "Волгоградская область", operator: "Ростелеком", utc: 4 }
+  "8442": { city: "Волгоград", region: "Волгоградская область", operator: "Ростелеком", utc: 4 },
+  "8512": { city: "Астрахань", region: "Астраханская область", operator: "Ростелеком", utc: 4 },
+  "38822": { city: "Горно‑Алтайск", region: "Республика Алтай", operator: "Ростелеком", utc: 7 },
+  "39022": { city: "Абакан", region: "Республика Хакасия", operator: "Ростелеком", utc: 7 },
+  "4722": { city: "Белгород", region: "Белгородская область", operator: "Ростелеком", utc: 3 },
+  "4832": { city: "Брянск", region: "Брянская область", operator: "Ростелеком", utc: 3 },
+  "3952": { city: "Иркутск", region: "Иркутская область", operator: "Ростелеком", utc: 8 },
+  "4932": { city: "Иваново", region: "Ивановская область", operator: "Ростелеком", utc: 3 },
+  "3412": { city: "Ижевск", region: "Удмуртская Республика", operator: "Ростелеком", utc: 4 },
+  "3852": { city: "Барнаул", region: "Алтайский край", operator: "Ростелеком", utc: 7 },
+  "4212": { city: "Хабаровск", region: "Хабаровский край", operator: "Ростелеком", utc: 10 },
+  "3012": { city: "Улан‑Удэ", region: "Республика Бурятия", operator: "Ростелеком", utc: 8 },
+  "4912": { city: "Рязань", region: "Рязанская область", operator: "Ростелеком", utc: 3 },
+  "472": { city: "Белгородская область", region: "Белгородская область", operator: "Ростелеком", utc: 3 },
+  "851": { city: "Астраханская область", region: "Астраханская область", operator: "Ростелеком", utc: 4 }
+  // …можно дополнять дальше по потребности
 };
 
-// Преобразует любой ввод в цифры
 function normalizeNumber(input) {
-  let digits = input.replace(/\D/g, '');
-  if (digits.length === 10) digits = '7' + digits; // если без 7 в начале
+  let digits = input.replace(/\D/g, "");
+  if (digits.length === 10 && digits.startsWith("7")) digits = "7" + digits.substr(1);
+  if (digits.length === 10 && digits.startsWith("8")) digits = "7" + digits.substr(1);
+  if (digits.length === 11 && digits.startsWith("8")) digits = "7" + digits.substr(1);
   return digits;
 }
 
-// Форматирует номер в +7 (XXXX) XX-XX-XX
 function formatNumber(num) {
-  const code = num.substr(1, 4);
-  const rest = num.substr(5);
-  return `+7 (${code}) ${rest.substr(0,2)}-${rest.substr(2,2)}-${rest.substr(4,2)}`;
+  const c = num.substr(1, 3);
+  const rest = num.substr(4);
+  return `+7 (${c}) ${rest.substr(0,3)}-${rest.substr(3,2)}-${rest.substr(5,2)}`;
 }
 
-// Определение региона и времени
 function checkPhone() {
   const input = document.getElementById("phone").value;
   const digits = normalizeNumber(input);
   const result = document.getElementById("result");
 
-  if (!digits.startsWith('7') || digits.length < 11) {
-    result.innerHTML = "❌ Неверный формат номера";
+  if (!digits.startsWith("7") || digits.length < 11) {
+    result.innerHTML = "❌ Неверный номер";
     return;
   }
 
-  const code = digits.substr(1,4);
-  const info = codes[code];
-  if (!info) {
+  let found = null;
+  // Ищем самый длинный возможный код в базе
+  Object.keys(codes).sort((a,b) => b.length - a.length).forEach(code => {
+    if (!found && digits.substr(1, code.length) === code) {
+      found = { code, ...codes[code] };
+    }
+  });
+
+  if (!found) {
     result.innerHTML = "❌ Информация не найдена для этого кода";
     return;
   }
 
   const now = new Date();
-  const utcTime = new Date(now.getTime() + (info.utc - 3) * 3600 * 1000); // МСК+X
-  const hours = utcTime.getHours().toString().padStart(2,'0');
-  const minutes = utcTime.getMinutes().toString().padStart(2,'0');
+  const utcTime = new Date(now.getTime() + (found.utc - 3) * 3600 * 1000);
+  const hours = utcTime.getHours().toString().padStart(2,"0");
+  const mins = utcTime.getMinutes().toString().padStart(2,"0");
 
   result.innerHTML = `
-    Номер: <b>${formatNumber(digits)}</b><br>
-    Страна: <b>Россия</b><br>
-    Регион: <b>${info.region}, г. ${info.city}</b><br>
-    Время в регионе: <b>${hours}:${minutes} (UTC+${info.utc}, МСК+${info.utc-3})</b><br>
-    Оператор: <b>${info.operator}</b>
+    📞 Номер: <b>${formatNumber(digits)}</b><br>
+    🇷🇺 Страна: <b>Россия</b><br>
+    📍 Регион: <b>${found.region}, г. ${found.city}</b><br>
+    ⏰ Время: <b>${hours}:${mins} (UTC+${found.utc})</b><br>
+    🏢 Оператор: <b>${found.operator}</b>
   `;
 }
 </script>
 
 </body>
 </html>
+
+
 
 
 
