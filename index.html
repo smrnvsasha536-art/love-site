@@ -23,16 +23,16 @@ h1 {
 }
 
 .dialog {
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.45);
     padding: 20px;
     border-radius: 12px;
-    min-height: 150px;
+    min-height: 160px;
     margin-bottom: 15px;
 }
 
 input {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     font-size: 16px;
     border-radius: 8px;
     border: none;
@@ -40,8 +40,8 @@ input {
 }
 
 button {
-    margin-top: 10px;
-    padding: 12px 20px;
+    margin-top: 12px;
+    padding: 12px 22px;
     font-size: 16px;
     border-radius: 10px;
     border: none;
@@ -54,14 +54,9 @@ button:hover {
     background: #ffc107;
 }
 
-.hint {
-    margin-top: 10px;
-    color: #ffeb3b;
-}
-
 .result {
     margin-top: 30px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     padding: 20px;
     border-radius: 12px;
 }
@@ -82,123 +77,121 @@ button:hover {
 
 <div id="dialog" class="dialog"></div>
 
-<input id="answer" placeholder="Введите ваш ответ оператором">
-<button id="send">Продолжить</button>
-
-<div id="hint" class="hint"></div>
+<input id="answer" placeholder="Введите ответ оператора">
+<button id="send">Далее</button>
 
 <div id="result" class="result" style="display:none;"></div>
 </div>
 
 <script>
+// Сценарий
 const steps = [
 {
     text: "Клиент: Алло?",
     keywords: ["здравствуйте", "ростелеком", "оператор"],
     points: 5,
-    hint: "Нужно корректное приветствие и представление компании"
+    rule: "Корректное приветствие и представление"
 },
 {
     text: "Клиент: В смысле? Зачем вы звоните?",
     keywords: ["договор", "срок", "обслуживание"],
     points: 5,
-    hint: "Объясните причину звонка и срок действия договора"
+    rule: "Объяснить причину звонка"
 },
 {
     text: "Возражение: Я ничего переоформлять не хочу",
-    keywords: ["если", "не", "решим", "сейчас", "отключена"],
+    keywords: ["если", "не", "решим", "отключ", "линия"],
     points: 10,
-    hint: "Нужно объяснить последствия отказа"
+    rule: "Нужно объяснить последствия отказа"
 },
 {
     text: "Возражение: Как я могу убедиться, что вы оператор?",
     keywords: ["sms", "номер", "заявки"],
     points: 10,
-    hint: "Предложите подтверждение через SMS"
-},
-{
-    text: "Возражение: Я боюсь давать паспорт",
-    keywords: ["публичная", "часть", "удостоверить", "личность"],
-    points: 10,
-    hint: "Объясните, что запрашивается только публичная часть"
+    rule: "Подтверждение через SMS"
 },
 {
     text: "Возражение: Мне дети потом помогут",
-    keywords: ["нельзя", "перенести", "блокировка"],
+    keywords: ["нельзя", "перенести", "блокиров"],
     points: 10,
-    hint: "Объясните, почему нельзя откладывать"
+    rule: "Объяснить, почему нельзя откладывать"
+},
+{
+    text: "Возражение: Я боюсь давать паспорт",
+    keywords: ["публич", "часть", "удостовер"],
+    points: 10,
+    rule: "Корректная работа со страхом документов"
 }
 ];
 
 let step = 0;
-let score = 0;
 let history = [];
+let score = 0;
 
 const dialog = document.getElementById("dialog");
 const input = document.getElementById("answer");
 const send = document.getElementById("send");
-const hintBox = document.getElementById("hint");
 const result = document.getElementById("result");
 
 showStep();
 
 function showStep() {
     if (step >= steps.length) {
-        showResult();
+        analyzeDialog();
         return;
     }
     dialog.innerHTML = `<b>${steps[step].text}</b>`;
-    hintBox.innerText = "";
     input.value = "";
     input.focus();
 }
 
 send.onclick = () => {
-    const userText = input.value.toLowerCase().trim();
-    if (!userText) return;
-
-    const stepData = steps[step];
-    const matched = stepData.keywords.filter(k => userText.includes(k));
-    const success = matched.length >= Math.ceil(stepData.keywords.length * 0.6);
+    const text = input.value.trim();
+    if (!text) return;
 
     history.push({
-        question: stepData.text,
-        answer: userText,
-        success: success
+        question: steps[step].text,
+        answer: text,
+        stepData: steps[step]
     });
 
-    if (success) {
-        score += stepData.points;
-        step++;
-        showStep();
-    } else {
-        hintBox.innerText = "Подсказка: " + stepData.hint;
-    }
+    step++;
+    showStep();
 };
 
-function showResult() {
+function analyzeDialog() {
     dialog.style.display = "none";
     input.style.display = "none";
     send.style.display = "none";
-    hintBox.style.display = "none";
 
-    result.style.display = "block";
-    let html = `<h2>Результат: ${score} баллов</h2><hr>`;
+    let html = `<h2>Итоговый диалог и разбор</h2><hr>`;
 
     history.forEach(h => {
+        const answerLower = h.answer.toLowerCase();
+        const matched = h.stepData.keywords.filter(k => answerLower.includes(k));
+        const success = matched.length >= Math.ceil(h.stepData.keywords.length * 0.6);
+
+        if (success) score += h.stepData.points;
+
         html += `
         <p><b>${h.question}</b></p>
-        <p class="${h.success ? 'good' : 'bad'}">
+        <p class="${success ? 'good' : 'bad'}">
             ${h.answer}
+            <br>
+            <i>${success ? '✔ Верно' : '✖ Ошибка: ' + h.stepData.rule}</i>
         </p>
+        <hr>
         `;
     });
 
+    html = `<h2>Общий балл: ${score}</h2>` + html;
     result.innerHTML = html;
+    result.style.display = "block";
 }
 </script>
 </body>
 </html>
+
 
 
 
