@@ -2,189 +2,204 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Симулятор звонка Ростелеком</title>
+<title>Симулятор звонка — Ростелеком</title>
+
 <style>
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to right, #00c6ff, #0072ff);
-    color: #fff;
     margin: 0;
-    padding: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #fff;
 }
+
 .container {
-    max-width: 900px;
-    margin: 0 auto;
+    max-width: 1000px;
+    margin: auto;
     padding: 20px;
+}
+
+h1 {
     text-align: center;
 }
-h1, h2 {
-    margin-bottom: 20px;
-}
-button {
-    background-color: #ff9800;
-    border: none;
-    color: white;
-    padding: 12px 20px;
-    margin: 8px;
-    font-size: 16px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-button:hover {
-    background-color: #e68a00;
-}
-.question-box {
-    margin-top: 20px;
-    background: rgba(0,0,0,0.5);
+
+.dialog {
+    background: rgba(0,0,0,0.4);
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 12px;
+    min-height: 150px;
+    margin-bottom: 15px;
 }
-input[type="text"] {
-    width: 80%;
+
+input {
+    width: 100%;
     padding: 12px;
+    font-size: 16px;
     border-radius: 8px;
     border: none;
     margin-top: 10px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 12px 20px;
     font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: #ff9800;
+    color: #000;
 }
-.hint-screen {
-    color: yellow;
-    font-size: 20px;
-    margin-top: 20px;
+
+button:hover {
+    background: #ffc107;
 }
-.explanation {
-    color: #00ff00;
-    font-size: 18px;
-    margin-top: 15px;
+
+.hint {
+    margin-top: 10px;
+    color: #ffeb3b;
 }
-.score-screen {
-    font-size: 40px;
-    margin-top: 50px;
+
+.result {
+    margin-top: 30px;
+    background: rgba(0,0,0,0.5);
+    padding: 20px;
+    border-radius: 12px;
 }
-.bg-buttons button {
-    width: 150px;
+
+.good {
+    color: #4caf50;
+}
+
+.bad {
+    color: #ff5252;
 }
 </style>
 </head>
+
 <body>
 <div class="container">
-<h1>Симулятор звонка Ростелеком</h1>
-<p>Тест: "Как правильно отвечать на возражения клиента.
-        Важно понимать, что ответы должны быть развернутыми"</p>
+<h1>Симуляция звонка Ростелеком</h1>
 
-<div class="bg-buttons">
-    <p>Выбери фон:</p>
-    <button type="button" id="bgBlue">Голубой</button>
-    <button type="button" id="bgRed">Красный</button>
-    <button type="button" id="bgGreen">Зелёный</button>
-    <button type="button" id="bgOrange">Оранжевый</button>
-</div>
+<div id="dialog" class="dialog"></div>
 
-<button type="button" id="startBtn">Начать тест</button>
+<input id="answer" placeholder="Введите ваш ответ оператором">
+<button id="send">Продолжить</button>
 
-<div id="questionContainer" class="question-box" style="display:none;">
-    <h2 id="questionText"></h2>
-    <input type="text" id="answerInput" placeholder="Напишите свой ответ здесь">
-    <br>
-    <button type="button" id="submitAnswer">Ответить</button>
-    <div id="hint" class="hint-screen"></div>
-    <div id="explanation" class="explanation"></div>
-</div>
+<div id="hint" class="hint"></div>
 
-<div id="scoreScreen" class="score-screen" style="display:none;">
-    Ваш результат: <span id="scoreValue">0</span> баллов
-</div>
-
+<div id="result" class="result" style="display:none;"></div>
 </div>
 
 <script>
-// Кнопки фонов
-document.getElementById('bgBlue').onclick = () => { document.body.style.background = 'linear-gradient(to right, #00c6ff, #0072ff)'; };
-document.getElementById('bgRed').onclick = () => { document.body.style.background = 'linear-gradient(to right, #ff416c, #ff4b2b)'; };
-document.getElementById('bgGreen').onclick = () => { document.body.style.background = 'linear-gradient(to right, #43cea2, #185a9d)'; };
-document.getElementById('bgOrange').onclick = () => { document.body.style.background = 'linear-gradient(to right, #f7971e, #ffd200)'; };
-
-// Сценарий вопросов
-const questions = [
-    { text: "Приветствие. Как начать разговор?", keywords:["здравствуйте","ростелеком","вася"], points:5, type:"normal", explanation:"Нужно поприветствовать и назвать компанию и имя." },
-    { text: "Сообщение причины звонка.", keywords:["важное оповещение","договор","городского телефона","отказаться"], points:5, type:"normal", explanation:"Сообщаем клиенту причину звонка и спрашиваем о намерениях." },
-    { text: "Клиент: 'Я не хочу ничего переоформлять'. Как правильно ответить?", keywords:["если не решим проблему","повторное подключение","оплатить","восстановление линии"], points:10, type:"objection", explanation:"Объясните последствия и необходимость решения сейчас." },
-    { text: "Клиент: 'Как я могу убедиться, что вы оператор?'", keywords:["sms","номер заявки","никому не озвучивать"], points:10, type:"objection", explanation:"Покажите способ подтверждения через SMS." },
-    { text: "Клиент: 'Мне дети потом помогут / Перезвоните позже'", keywords:["нельзя переносить","блокировка","сейчас","важно"], points:10, type:"objection", explanation:"Объясните, почему нельзя откладывать и возможные последствия." },
-    { text: "Клиент: 'Я не буду озвучивать свои документы'", keywords:["только публичная часть","удостоверить личность","паспорт"], points:10, type:"objection", explanation:"Объясните зачем нужен документ и что запрашивается только публичная часть." }
+const steps = [
+{
+    text: "Клиент: Алло?",
+    keywords: ["здравствуйте", "ростелеком", "оператор"],
+    points: 5,
+    hint: "Нужно корректное приветствие и представление компании"
+},
+{
+    text: "Клиент: В смысле? Зачем вы звоните?",
+    keywords: ["договор", "срок", "обслуживание"],
+    points: 5,
+    hint: "Объясните причину звонка и срок действия договора"
+},
+{
+    text: "Возражение: Я ничего переоформлять не хочу",
+    keywords: ["если", "не", "решим", "сейчас", "отключена"],
+    points: 10,
+    hint: "Нужно объяснить последствия отказа"
+},
+{
+    text: "Возражение: Как я могу убедиться, что вы оператор?",
+    keywords: ["sms", "номер", "заявки"],
+    points: 10,
+    hint: "Предложите подтверждение через SMS"
+},
+{
+    text: "Возражение: Я боюсь давать паспорт",
+    keywords: ["публичная", "часть", "удостоверить", "личность"],
+    points: 10,
+    hint: "Объясните, что запрашивается только публичная часть"
+},
+{
+    text: "Возражение: Мне дети потом помогут",
+    keywords: ["нельзя", "перенести", "блокировка"],
+    points: 10,
+    hint: "Объясните, почему нельзя откладывать"
+}
 ];
 
-let currentQuestion = 0;
+let step = 0;
 let score = 0;
+let history = [];
 
-const startBtn = document.getElementById('startBtn');
-const questionContainer = document.getElementById('questionContainer');
-const questionText = document.getElementById('questionText');
-const answerInput = document.getElementById('answerInput');
-const submitAnswer = document.getElementById('submitAnswer');
-const hint = document.getElementById('hint');
-const explanation = document.getElementById('explanation');
-const scoreScreen = document.getElementById('scoreScreen');
-const scoreValue = document.getElementById('scoreValue');
+const dialog = document.getElementById("dialog");
+const input = document.getElementById("answer");
+const send = document.getElementById("send");
+const hintBox = document.getElementById("hint");
+const result = document.getElementById("result");
 
-// Старт теста
-startBtn.onclick = () => {
-    startBtn.style.display = 'none';
-    showQuestion();
-};
+showStep();
 
-// Отображение вопроса
-function showQuestion() {
-    if(currentQuestion >= questions.length) {
-        questionContainer.style.display = 'none';
-        scoreScreen.style.display = 'block';
-        scoreValue.innerText = score;
+function showStep() {
+    if (step >= steps.length) {
+        showResult();
         return;
     }
-    const q = questions[currentQuestion];
-    questionText.innerText = q.text;
-    answerInput.value = '';
-    hint.innerText = '';
-    explanation.innerText = '';
-    questionContainer.style.display = 'block';
-    answerInput.focus();
+    dialog.innerHTML = `<b>${steps[step].text}</b>`;
+    hintBox.innerText = "";
+    input.value = "";
+    input.focus();
 }
 
-// Проверка ответа
-submitAnswer.onclick = () => {
-    const userAnswer = answerInput.value.toLowerCase();
-    const q = questions[currentQuestion];
+send.onclick = () => {
+    const userText = input.value.toLowerCase().trim();
+    if (!userText) return;
 
-    let matchedWords = q.keywords.filter(word => userAnswer.includes(word));
-    let matchPercent = (matchedWords.length / q.keywords.length);
+    const stepData = steps[step];
+    const matched = stepData.keywords.filter(k => userText.includes(k));
+    const success = matched.length >= Math.ceil(stepData.keywords.length * 0.6);
 
-    if(matchPercent === 1){
-        score += q.points;
-        explanation.innerText = "✅ " + q.explanation;
-        setTimeout(() => {
-            currentQuestion++;
-            showQuestion();
-        }, 1500);
-    } else if(matchPercent >= 0.5){
-        let partialPoints = Math.round(q.points * matchPercent);
-        score += partialPoints;
-        explanation.innerText = `⚠️ Частично верно. Баллы: ${partialPoints}. ${q.explanation}`;
-        setTimeout(() => {
-            currentQuestion++;
-            showQuestion();
-        }, 2000);
+    history.push({
+        question: stepData.text,
+        answer: userText,
+        success: success
+    });
+
+    if (success) {
+        score += stepData.points;
+        step++;
+        showStep();
     } else {
-        let missing = q.keywords.filter(word => !userAnswer.includes(word));
-        hint.innerText = "Подумайте еще раз. Недостающие слова: " + missing.join(", ");
-        answerInput.value = '';
-        answerInput.focus();
+        hintBox.innerText = "Подсказка: " + stepData.hint;
     }
 };
+
+function showResult() {
+    dialog.style.display = "none";
+    input.style.display = "none";
+    send.style.display = "none";
+    hintBox.style.display = "none";
+
+    result.style.display = "block";
+    let html = `<h2>Результат: ${score} баллов</h2><hr>`;
+
+    history.forEach(h => {
+        html += `
+        <p><b>${h.question}</b></p>
+        <p class="${h.success ? 'good' : 'bad'}">
+            ${h.answer}
+        </p>
+        `;
+    });
+
+    result.innerHTML = html;
+}
 </script>
 </body>
 </html>
+
 
 
 
