@@ -2,183 +2,101 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Кто хочет стать миллионером</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Шахматы</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:radial-gradient(circle at top,#001a4d,#000);
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-#game{
-  width:95%;
-  max-width:900px;
-  background:#020d2b;
-  border-radius:20px;
-  padding:30px;
-  box-shadow:0 0 50px rgba(0,100,255,.5);
-}
-h1{text-align:center;margin-top:0;color:#ffd700}
-#question{font-size:22px;margin-bottom:20px;text-align:center}
-.answers{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
-}
-button{
-  padding:14px;
-  font-size:16px;
-  border-radius:12px;
-  border:2px solid #2a6cff;
-  background:#031b5c;
-  color:#fff;
-  cursor:pointer;
-  transition:.2s;
-}
-button:hover:not(:disabled){
-  background:#2a6cff;
-  transform:scale(1.05);
-}
-button.correct{background:#1faa00;border-color:#1faa00}
-button.wrong{background:#b00000;border-color:#b00000}
-button:disabled{opacity:.6;cursor:not-allowed}
-#money{
-  margin-top:20px;
-  text-align:center;
-  font-size:18px;
-  color:#ffd700;
-}
-#helps{
-  display:flex;
-  justify-content:center;
-  gap:15px;
-  margin-bottom:20px;
-}
-.help{
-  padding:10px 16px;
-  background:#222;
-  border:1px solid #ffd700;
-  border-radius:20px;
-  cursor:pointer;
-  font-size:14px;
-}
-.help.used{opacity:.3;cursor:not-allowed}
-#end{text-align:center;font-size:24px}
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #222;
+        color: white;
+        font-family: Arial;
+    }
+
+    .board {
+        display: grid;
+        grid-template-columns: repeat(8, 70px);
+        grid-template-rows: repeat(8, 70px);
+        border: 4px solid #444;
+    }
+
+    .cell {
+        width: 70px;
+        height: 70px;
+        font-size: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .white { background: #f0d9b5; }
+    .black { background: #b58863; }
+    .selected { outline: 4px solid red; }
 </style>
 </head>
 <body>
 
-<div id="game">
-  <h1>Кто хочет стать миллионером</h1>
-
-  <div id="helps">
-    <div class="help" id="fifty">50/50</div>
-    <div class="help" id="call">📞 Звонок другу</div>
-    <div class="help" id="hall">👥 Помощь зала</div>
-  </div>
-
-  <div id="question"></div>
-  <div class="answers" id="answers"></div>
-  <div id="money"></div>
-</div>
+<div class="board" id="board"></div>
 
 <script>
-const questions = [
- {q:"Столица Франции?",a:["Берлин","Париж","Рим","Мадрид"],c:1},
- {q:"Сколько планет в Солнечной системе?",a:["7","8","9","10"],c:1},
- {q:"HTML — это?",a:["Язык программирования","Язык разметки","База данных","ОС"],c:1},
- {q:"Самая большая планета?",a:["Марс","Земля","Юпитер","Сатурн"],c:2},
- {q:"Кто написал «Война и мир»?",a:["Толстой","Пушкин","Достоевский","Гоголь"],c:0},
- {q:"Какой цвет получается из красного и синего?",a:["Зелёный","Фиолетовый","Жёлтый","Белый"],c:1},
- {q:"Сколько байт в килобайте?",a:["100","512","1000","1024"],c:3},
- {q:"CSS нужен для?",a:["Логики","Стилей","Серверов","Баз данных"],c:1},
- {q:"Самый быстрый зверь?",a:["Лев","Гепард","Тигр","Волк"],c:1},
- {q:"Сколько градусов у прямого угла?",a:["45","90","180","360"],c:1}
+const boardElement = document.getElementById("board");
+
+const pieces = [
+    "♜","♞","♝","♛","♚","♝","♞","♜",
+    "♟","♟","♟","♟","♟","♟","♟","♟",
+    "","","","","","","","",
+    "","","","","","","","",
+    "","","","","","","","",
+    "","","","","","","","",
+    "♙","♙","♙","♙","♙","♙","♙","♙",
+    "♖","♘","♗","♕","♔","♗","♘","♖"
 ];
 
-const money=[
-"0 ₽","100 ₽","500 ₽","1 000 ₽","5 000 ₽","10 000 ₽",
-"25 000 ₽","50 000 ₽","100 000 ₽","500 000 ₽","1 000 000 ₽"
-];
+let selectedCell = null;
 
-let current=0;
-let locked=false;
+function createBoard() {
+    boardElement.innerHTML = "";
+    for (let i = 0; i < 64; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
 
-const qEl=document.getElementById("question");
-const aEl=document.getElementById("answers");
-const moneyEl=document.getElementById("money");
+        const row = Math.floor(i / 8);
+        const col = i % 8;
+        cell.classList.add((row + col) % 2 === 0 ? "white" : "black");
 
-function render(){
- if(current>=questions.length){endGame("🎉 Вы стали миллионером!");return;}
- const q=questions[current];
- qEl.textContent=q.q;
- aEl.innerHTML="";
- locked=false;
- q.a.forEach((t,i)=>{
-  const b=document.createElement("button");
-  b.textContent=t;
-  b.onclick=()=>select(i,b);
-  aEl.appendChild(b);
- });
- moneyEl.textContent="Выигрыш: "+money[current];
+        cell.textContent = pieces[i];
+        cell.dataset.index = i;
+
+        cell.addEventListener("click", () => onCellClick(cell));
+        boardElement.appendChild(cell);
+    }
 }
 
-function select(i,btn){
- if(locked)return; locked=true;
- const q=questions[current];
- const buttons=[...aEl.children];
- if(i===q.c){
-  btn.classList.add("correct");
-  setTimeout(()=>{current++;render();},1000);
- }else{
-  btn.classList.add("wrong");
-  buttons[q.c].classList.add("correct");
-  setTimeout(()=>endGame("❌ Вы проиграли. Ваш выигрыш: "+money[current]),1500);
- }
+function onCellClick(cell) {
+    if (selectedCell) {
+        const from = selectedCell.dataset.index;
+        const to = cell.dataset.index;
+
+        pieces[to] = pieces[from];
+        pieces[from] = "";
+
+        selectedCell.classList.remove("selected");
+        selectedCell = null;
+        createBoard();
+    } else if (cell.textContent !== "") {
+        selectedCell = cell;
+        cell.classList.add("selected");
+    }
 }
 
-function endGame(text){
- document.getElementById("game").innerHTML=`
-  <div id='end'>${text}</div><br>
-  <button onclick='location.reload()'>Играть снова</button>`;
-}
-
-// подсказки
-
-document.getElementById("fifty").onclick=function(){
- if(this.classList.contains("used"))return;
- this.classList.add("used");
- const q=questions[current];
- let removed=0;
- [...aEl.children].forEach((b,i)=>{
-  if(i!==q.c && removed<2){b.disabled=true;removed++;}
- });
-};
-
-document.getElementById("call").onclick=function(){
- if(this.classList.contains("used"))return;
- this.classList.add("used");
- alert("📞 Друг думает, что правильный ответ: "+
- questions[current].a[questions[current].c]);
-};
-
-document.getElementById("hall").onclick=function(){
- if(this.classList.contains("used"))return;
- this.classList.add("used");
- alert("👥 Зал поддерживает вариант: "+
- questions[current].a[questions[current].c]);
-};
-
-render();
+createBoard();
 </script>
 
 </body>
 </html>
+
 
 
 
