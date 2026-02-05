@@ -80,10 +80,14 @@ const questionBank = {
 };
 
 // ===== ПЕРЕМЕННЫЕ =====
-let current, index = 0, score = 0, funScore = 0;
+let currentQuestion = null;
+let index = 0;
+let score = 0;
+let funScore = 0;
 let level = "easy";
+let chosenAnswer = null;
 
-// ===== ЭКРАН СТАРТА =====
+// ===== СТАРТОВЫЙ ЭКРАН =====
 function startScreen() {
     app.innerHTML = `
         <h1>🧠 Ultimate Fun IQ Test</h1>
@@ -93,7 +97,7 @@ function startScreen() {
             <option value="medium">Средний</option>
             <option value="hard">Сложный</option>
         </select>
-        <button onclick="start()">Начать тест</button>
+        <button onclick="startTest()">Начать тест</button>
 
         <h3>📊 Статистика</h3>
         <p>Лучший IQ: ${profile.bestIQ || "-"}</p>
@@ -102,57 +106,71 @@ function startScreen() {
     `;
 }
 
-// ===== ВЫБОР ВОПРОСА =====
-function getQuestion() {
+// ===== НАЧАЛО ТЕСТА =====
+function startTest() {
+    const nameInput = document.getElementById("name");
+    profile.name = nameInput.value.trim() || "Игрок";
+    level = document.getElementById("level").value;
+    index = 0;
+    score = 0;
+    funScore = 0;
+    loadQuestion();
+}
+
+// ===== ВЫБОР СЛУЧАЙНОГО ВОПРОСА =====
+function getRandomQuestion() {
     const types = Object.keys(questionBank);
-    const type = types[Math.floor(Math.random()*types.length)];
+    const type = types[Math.floor(Math.random() * types.length)];
     const qList = questionBank[type];
-    const q = qList[Math.floor(Math.random()*qList.length)];
+    const q = qList[Math.floor(Math.random() * qList.length)];
     q.type = type;
     return q;
 }
 
 // ===== ЗАГРУЗКА ВОПРОСА =====
 function loadQuestion() {
-    chosen = null;
-    current = getQuestion();
+    chosenAnswer = null;
+    currentQuestion = getRandomQuestion();
+
     app.innerHTML = `
-        <h2>Вопрос ${index+1}</h2>
-        ${current.img ? `<img src="${current.img}">` : ""}
-        <p>${current.q}</p>
+        <h2>Вопрос ${index + 1}</h2>
+        ${currentQuestion.img ? `<img src="${currentQuestion.img}">` : ""}
+        <p>${currentQuestion.q}</p>
         <div id="opts"></div>
-        <button onclick="next()">Далее</button>
+        <button onclick="nextQuestion()">Далее</button>
     `;
-    const opts = document.getElementById("opts");
-    current.o.forEach((text,i)=>{
-        const d = document.createElement("div");
-        d.className = "option";
-        d.textContent = text;
-        d.onclick = ()=>{
-            document.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));
-            d.classList.add("selected");
-            chosen = i;
+
+    const optsDiv = document.getElementById("opts");
+    currentQuestion.o.forEach((text, i) => {
+        const div = document.createElement("div");
+        div.className = "option";
+        div.textContent = text;
+        div.onclick = () => {
+            document.querySelectorAll(".option").forEach(x => x.classList.remove("selected"));
+            div.classList.add("selected");
+            chosenAnswer = i;
         };
-        opts.appendChild(d);
+        optsDiv.appendChild(div);
     });
 }
 
-// ===== НАЖАТИЕ ДАЛЕЕ =====
-function next() {
-    if(chosen===null) return alert("Выберите ответ");
+// ===== ПЕРЕХОД К СЛЕДУЮЩЕМУ ВОПРОСУ =====
+function nextQuestion() {
+    if (chosenAnswer === null) return alert("Выберите ответ!");
 
-    if(chosen === current.a) score++;
-    if(current.type === "fun") funScore++;
+    if (chosenAnswer === currentQuestion.a) score++;
+    if (currentQuestion.type === "fun") funScore++;
 
     index++;
-    if(index>=10) finish(); else loadQuestion();
+    if (index >= 10) showResults();
+    else loadQuestion();
 }
 
 // ===== ФИНИШ =====
-function finish() {
-    const base = level==="easy"?90:level==="medium"?100:115;
-    const iq = base + score*8 + funScore*2;
-    profile.name = name.value;
+function showResults() {
+    const baseIQ = level === "easy" ? 90 : level === "medium" ? 100 : 115;
+    const iq = baseIQ + score * 8 + funScore * 2;
+
     profile.tests.push(iq);
     profile.bestIQ = Math.max(profile.bestIQ, iq);
     profile.funScore += funScore;
@@ -164,8 +182,8 @@ function finish() {
         <p>Правильных ответов: ${score} / 10</p>
         <p>Весёлых ответов: ${funScore}</p>
         <h2>🧠 IQ: ${iq}</h2>
-        <p>${iq<90?"Ниже среднего":iq<110?"Средний уровень":iq<130?"Выше среднего":"Очень высокий интеллект 🔥"}</p>
-        <button onclick="index=score=funScore=0; startScreen()">🏠 В меню</button>
+        <p>${iq < 90 ? "Ниже среднего" : iq < 110 ? "Средний уровень" : iq < 130 ? "Выше среднего" : "Очень высокий интеллект 🔥"}</p>
+        <button onclick="startScreen()">🏠 В меню</button>
     `;
 }
 
@@ -174,6 +192,7 @@ startScreen();
 </script>
 </body>
 </html>
+
 
 
 
