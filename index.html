@@ -2,100 +2,128 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Шахматы</title>
+<title>Online Chess</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css"/>
+
 <style>
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background: #222;
-        color: white;
-        font-family: Arial;
-    }
-
-    .board {
-        display: grid;
-        grid-template-columns: repeat(8, 70px);
-        grid-template-rows: repeat(8, 70px);
-        border: 4px solid #444;
-    }
-
-    .cell {
-        width: 70px;
-        height: 70px;
-        font-size: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .white { background: #f0d9b5; }
-    .black { background: #b58863; }
-    .selected { outline: 4px solid red; }
+body {
+    background:#111;
+    color:white;
+    font-family:Arial;
+    display:flex;
+    gap:20px;
+    padding:20px;
+}
+#board { width:400px; }
+#panel { width:300px; }
+#chat { height:150px; overflow:auto; background:#222; padding:5px; }
+input, button { width:100%; margin:5px 0; }
 </style>
 </head>
+
 <body>
 
-<div class="board" id="board"></div>
+<div id="board"></div>
+
+<div id="panel">
+    <div id="status"></div>
+
+    <input id="room" placeholder="Код комнаты">
+    <button onclick="join()">🌐 Войти</button>
+
+    <h3>💬 Чат</h3>
+    <div id="chat"></div>
+    <input id="msg" placeholder="Сообщение">
+    <button onclick="send()">Отправить</button>
+
+    <h3>🎥 Повтор</h3>
+    <button onclick="replay()">▶️</button>
+
+    <h3>📊 Анализ</h3>
+    <button onclick="analyze()">Stockfish</button>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stockfish/stockfish.js"></script>
 
 <script>
-const boardElement = document.getElementById("board");
+const socket = io();
+const game = new Chess();
+let board;
+let roomId = "";
+let replayData = [];
 
-const pieces = [
-    "♜","♞","♝","♛","♚","♝","♞","♜",
-    "♟","♟","♟","♟","♟","♟","♟","♟",
-    "","","","","","","","",
-    "","","","","","","","",
-    "","","","","","","","",
-    "","","","","","","","",
-    "♙","♙","♙","♙","♙","♙","♙","♙",
-    "♖","♘","♗","♕","♔","♗","♘","♖"
-];
-
-let selectedCell = null;
-
-function createBoard() {
-    boardElement.innerHTML = "";
-    for (let i = 0; i < 64; i++) {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-
-        const row = Math.floor(i / 8);
-        const col = i % 8;
-        cell.classList.add((row + col) % 2 === 0 ? "white" : "black");
-
-        cell.textContent = pieces[i];
-        cell.dataset.index = i;
-
-        cell.addEventListener("click", () => onCellClick(cell));
-        boardElement.appendChild(cell);
+board = Chessboard('board',{
+    draggable:true,
+    position:'start',
+    onDrop:(s,t)=>{
+        let m = game.move({from:s,to:t,promotion:'q'});
+        if(!m) return 'snapback';
+        replayData.push(game.fen());
+        socket.emit("move",{room:roomId,fen:game.fen()});
+        update();
     }
+});
+
+socket.on("move", data=>{
+    game.load(data.fen);
+    board.position(data.fen);
+    replayData.push(data.fen);
+    update();
+});
+
+socket.on("chat", d=>{
+    chat.innerHTML += `<div>${d}</div>`;
+});
+
+function join(){
+    roomId = room.value;
+    socket.emit("join", roomId);
 }
 
-function onCellClick(cell) {
-    if (selectedCell) {
-        const from = selectedCell.dataset.index;
-        const to = cell.dataset.index;
-
-        pieces[to] = pieces[from];
-        pieces[from] = "";
-
-        selectedCell.classList.remove("selected");
-        selectedCell = null;
-        createBoard();
-    } else if (cell.textContent !== "") {
-        selectedCell = cell;
-        cell.classList.add("selected");
-    }
+function send(){
+    socket.emit("chat",{room:roomId,text:msg.value});
+    msg.value="";
 }
 
-createBoard();
+function update(){
+    status.textContent = game.in_checkmate() ? "♚ МАТ" :
+        game.in_draw() ? "🤝 НИЧЬЯ" :
+        (game.turn()==='w'?"Белые":"Чёрные")+" ходят";
+}
+
+function replay(){
+    let i=0;
+    const t=setInterval(()=>{
+        if(i>=replayData.length) return clearInterval(t);
+        board.position(replayData[i++]);
+    },700);
+}
+
+// 📊 ANALYSIS
+const engine = Stockfish();
+engine.postMessage("uci");
+
+function analyze(){
+    engine.postMessage("position fen "+game.fen());
+    engine.postMessage("go depth 12");
+    engine.onmessage=e=>{
+        if(e.data.includes("score")){
+            alert(e.data);
+        }
+    }
+}
 </script>
 
 </body>
 </html>
+
+
 
 
 
